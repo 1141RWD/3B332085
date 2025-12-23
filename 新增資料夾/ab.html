@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>幾A幾B</title>
+<style>
+    body {
+        background: #121212;
+        color: #fff;
+        font-family: Arial;
+        text-align: center;
+    }
+
+    .game {
+        max-width: 420px;
+        margin: auto;
+        padding: 20px;
+        background: #1e1e1e;
+        border-radius: 10px;
+    }
+
+    input {
+        width: 120px;
+        font-size: 18px;
+        text-align: center;
+        padding: 6px;
+        margin: 10px 0;
+    }
+
+    button {
+        padding: 6px 14px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    ul {
+        text-align: left;
+        padding: 0;
+        list-style: none;
+        margin-top: 15px;
+    }
+
+    li {
+        background: #333;
+        margin: 5px 0;
+        padding: 6px;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+
+<h1>🔢 幾A幾B</h1>
+
+<div class="game">
+    <p>請輸入 4 位不重複數字</p>
+    <input type="text" id="guess" maxlength="4" placeholder="例如 1234">
+    <br>
+    <button onclick="check()">猜！</button>
+    <button onclick="resetGame()">重新開始</button>
+
+    <ul id="history"></ul>
+</div>
+
+<script>
+let answer = [];
+let attempts = 0;
+
+function generateAnswer() {
+    let nums = [];
+    while (nums.length < 4) {
+        let n = Math.floor(Math.random() * 10);
+        if (!nums.includes(n)) nums.push(n);
+    }
+    return nums;
+}
+
+function resetGame() {
+    answer = generateAnswer();
+    attempts = 0;
+    document.getElementById("history").innerHTML = "";
+    document.getElementById("guess").value = "";
+}
+
+function check() {
+    const input = document.getElementById("guess").value;
+
+    if (!/^\d{4}$/.test(input)) {
+        alert("請輸入 4 位數字");
+        return;
+    }
+
+    const digits = input.split("");
+    const unique = new Set(digits);
+    if (unique.size !== 4) {
+        alert("數字不能重複");
+        return;
+    }
+
+    let A = 0, B = 0;
+
+    digits.forEach((d, i) => {
+        if (parseInt(d) === answer[i]) A++;
+        else if (answer.includes(parseInt(d))) B++;
+    });
+
+    attempts++;
+
+    const li = document.createElement("li");
+    li.textContent = `第 ${attempts} 次：${input} → ${A}A${B}B`;
+    document.getElementById("history").appendChild(li);
+
+    if (A === 4) {
+        alert(`🎉 恭喜你猜對了！答案是 ${answer.join("")}`);
+    }
+
+    document.getElementById("guess").value = "";
+}
+
+resetGame();
+</script>
+
+</body>
+</html>
