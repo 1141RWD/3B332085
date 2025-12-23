@@ -2,133 +2,173 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>小遊戲合集</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 極速 Arcade：小遊戲合集</title>
 <style>
 *{box-sizing:border-box}
 body {
     margin: 0;
-    font-family: "Segoe UI", Arial, "Microsoft JhengHei";
-    background: radial-gradient(circle at top, #2c2c54, #0f0f1a);
+    font-family: "Segoe UI", Arial, "Microsoft JhengHei", sans-serif;
+    background: radial-gradient(circle at center, #1a1a2e 0%, #020205 100%);
     color: #fff;
     min-height:100vh;
 }
 
-header{
+header {
     text-align:center;
-    padding:50px 20px 20px;
+    padding:60px 20px 40px;
 }
-header h1{
-    font-size:3em;
+header h1 {
+    font-size:3.5em;
     margin:0;
-    letter-spacing:4px;
+    letter-spacing:6px;
+    background: linear-gradient(to right, #00f2fe, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
 }
-header p{
-    color:#bbb;
-    margin-top:10px;
+header p {
+    color: #8892b0;
+    margin-top:15px;
+    font-size: 1.1em;
 }
 
 .container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 30px;
-    padding: 40px;
-    max-width: 1200px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px 40px 60px;
+    max-width: 1300px;
     margin: auto;
 }
 
 .card {
     position: relative;
-    height: 220px;
-    border-radius: 20px;
+    height: 250px;
+    border-radius: 24px;
     overflow: hidden;
     cursor: pointer;
-    transition: transform .4s, box-shadow .4s;
-    box-shadow:0 10px 25px rgba(0,0,0,.5);
+    transition: all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
 .card:hover {
-    transform: translateY(-12px) scale(1.03);
-    box-shadow:0 20px 50px rgba(0,255,255,.35);
-}
-
-.card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, rgba(255,255,255,.18), transparent);
+    transform: translateY(-10px);
+    box-shadow: 0 15px 45px rgba(0,242,254, 0.25);
+    border: 1px solid rgba(0,242,254, 0.5);
 }
 
 .icon {
-    font-size: 4em;
+    font-size: 5em;
     text-align: center;
-    margin-top: 30px;
-    opacity:.9;
+    margin-top: 35px;
+    transition: transform 0.4s;
+}
+.card:hover .icon {
+    transform: scale(1.1) rotate(5deg);
 }
 
 .card-content {
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: 20px;
-    background: linear-gradient(to top, rgba(0,0,0,.8), transparent);
+    padding: 25px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
 }
 
 .card h2 {
     margin: 0;
-    font-size: 22px;
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .card p {
-    margin: 6px 0 12px;
+    margin: 8px 0 15px;
     font-size: 14px;
-    color: #ccc;
+    color: #a8b2d1;
+    opacity: 0.9;
 }
 
 .play {
     display:inline-block;
-    padding:8px 16px;
-    border-radius:20px;
-    background:linear-gradient(90deg,#0ff,#09f);
-    color:#000;
-    font-size:13px;
+    padding:6px 20px;
+    border-radius:30px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #0ff;
+    color:#0ff;
+    font-size:12px;
     font-weight:bold;
     transition:.3s;
 }
 
 .card:hover .play{
-    background:linear-gradient(90deg,#fff,#0ff);
+    background:#0ff;
+    color:#000;
 }
 
-/* 遊戲主色 */
+/* 遊戲背景配色區 - 根據遊戲類型新增 */
 .snake { background: linear-gradient(135deg,#1b5e20,#0d2818); }
 .breakout { background: linear-gradient(135deg,#004d40,#002f2b); }
-.guess { background: linear-gradient(135deg,#263238,#10181d); }
+.guess { background: linear-gradient(135deg,#37474f,#102027); }
 .ab { background: linear-gradient(135deg,#4527a0,#24135c); }
 .gomoku { background: linear-gradient(135deg,#6d4c41,#3e2723); }
-.darts { background: linear-gradient(135deg,#37474f,#102027); }
+
+/* --- 新增遊戲配色 --- */
+.speed { background: linear-gradient(135deg,#b71c1c,#4a0e0e); } /* 德國心臟病 */
+.cardmaster { background: linear-gradient(135deg,#ef6c00,#5e3500); } /* 抽牌大師 */
+.game2048 { background: linear-gradient(135deg,#f9a825,#6b4f00); } /* 2048 */
 
 footer{
     text-align:center;
-    padding:30px;
+    padding:50px;
     font-size:13px;
-    color:#666;
+    color:#555;
+    letter-spacing: 1px;
 }
 </style>
 </head>
 <body>
 
 <header>
-    <h1>🎮 HTML 小遊戲合集</h1>
-    <p>街機風 · 技術流 · 原創小遊戲平台</p>
+    <h1>🎮 Arcade Hub</h1>
+    <p>精選 HTML5 原創小遊戲 · 隨點隨玩無需下載</p>
 </header>
 
 <div class="container">
 
+<div class="card speed" onclick="openGame('speed.html')">
+    <div class="icon">🔔</div>
+    <div class="card-content">
+        <h2>德國心臟病</h2>
+        <p>極速反應！相同點數立刻搶拍</p>
+        <span class="play">▶ 立即挑戰</span>
+    </div>
+</div>
+
+<div class="card game2048" onclick="openGame('2048.html')">
+    <div class="icon">🧩</div>
+    <div class="card-content">
+        <h2>2048</h2>
+        <p>滑動方塊，挑戰數字巔峰</p>
+        <span class="play">▶ 立即挑戰</span>
+    </div>
+</div>
+
+<div class="card cardmaster" onclick="openGame('card.html')">
+    <div class="icon">🃏</div>
+    <div class="card-content">
+        <h2>抽牌大師</h2>
+        <p>命運對決，試試你的手氣</p>
+        <span class="play">▶ 立即挑戰</span>
+    </div>
+</div>
+
 <div class="card snake" onclick="openGame('snake.html')">
     <div class="icon">🐍</div>
     <div class="card-content">
-        <h2>貪食蛇</h2>
-        <p>吃食物變長，別撞牆</p>
+        <h2>經典貪食蛇</h2>
+        <p>重溫經典，挑戰最長長度</p>
         <span class="play">▶ PLAY</span>
     </div>
 </div>
@@ -137,16 +177,7 @@ footer{
     <div class="icon">🧱</div>
     <div class="card-content">
         <h2>打磚塊</h2>
-        <p>反彈球打光所有磚塊</p>
-        <span class="play">▶ PLAY</span>
-    </div>
-</div>
-
-<div class="card guess" onclick="openGame('guess100.html')">
-    <div class="icon">🎯</div>
-    <div class="card-content">
-        <h2>猜數字</h2>
-        <p>1～100 太大太小</p>
+        <p>粉碎壓力，清空所有磚塊</p>
         <span class="play">▶ PLAY</span>
     </div>
 </div>
@@ -155,7 +186,7 @@ footer{
     <div class="icon">🔢</div>
     <div class="card-content">
         <h2>幾A幾B</h2>
-        <p>邏輯推理猜數字</p>
+        <p>邏輯推理，破解四位密碼</p>
         <span class="play">▶ PLAY</span>
     </div>
 </div>
@@ -163,17 +194,17 @@ footer{
 <div class="card gomoku" onclick="openGame('gomoku.html')">
     <div class="icon">⚫</div>
     <div class="card-content">
-        <h2>五子棋</h2>
-        <p>雙人對戰</p>
+        <h2>經典五子棋</h2>
+        <p>智慧博弈，五子連線獲勝</p>
         <span class="play">▶ PLAY</span>
     </div>
 </div>
 
-<div class="card darts" onclick="openGame('darts.html')">
+<div class="card guess" onclick="openGame('guess100.html')">
     <div class="icon">🎯</div>
     <div class="card-content">
-        <h2>射飛鏢</h2>
-        <p>街機技術流挑戰</p>
+        <h2>猜猜 1~100</h2>
+        <p>幸運數字，誰是最終贏家</p>
         <span class="play">▶ PLAY</span>
     </div>
 </div>
@@ -181,12 +212,13 @@ footer{
 </div>
 
 <footer>
-    © 2025 Mini Games Collection｜HTML / CSS / JavaScript
+    © 2025 Mini Games Collection｜Crafted with HTML5 / CSS3 / JavaScript
 </footer>
 
 <script>
 function openGame(file) {
-    window.open(file, "_blank");
+    // 加入簡單的過場動畫感（可選）
+    window.location.href = file; 
 }
 </script>
 
