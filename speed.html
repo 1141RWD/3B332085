@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<title>閃靈快手 - 單人 vs 電腦AI</title>
+<style>
+  body {
+    font-family: "微軟正黑體", sans-serif;
+    background: #222;
+    color: #eee;
+    text-align: center;
+    margin: 0; padding: 0;
+  }
+  h1 {
+    margin: 20px 0 10px;
+  }
+  #game {
+    max-width: 600px;
+    margin: auto;
+    background: #333;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  #status {
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  #scoreboard {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  #difficulty {
+    margin-bottom: 15px;
+  }
+  button {
+    cursor: pointer;
+    background: #555;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    padding: 8px 16px;
+    margin: 0 5px;
+    font-size: 16px;
+  }
+  button:hover {
+    background: #777;
+  }
+  #cards {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  canvas.card {
+    border-radius: 12px;
+    background: #111;
+    cursor: pointer;
+    box-shadow: 0 0 8px #000;
+  }
+  #topicCard {
+    margin: 15px auto;
+    width: 150px;
+    height: 150px;
+    border-radius: 15px;
+    background: #111;
+    box-shadow: 0 0 20px #0ff;
+  }
+  #topicCard canvas {
+    border-radius: 15px;
+  }
+  #message {
+    margin-top: 15px;
+    font-size: 20px;
+    min-height: 30px;
+  }
+</style>
+</head>
+<body>
+  <h1>👻 閃靈快手 - 單人 vs 電腦AI</h1>
+  <center><h3>字母或字顏色相同的即是答案</h3></center>
+
+  <div id="game">
+    <div id="difficulty">
+      難度：
+      <button onclick="setDifficulty('easy')">新手</button>
+      <button onclick="setDifficulty('normal')">正常</button>
+      <button onclick="setDifficulty('fast')">神速</button>
+      <button onclick="startGame()">開始遊戲</button>
+    </div>
+
+    <div id="scoreboard">
+      <div>玩家分數: <span id="playerScore">0</span></div>
+      <div>電腦分數: <span id="aiScore">0</span></div>
+      <div>回合: <span id="round">0</span></div>
+    </div>
+
+    <div>
+      <h3>題目牌</h3>
+      <div id="topicCard"></div>
+    </div>
+
+    <div id="cards"></div>
+
+    <div id="message"></div>
+  </div>
+
+<script>
+(() => {
+  // 牌的設定
+  const LETTERS = ['A', 'B', 'C', 'D', 'E'];
+  // 字體顏色（用CSS顏色名）
+  const FONT_COLORS = ['#FF4136', '#FF851B', '#2ECC40', '#0074D9', '#B10DC9'];
+  // 背景顏色
+  const BG_COLORS = ['#FFDC00', '#AAAAAA', '#FF69B4', '#7FDBFF', '#39CCCC'];
+
+  // 目前遊戲狀態
+  let difficulty = 'normal';
+  let playerScore = 0;
+  let aiScore = 0;
+  let round = 0;
+  let gameRunning = false;
+
+  // 牌資料格式：{letter, fontColor, bgColor}
+  let topicCard = null;
+  let optionCards = [];
+
+  // 電腦AI反應時間 (ms)
+  const AI_SPEED = {
+    easy: 3000,
+    normal: 1500,
+    fast: 700,
+  };
+
+  // DOM 元素
+  const topicCardDiv = document.getElementById('topicCard');
+  const cardsDiv = document.getElementById('cards');
+  const playerScoreSpan = document.getElementById('playerScore');
+  const aiScoreSpan = document.getElementById('aiScore');
+  const roundSpan = document.getElementById('round');
+  const messageDiv = document.getElementById('message');
+
+  // 產生一張隨機牌
+  function randomCard() {
+    return {
+      letter: LETTERS[Math.floor(Math.random() * LETTERS.length)],
+      fontColor: FONT_COLORS[Math.floor(Math.random() * FONT_COLORS.length)],
+      bgColor: BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)],
+    };
+  }
+
+  // 用Canvas畫牌（150x150） - 帶字母、字色、背景色
+  function drawCard(card, canvas) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // 背景
+    ctx.fillStyle = card.bgColor;
+    ctx.fillRect(0, 0, w, h);
+
+    // 字母
+    ctx.fillStyle = card.fontColor;
+    ctx.font = 'bold 100px 微軟正黑體, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(card.letter, w / 2, h / 2);
+  }
+
+  // 判斷兩張牌是否符合答案條件(字母相同或字色相同)
+  function isAnswer(topic, card) {
+    return topic.letter === card.letter || topic.fontColor === card.fontColor;
+  }
+
+  // 開始一回合
+  function newRound() {
+    round++;
+    roundSpan.innerText = round;
+    messageDiv.innerText = '';
+    topicCard = randomCard();
+
+    // 產生5張不同的選項牌
+    optionCards = [];
+    // 為了確保只有一張是答案，先放一張答案牌
+    let answerCard;
+    do {
+      answerCard = randomCard();
+    } while (!isAnswer(topicCard, answerCard));
+    optionCards.push(answerCard);
+
+    // 再產生4張非答案牌，字母和字色都不能和題目牌匹配
+    while (optionCards.length < 5) {
+      let c = randomCard();
+      if (
+        !isAnswer(topicCard, c) &&
+        !optionCards.some(
+          (oc) =>
+            oc.letter === c.letter && oc.fontColor === c.fontColor && oc.bgColor === c.bgColor
+        )
+      ) {
+        optionCards.push(c);
+      }
+    }
+
+    // 洗牌 (Fisher–Yates shuffle)
+    for (let i = optionCards.length - 1; i > 0; i--) {
+      let j = Math.floor(Math.random() * (i + 1));
+      [optionCards[i], optionCards[j]] = [optionCards[j], optionCards[i]];
+    }
+
+    render();
+    waitForPlayer();
+  }
+
+  // 顯示題目牌和物品牌
+  function render() {
+    // 題目牌
+    topicCardDiv.innerHTML = '';
+    let canvasTopic = document.createElement('canvas');
+    canvasTopic.width = 150;
+    canvasTopic.height = 150;
+    drawCard(topicCard, canvasTopic);
+    topicCardDiv.appendChild(canvasTopic);
+
+    // 物品牌
+    cardsDiv.innerHTML = '';
+    optionCards.forEach((c, i) => {
+      let canvas = document.createElement('canvas');
+      canvas.width = 100;
+      canvas.height = 100;
+      canvas.classList.add('card');
+      drawCard(c, canvas);
+      canvas.onclick = () => playerClick(i);
+      cardsDiv.appendChild(canvas);
+    });
+  }
+
+  // 玩家點牌事件
+  let playerHasClicked = false;
+  function playerClick(index) {
+    if (!gameRunning || playerHasClicked) return;
+    playerHasClicked = true;
+    const selectedCard = optionCards[index];
+    if (isAnswer(topicCard, selectedCard)) {
+      playerScore++;
+      playerScoreSpan.innerText = playerScore;
+      messageDiv.innerText = '👍 你答對了！';
+    } else {
+      playerScore = Math.max(0, playerScore - 1);
+      playerScoreSpan.innerText = playerScore;
+      messageDiv.innerText = '❌ 答錯了！';
+    }
+    setTimeout(() => aiTurn(), 1000);
+  }
+
+  // 電腦回合
+  function aiTurn() {
+    if (!gameRunning) return;
+
+    messageDiv.innerText = '💻 電腦思考中...';
+    const delay = AI_SPEED[difficulty];
+    setTimeout(() => {
+      // AI找答案牌index
+      const answerIndex = optionCards.findIndex((c) => isAnswer(topicCard, c));
+      // 模擬AI答錯機率，難度越低錯誤機率越高
+      let errorRate = difficulty === 'easy' ? 0.4 : difficulty === 'normal' ? 0.15 : 0.05;
+      const aiCorrect = Math.random() > errorRate;
+      if (aiCorrect) {
+        aiScore++;
+        aiScoreSpan.innerText = aiScore;
+        messageDiv.innerText = `💻 電腦選擇了牌 #${answerIndex + 1}，答對了！`;
+      } else {
+        aiScore = Math.max(0, aiScore - 1);
+        aiScoreSpan.innerText = aiScore;
+        messageDiv.innerText = `💻 電腦答錯了！`;
+      }
+      setTimeout(() => {
+        if (round >= 20) {
+          endGame();
+        } else {
+          newRound();
+        }
+      }, 1500);
+    }, delay);
+  }
+
+  // 等待玩家答題時間（限制5秒）
+  let playerTimer = null;
+  function waitForPlayer() {
+    playerHasClicked = false;
+    gameRunning = true;
+    messageDiv.innerText = '⏰ 請在5秒內點選答案牌！';
+    if (playerTimer) clearTimeout(playerTimer);
+    playerTimer = setTimeout(() => {
+      if (!playerHasClicked) {
+        playerScore = Math.max(0, playerScore - 1);
+        playerScoreSpan.innerText = playerScore;
+        messageDiv.innerText = '⏳ 超時！扣1分！';
+        setTimeout(() => aiTurn(), 1000);
+      }
+    }, 5000);
+  }
+
+  // 遊戲結束
+  function endGame() {
+    gameRunning = false;
+    messageDiv.innerText = `🏁 遊戲結束！最終分數 - 你：${playerScore} 電腦：${aiScore}`;
+  }
+
+  // 設定難度
+  window.setDifficulty = function (level) {
+    difficulty = level;
+    messageDiv.innerText = `難度設定為：${level}`;
+  };
+
+  // 開始遊戲
+  window.startGame = function () {
+    playerScore = 0;
+    aiScore = 0;
+    round = 0;
+    playerScoreSpan.innerText = playerScore;
+    aiScoreSpan.innerText = aiScore;
+    roundSpan.innerText = round;
+    messageDiv.innerText = '遊戲開始！';
+    newRound();
+  };
+})();
+</script>
+
+</body>
+</html>
