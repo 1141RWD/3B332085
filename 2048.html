@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>2048 小遊戲</title>
+<style>
+body{
+  font-family: "Segoe UI","微軟正黑體";
+  background:#faf8ef;
+  text-align:center;
+}
+
+h1{font-size:48px;margin:10px;}
+#score{font-size:20px;margin-bottom:10px;}
+
+#board{
+  width:360px;
+  height:360px;
+  margin:20px auto;
+  background:#bbada0;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  padding:10px;
+  border-radius:10px;
+}
+
+.cell{
+  width:80px;
+  height:80px;
+  background:#cdc1b4;
+  font-size:28px;
+  font-weight:bold;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border-radius:6px;
+}
+
+.cell[data-v="2"]{background:#eee4da;}
+.cell[data-v="4"]{background:#ede0c8;}
+.cell[data-v="8"]{background:#f2b179;color:white;}
+.cell[data-v="16"]{background:#f59563;color:white;}
+.cell[data-v="32"]{background:#f67c5f;color:white;}
+.cell[data-v="64"]{background:#f65e3b;color:white;}
+.cell[data-v="128"]{background:#edcf72;color:white;}
+.cell[data-v="256"]{background:#edcc61;color:white;}
+.cell[data-v="512"]{background:#edc850;color:white;}
+.cell[data-v="1024"]{background:#edc53f;color:white;}
+.cell[data-v="2048"]{background:#edc22e;color:white;}
+
+#over{
+  font-size:28px;
+  color:red;
+  display:none;
+}
+</style>
+</head>
+<body>
+
+<h1>2048</h1>
+<div id="score">分數：0</div>
+<div id="board"></div>
+<div id="over">💀 Game Over</div>
+
+<script>
+const board = document.getElementById("board");
+let grid = Array(16).fill(0);
+let score = 0;
+
+// 初始化
+function init(){
+  grid.fill(0);
+  score = 0;
+  document.getElementById("over").style.display="none";
+  addNumber();
+  addNumber();
+  draw();
+}
+
+// 畫面
+function draw(){
+  board.innerHTML="";
+  grid.forEach(v=>{
+    let d=document.createElement("div");
+    d.className="cell";
+    if(v){
+      d.innerText=v;
+      d.dataset.v=v;
+    }
+    board.appendChild(d);
+  });
+  document.getElementById("score").innerText="分數："+score;
+}
+
+// 隨機產生 2 或 4
+function addNumber(){
+  let empty = grid.map((v,i)=>v==0?i:null).filter(v=>v!=null);
+  if(!empty.length) return;
+  let i = empty[Math.floor(Math.random()*empty.length)];
+  grid[i] = Math.random()<0.9 ? 2 : 4;
+}
+
+// 合併一行
+function merge(row){
+  row = row.filter(v=>v);
+  for(let i=0;i<row.length-1;i++){
+    if(row[i]==row[i+1]){
+      row[i]*=2;
+      score+=row[i];
+      row[i+1]=0;
+    }
+  }
+  row = row.filter(v=>v);
+  while(row.length<4) row.push(0);
+  return row;
+}
+
+// 移動
+function move(dir){
+  let old = grid.join();
+  for(let i=0;i<4;i++){
+    let row=[];
+    for(let j=0;j<4;j++){
+      let idx =
+        dir=="left"  ? i*4+j :
+        dir=="right" ? i*4+3-j :
+        dir=="up"    ? j*4+i :
+                       (3-j)*4+i;
+      row.push(grid[idx]);
+    }
+    row = merge(row);
+    for(let j=0;j<4;j++){
+      let idx =
+        dir=="left"  ? i*4+j :
+        dir=="right" ? i*4+3-j :
+        dir=="up"    ? j*4+i :
+                       (3-j)*4+i;
+      grid[idx]=row[j];
+    }
+  }
+  if(old!=grid.join()){
+    addNumber();
+    draw();
+    checkOver();
+  }
+}
+
+// 判斷 Game Over
+function checkOver(){
+  if(grid.includes(0)) return;
+  for(let i=0;i<16;i++){
+    if(i%4!=3 && grid[i]==grid[i+1]) return;
+    if(i<12 && grid[i]==grid[i+4]) return;
+  }
+  document.getElementById("over").style.display="block";
+}
+
+// 鍵盤控制
+document.addEventListener("keydown",e=>{
+  if(e.key=="ArrowLeft") move("left");
+  if(e.key=="ArrowRight") move("right");
+  if(e.key=="ArrowUp") move("up");
+  if(e.key=="ArrowDown") move("down");
+});
+
+init();
+</script>
+</body>
+</html>
