@@ -2,146 +2,111 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
-<title>閃靈快手 - 單人 vs 電腦AI</title>
+<title>閃靈快手 - 極速搶答版</title>
 <style>
   body {
     font-family: "微軟正黑體", sans-serif;
-    background: #222;
-    color: #eee;
-    text-align: center;
-    margin: 0; padding: 0;
-  }
-  h1 {
-    margin: 20px 0 10px;
+    background: #1a1a1a; color: #eee;
+    text-align: center; margin: 0; padding: 20px;
+    user-select: none;
   }
   #game {
-    max-width: 600px;
-    margin: auto;
-    background: #333;
-    padding: 20px;
-    border-radius: 12px;
+    max-width: 650px; margin: auto;
+    background: #333; padding: 25px; border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
-  #status {
-    margin-bottom: 10px;
-    font-size: 18px;
+  .score-box {
+    display: flex; justify-content: space-around;
+    background: #222; padding: 15px; border-radius: 10px; margin: 15px 0;
+    font-size: 20px; font-weight: bold; border: 1px solid #444;
   }
-  #scoreboard {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 10px;
-    font-size: 18px;
-  }
-  #difficulty {
-    margin-bottom: 15px;
-  }
+  .score-item span { color: #0ff; font-size: 24px; }
+  
   button {
-    cursor: pointer;
-    background: #555;
-    border: none;
-    border-radius: 6px;
-    color: white;
-    padding: 8px 16px;
-    margin: 0 5px;
-    font-size: 16px;
+    cursor: pointer; background: #444; border: 1px solid #666;
+    border-radius: 8px; color: white; padding: 10px 20px;
+    margin: 5px; font-size: 16px; transition: 0.2s;
   }
-  button:hover {
-    background: #777;
+  button:hover { background: #666; transform: translateY(-2px); }
+  button.active { background: #0074D9; border-color: #0ff; box-shadow: 0 0 10px #0074D9; }
+
+  #topic-container {
+    background: #111; width: 180px; height: 180px;
+    margin: 20px auto; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    border: 3px solid #444; position: relative;
   }
-  #cards {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 20px;
-  }
+  /* 題目牌出現動畫 */
+  #topic-container canvas { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+  #cards { display: flex; justify-content: center; gap: 15px; margin-top: 25px; flex-wrap: wrap; }
   canvas.card {
-    border-radius: 12px;
-    background: #111;
-    cursor: pointer;
-    box-shadow: 0 0 8px #000;
+    border-radius: 12px; background: #111; cursor: pointer;
+    box-shadow: 0 4px 8px #000; transition: 0.2s;
   }
-  #topicCard {
-    margin: 15px auto;
-    width: 150px;
-    height: 150px;
-    border-radius: 15px;
-    background: #111;
-    box-shadow: 0 0 20px #0ff;
-  }
-  #topicCard canvas {
-    border-radius: 15px;
-  }
+  canvas.card:hover { transform: scale(1.05); }
+  
   #message {
-    margin-top: 15px;
-    font-size: 20px;
-    min-height: 30px;
+    margin-top: 20px; font-size: 22px; font-weight: bold;
+    min-height: 40px; text-shadow: 0 0 10px rgba(0,0,0,0.5);
   }
+
+  /* 特效 */
+  .shake { animation: shake 0.3s; }
+  @keyframes shake {
+    0%, 100% { transform: translate(0,0); }
+    25% { transform: translate(-5px, 0); }
+    75% { transform: translate(5px, 0); }
+  }
+  .correct { box-shadow: 0 0 20px #2ECC40 !important; border: 2px solid #2ECC40; }
+  .wrong { box-shadow: 0 0 20px #FF4136 !important; border: 2px solid #FF4136; }
 </style>
 </head>
 <body>
-  <h1>👻 閃靈快手 - 單人 vs 電腦AI</h1>
-  <center><h3>字母或字顏色相同的即是答案</h3></center>
 
-  <div id="game">
-    <div id="difficulty">
-      難度：
-      <button onclick="setDifficulty('easy')">新手</button>
-      <button onclick="setDifficulty('normal')">正常</button>
-      <button onclick="setDifficulty('fast')">神速</button>
-      <button onclick="startGame()">開始遊戲</button>
-    </div>
+<h1>👻 閃靈快手：AI 極速搶答</h1>
+<p>點擊下方卡牌：與題目字母相同 <b>或</b> 與題目字母顏色相同的即是答案！</p>
 
-    <div id="scoreboard">
-      <div>玩家分數: <span id="playerScore">0</span></div>
-      <div>電腦分數: <span id="aiScore">0</span></div>
-      <div>回合: <span id="round">0</span></div>
-    </div>
-
-    <div>
-      <h3>題目牌</h3>
-      <div id="topicCard"></div>
-    </div>
-
-    <div id="cards"></div>
-
-    <div id="message"></div>
+<div id="game">
+  <div id="difficulty-settings">
+    <button id="btn-easy" onclick="setDifficulty('easy')">新手</button>
+    <button id="btn-normal" class="active" onclick="setDifficulty('normal')">正常</button>
+    <button id="btn-fast" onclick="setDifficulty('fast')">神速</button>
+    <button style="background: #2ECC40;" onclick="startGame()">🎮 開始遊戲</button>
   </div>
+
+  <div class="score-box">
+    <div class="score-item">玩家: <span id="playerScore">0</span></div>
+    <div class="score-item">電腦: <span id="aiScore">0</span></div>
+    <div class="score-item">回合: <span id="round">0</span> / 20</div>
+  </div>
+
+  <div id="topic-container">
+    <canvas id="topicCanvas" width="150" height="150"></canvas>
+  </div>
+
+  <div id="cards"></div>
+  <div id="message">準備好了嗎？</div>
+</div>
 
 <script>
 (() => {
-  // 牌的設定
   const LETTERS = ['A', 'B', 'C', 'D', 'E'];
-  // 字體顏色（用CSS顏色名）
   const FONT_COLORS = ['#FF4136', '#FF851B', '#2ECC40', '#0074D9', '#B10DC9'];
-  // 背景顏色
   const BG_COLORS = ['#FFDC00', '#AAAAAA', '#FF69B4', '#7FDBFF', '#39CCCC'];
 
-  // 目前遊戲狀態
   let difficulty = 'normal';
-  let playerScore = 0;
-  let aiScore = 0;
-  let round = 0;
-  let gameRunning = false;
+  let playerScore = 0, aiScore = 0, round = 0;
+  let gameActive = false, someoneAnswered = false;
+  let topicCard = null, optionCards = [];
+  let aiTimer = null;
 
-  // 牌資料格式：{letter, fontColor, bgColor}
-  let topicCard = null;
-  let optionCards = [];
+  const AI_SPEEDS = { easy: 3000, normal: 1600, fast: 1200 };
 
-  // 電腦AI反應時間 (ms)
-  const AI_SPEED = {
-    easy: 3000,
-    normal: 1500,
-    fast: 700,
-  };
-
-  // DOM 元素
-  const topicCardDiv = document.getElementById('topicCard');
-  const cardsDiv = document.getElementById('cards');
-  const playerScoreSpan = document.getElementById('playerScore');
-  const aiScoreSpan = document.getElementById('aiScore');
-  const roundSpan = document.getElementById('round');
   const messageDiv = document.getElementById('message');
+  const cardsDiv = document.getElementById('cards');
 
-  // 產生一張隨機牌
   function randomCard() {
     return {
       letter: LETTERS[Math.floor(Math.random() * LETTERS.length)],
@@ -150,184 +115,137 @@
     };
   }
 
-  // 用Canvas畫牌（150x150） - 帶字母、字色、背景色
   function drawCard(card, canvas) {
     const ctx = canvas.getContext('2d');
-    const w = canvas.width;
-    const h = canvas.height;
-    ctx.clearRect(0, 0, w, h);
-
-    // 背景
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = card.bgColor;
-    ctx.fillRect(0, 0, w, h);
-
-    // 字母
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = card.fontColor;
-    ctx.font = 'bold 100px 微軟正黑體, sans-serif';
+    ctx.font = `bold ${canvas.width/1.5}px 微軟正黑體`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(card.letter, w / 2, h / 2);
+    ctx.fillText(card.letter, canvas.width / 2, canvas.height / 2);
   }
 
-  // 判斷兩張牌是否符合答案條件(字母相同或字色相同)
   function isAnswer(topic, card) {
     return topic.letter === card.letter || topic.fontColor === card.fontColor;
   }
 
-  // 開始一回合
-  function newRound() {
-    round++;
-    roundSpan.innerText = round;
-    messageDiv.innerText = '';
-    topicCard = randomCard();
-
-    // 產生5張不同的選項牌
-    optionCards = [];
-    // 為了確保只有一張是答案，先放一張答案牌
-    let answerCard;
-    do {
-      answerCard = randomCard();
-    } while (!isAnswer(topicCard, answerCard));
-    optionCards.push(answerCard);
-
-    // 再產生4張非答案牌，字母和字色都不能和題目牌匹配
-    while (optionCards.length < 5) {
-      let c = randomCard();
-      if (
-        !isAnswer(topicCard, c) &&
-        !optionCards.some(
-          (oc) =>
-            oc.letter === c.letter && oc.fontColor === c.fontColor && oc.bgColor === c.bgColor
-        )
-      ) {
-        optionCards.push(c);
-      }
-    }
-
-    // 洗牌 (Fisher–Yates shuffle)
-    for (let i = optionCards.length - 1; i > 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1));
-      [optionCards[i], optionCards[j]] = [optionCards[j], optionCards[i]];
-    }
-
-    render();
-    waitForPlayer();
+  function setDifficulty(level) {
+    difficulty = level;
+    document.querySelectorAll('#difficulty-settings button').forEach(b => b.classList.remove('active'));
+    document.getElementById(`btn-${level}`).classList.add('active');
   }
 
-  // 顯示題目牌和物品牌
-  function render() {
-    // 題目牌
-    topicCardDiv.innerHTML = '';
-    let canvasTopic = document.createElement('canvas');
-    canvasTopic.width = 150;
-    canvasTopic.height = 150;
-    drawCard(topicCard, canvasTopic);
-    topicCardDiv.appendChild(canvasTopic);
+  function startGame() {
+    playerScore = 0; aiScore = 0; round = 0;
+    gameActive = true;
+    updateScoreUI();
+    nextRound();
+  }
 
-    // 物品牌
+  function nextRound() {
+    if (round >= 20) return endGame();
+    round++;
+    someoneAnswered = false;
+    document.getElementById('round').innerText = round;
+    messageDiv.innerText = "🔍 找答案...";
+    messageDiv.style.color = "#eee";
+
+    // 生成題目與選項
+    topicCard = randomCard();
+    drawCard(topicCard, document.getElementById('topicCanvas'));
+
+    optionCards = [];
+    let answerCard;
+    do { answerCard = randomCard(); } while (!isAnswer(topicCard, answerCard));
+    optionCards.push(answerCard);
+
+    while (optionCards.length < 5) {
+      let c = randomCard();
+      if (!isAnswer(topicCard, c)) optionCards.push(c);
+    }
+    optionCards.sort(() => Math.random() - 0.5);
+
+    renderOptions();
+    startAiCountdown();
+  }
+
+  function renderOptions() {
     cardsDiv.innerHTML = '';
-    optionCards.forEach((c, i) => {
-      let canvas = document.createElement('canvas');
-      canvas.width = 100;
-      canvas.height = 100;
-      canvas.classList.add('card');
-      drawCard(c, canvas);
-      canvas.onclick = () => playerClick(i);
+    optionCards.forEach((card, i) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 100; canvas.height = 100;
+      canvas.className = 'card';
+      drawCard(card, canvas);
+      canvas.onclick = () => handleSelection('player', i);
       cardsDiv.appendChild(canvas);
     });
   }
 
-  // 玩家點牌事件
-  let playerHasClicked = false;
-  function playerClick(index) {
-    if (!gameRunning || playerHasClicked) return;
-    playerHasClicked = true;
-    const selectedCard = optionCards[index];
-    if (isAnswer(topicCard, selectedCard)) {
-      playerScore++;
-      playerScoreSpan.innerText = playerScore;
-      messageDiv.innerText = '👍 你答對了！';
-    } else {
-      playerScore = Math.max(0, playerScore - 1);
-      playerScoreSpan.innerText = playerScore;
-      messageDiv.innerText = '❌ 答錯了！';
-    }
-    setTimeout(() => aiTurn(), 1000);
-  }
-
-  // 電腦回合
-  function aiTurn() {
-    if (!gameRunning) return;
-
-    messageDiv.innerText = '💻 電腦思考中...';
-    const delay = AI_SPEED[difficulty];
-    setTimeout(() => {
-      // AI找答案牌index
-      const answerIndex = optionCards.findIndex((c) => isAnswer(topicCard, c));
-      // 模擬AI答錯機率，難度越低錯誤機率越高
-      let errorRate = difficulty === 'easy' ? 0.4 : difficulty === 'normal' ? 0.15 : 0.05;
-      const aiCorrect = Math.random() > errorRate;
-      if (aiCorrect) {
-        aiScore++;
-        aiScoreSpan.innerText = aiScore;
-        messageDiv.innerText = `💻 電腦選擇了牌 #${answerIndex + 1}，答對了！`;
-      } else {
-        aiScore = Math.max(0, aiScore - 1);
-        aiScoreSpan.innerText = aiScore;
-        messageDiv.innerText = `💻 電腦答錯了！`;
+  function startAiCountdown() {
+    if (aiTimer) clearTimeout(aiTimer);
+    // AI 反應時間隨機波動 +/- 200ms
+    const delay = AI_SPEEDS[difficulty] + (Math.random() * 400 - 200);
+    
+    aiTimer = setTimeout(() => {
+      if (!someoneAnswered && gameActive) {
+        const answerIdx = optionCards.findIndex(c => isAnswer(topicCard, c));
+        handleSelection('ai', answerIdx);
       }
-      setTimeout(() => {
-        if (round >= 20) {
-          endGame();
-        } else {
-          newRound();
-        }
-      }, 1500);
     }, delay);
   }
 
-  // 等待玩家答題時間（限制5秒）
-  let playerTimer = null;
-  function waitForPlayer() {
-    playerHasClicked = false;
-    gameRunning = true;
-    messageDiv.innerText = '⏰ 請在5秒內點選答案牌！';
-    if (playerTimer) clearTimeout(playerTimer);
-    playerTimer = setTimeout(() => {
-      if (!playerHasClicked) {
+  function handleSelection(who, index) {
+    if (someoneAnswered || !gameActive) return;
+    someoneAnswered = true;
+    clearTimeout(aiTimer);
+
+    const isCorrect = isAnswer(topicCard, optionCards[index]);
+    const cardCanvases = document.querySelectorAll('.card');
+    const targetCanvas = cardCanvases[index];
+
+    if (who === 'player') {
+      if (isCorrect) {
+        playerScore++;
+        messageDiv.innerText = "⚡ 太強了！你搶到了！";
+        messageDiv.style.color = "#2ECC40";
+        targetCanvas.classList.add('correct');
+      } else {
         playerScore = Math.max(0, playerScore - 1);
-        playerScoreSpan.innerText = playerScore;
-        messageDiv.innerText = '⏳ 超時！扣1分！';
-        setTimeout(() => aiTurn(), 1000);
+        messageDiv.innerText = "❌ 點錯了！被扣分囉！";
+        messageDiv.style.color = "#FF4136";
+        targetCanvas.classList.add('wrong');
+        document.getElementById('game').classList.add('shake');
+        setTimeout(() => document.getElementById('game').classList.remove('shake'), 300);
       }
-    }, 5000);
+    } else {
+      // AI 答題 (AI 在此版本預設總是找對，除非你想要它有失誤率)
+      aiScore++;
+      messageDiv.innerText = "💻 電腦手速太快了！";
+      messageDiv.style.color = "#FF851B";
+      targetCanvas.classList.add('wrong');
+    }
+
+    updateScoreUI();
+    setTimeout(nextRound, 1500);
   }
 
-  // 遊戲結束
+  function updateScoreUI() {
+    document.getElementById('playerScore').innerText = playerScore;
+    document.getElementById('aiScore').innerText = aiScore;
+  }
+
   function endGame() {
-    gameRunning = false;
-    messageDiv.innerText = `🏁 遊戲結束！最終分數 - 你：${playerScore} 電腦：${aiScore}`;
+    gameActive = false;
+    const win = playerScore > aiScore ? "🎉 你贏了！" : (playerScore < aiScore ? "💀 電腦獲勝..." : "🤝 平手！");
+    messageDiv.innerHTML = `🏁 遊戲結束！<br>${win}`;
+    messageDiv.style.color = "#0ff";
   }
 
-  // 設定難度
-  window.setDifficulty = function (level) {
-    difficulty = level;
-    messageDiv.innerText = `難度設定為：${level}`;
-  };
-
-  // 開始遊戲
-  window.startGame = function () {
-    playerScore = 0;
-    aiScore = 0;
-    round = 0;
-    playerScoreSpan.innerText = playerScore;
-    aiScoreSpan.innerText = aiScore;
-    roundSpan.innerText = round;
-    messageDiv.innerText = '遊戲開始！';
-    newRound();
-  };
+  window.setDifficulty = setDifficulty;
+  window.startGame = startGame;
 })();
 </script>
-
 </body>
 </html>
