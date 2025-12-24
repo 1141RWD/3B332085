@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>記憶對對碰：13對雙人對戰</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --p1-color: #3498db;
+            --p2-color: #e74c3c;
+            --card-back: #2c3e50;
+        }
+        body { margin: 0; background: var(--bg-color); color: white; font-family: '微軟正黑體', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        /* 玩家資訊欄 */
+        .scoreboard {
+            display: flex; justify-content: space-around; width: 100%; max-width: 600px;
+            margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 15px;
+        }
+        .player-info { text-align: center; padding: 10px 20px; border-radius: 10px; transition: 0.3s; opacity: 0.5; border: 2px solid transparent; }
+        .player-info.active { opacity: 1; transform: scale(1.1); }
+        .p1.active { border-color: var(--p1-color); box-shadow: 0 0 15px var(--p1-color); }
+        .p2.active { border-color: var(--p2-color); box-shadow: 0 0 15px var(--p2-color); }
+        
+        .score { font-size: 2.5rem; font-weight: bold; display: block; }
+        .p1-text { color: var(--p1-color); }
+        .p2-text { color: var(--p2-color); }
+
+        /* 遊戲網格 */
+        #game-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 6列 */
+            gap: 10px;
+            max-width: 700px;
+            perspective: 1000px;
+        }
+
+        .card {
+            width: 70px; height: 100px;
+            cursor: pointer; position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card.flipped { transform: rotateY(180deg); }
+        .card.matched { cursor: default; opacity: 0.3; pointer-events: none; }
+
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; font-size: 1.8rem; font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+
+        .card-back { background: var(--card-back); border: 2px solid #555; color: #888; }
+        .card-back::after { content: '♠'; font-size: 2rem; }
+        
+        .card-front { background: white; color: black; transform: rotateY(180deg); }
+        .red { color: #e74c3c; }
+
+        #status-msg { margin: 15px; font-size: 1.2rem; height: 1.5em; color: #f1c40f; }
+        #reset-btn { margin-bottom: 20px; padding: 10px 20px; border-radius: 20px; cursor: pointer; border: none; background: #444; color: white; }
+
+        @media (max-width: 500px) {
+            #game-grid { grid-template-columns: repeat(4, 1fr); }
+            .card { width: 80px; height: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scoreboard">
+        <div id="p1-panel" class="player-info p1 active">
+            <span class="p1-text">玩家 1</span>
+            <span id="p1-score" class="score">0</span>
+        </div>
+        <div id="p2-panel" class="player-info p2">
+            <span class="p2-text">玩家 2</span>
+            <span id="p2-score" class="score">0</span>
+        </div>
+    </div>
+
+    <div id="status-msg">輪到 玩家 1 翻牌</div>
+
+    <div id="game-grid"></div>
+    <br>
+    <button id="reset-btn" onclick="initGame()">重新開始</button>
+
+<script>
+    const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+    let currentPlayer = 1;
+    let scores = { 1: 0, 2: 0 };
+    let flippedCards = [];
+    let canFlip = true;
+    let totalMatches = 0;
+
+    function initGame() {
+        const grid = document.getElementById('game-grid');
+        grid.innerHTML = '';
+        currentPlayer = 1;
+        scores = { 1: 0, 2: 0 };
+        flippedCards = [];
+        canFlip = true;
+        totalMatches = 0;
+        
+        updateUI();
+
+        // 建立 13 對牌
+        let deck = [];
+        ranks.forEach(rank => {
+            deck.push({ rank, color: 'red', suit: '♥' });
+            deck.push({ rank, color: 'black', suit: '♠' });
+        });
+
+        // 洗牌
+        deck.sort(() => Math.random() - 0.5);
+
+        deck.forEach((data, index) => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'card';
+            cardEl.dataset.rank = data.rank;
+            
+            cardEl.innerHTML = `
+                <div class="card-face card-back"></div>
+                <div class="card-face card-front ${data.color}">
+                    ${data.rank}
+                </div>
+            `;
+            
+            cardEl.onclick = () => flipCard(cardEl);
+            grid.appendChild(cardEl);
+        });
+    }
+
+    function flipCard(card) {
+        if (!canFlip || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+        card.classList.add('flipped');
+        flippedCards.push(card);
+
+        if (flippedCards.length === 2) {
+            canFlip = false;
+            checkMatch();
+        }
+    }
+
+    function checkMatch() {
+        const [c1, c2] = flippedCards;
+        const isMatch = c1.dataset.rank === c2.dataset.rank;
+
+        if (isMatch) {
+            setTimeout(() => {
+                c1.classList.add('matched');
+                c2.classList.add('matched');
+                scores[currentPlayer]++;
+                totalMatches++;
+                flippedCards = [];
+                canFlip = true;
+                updateUI();
+                
+                if (totalMatches === 13) endGame();
+                else document.getElementById('status-msg').innerText = `配對成功！玩家 ${currentPlayer} 繼續翻牌`;
+            }, 600);
+        } else {
+            document.getElementById('status-msg').innerText = `不同，換人...`;
+            setTimeout(() => {
+                c1.classList.remove('flipped');
+                c2.classList.remove('flipped');
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+                flippedCards = [];
+                canFlip = true;
+                updateUI();
+            }, 1200);
+        }
+    }
+
+    function updateUI() {
+        document.getElementById('p1-score').innerText = scores[1];
+        document.getElementById('p2-score').innerText = scores[2];
+        
+        document.getElementById('p1-panel').classList.toggle('active', currentPlayer === 1);
+        document.getElementById('p2-panel').classList.toggle('active', currentPlayer === 2);
+        
+        if (totalMatches < 13) {
+            document.getElementById('status-msg').innerText = `輪到 玩家 ${currentPlayer} 翻牌`;
+        }
+    }
+
+    function endGame() {
+        let winMsg = "";
+        if (scores[1] > scores[2]) winMsg = "🏆 玩家 1 獲勝！";
+        else if (scores[2] > scores[1]) winMsg = "🏆 玩家 2 獲勝！";
+        else winMsg = "🤝 平手！";
+        
+        document.getElementById('status-msg').innerText = winMsg;
+        alert(`遊戲結束！\n玩家 1: ${scores[1]}分\n玩家 2: ${scores[2]}分\n${winMsg}`);
+    }
+
+    initGame();
+</script>
+</body>
+</html>
