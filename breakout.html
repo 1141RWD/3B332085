@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
 <title>🧱 打磚塊：關卡進化版</title>
+    <div id="home-btn-container" onclick="window.location.href='index.html'">
+    <svg viewBox="0 0 24 24" width="24" height="24">
+        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+    </svg>
+    <span>大廳</span>
+</div>
 <style>
     :root {
         --neon-blue: #00ffff;
@@ -34,7 +40,48 @@
 
     /* 控制說明 */
     .hint { color: #666; font-size: 0.8rem; margin-bottom: 10px; }
+#home-btn-container {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 9999; /* 確保在所有遊戲元素之上 */
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 242, 254, 0.5);
+        border-radius: 50px;
+        color: #00f2fe;
+        cursor: pointer;
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: bold;
+        font-size: 14px;
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        transition: 0.3s;
+        user-select: none;
+    }
 
+    #home-btn-container:hover {
+        background: rgba(0, 242, 254, 0.2);
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+        transform: scale(1.05);
+    }
+
+    #home-btn-container:active {
+        transform: scale(0.95);
+    }
+
+    /* 手機版微調：如果覺得太大可以縮小一點 */
+    @media (max-width: 480px) {
+        #home-btn-container {
+            top: 10px;
+            left: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    }
     /* 按鈕樣式 */
     button {
         padding: 12px 24px; font-size: 1rem; border-radius: 30px;
@@ -259,3 +306,4 @@ draw();
 </script>
 </body>
 </html>
+
