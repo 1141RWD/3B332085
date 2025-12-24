@@ -5,245 +5,150 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎮 極速 Arcade：小遊戲合集</title>
 <style>
-*{box-sizing:border-box}
-body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, "Microsoft JhengHei", sans-serif;
-    background: radial-gradient(circle at center, #1a1a2e 0%, #020205 100%);
-    color: #fff;
-    min-height:100vh;
-}
+    /* 繼承原本的基礎樣式並優化 */
+    *{box-sizing:border-box}
+    body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, "Microsoft JhengHei", sans-serif;
+        background: radial-gradient(circle at center, #1a1a2e 0%, #020205 100%);
+        color: #fff;
+        min-height:100vh;
+    }
 
-header {
-    text-align:center;
-    padding:60px 20px 40px;
-}
-header h1 {
-    font-size:3.5em;
-    margin:0;
-    letter-spacing:6px;
-    background: linear-gradient(to right, #00f2fe, #4facfe);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-transform: uppercase;
-}
-header p {
-    color: #8892b0;
-    margin-top:15px;
-    font-size: 1.1em;
-}
+    header { text-align:center; padding:50px 20px 30px; }
+    header h1 {
+        font-size:3em; margin:0; letter-spacing:4px;
+        background: linear-gradient(to right, #00f2fe, #4facfe);
+        -webkit-background-clip: text; -webkit-background-fill-color: transparent;
+        color: transparent; /* 修正相容性 */
+    }
 
-.container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    padding: 20px 40px 60px;
-    max-width: 1300px;
-    margin: auto;
-}
+    /* --- 新增 Tab 分頁樣式 --- */
+    .tabs {
+        display: flex; justify-content: center; gap: 15px; margin-bottom: 40px;
+    }
+    .tab-btn {
+        padding: 12px 30px; border-radius: 50px; border: 1px solid rgba(0,242,254, 0.3);
+        background: rgba(255,255,255,0.05); color: #8892b0; cursor: pointer;
+        font-weight: bold; transition: all 0.3s;
+    }
+    .tab-btn.active {
+        background: #00f2fe; color: #000; box-shadow: 0 0 20px rgba(0,242,254, 0.4);
+        border-color: #00f2fe;
+    }
+    .tab-btn:hover:not(.active) { background: rgba(0,242,254, 0.1); color: #fff; }
 
-.card {
-    position: relative;
-    height: 250px;
-    border-radius: 24px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,255,255,0.1);
-}
+    .container {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px; padding: 0 40px 60px; max-width: 1300px; margin: auto;
+    }
 
-.card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 45px rgba(0,242,254, 0.25);
-    border: 1px solid rgba(0,242,254, 0.5);
-}
+    /* 隱藏未選中的遊戲 */
+    .card { display: block; position: relative; height: 250px; border-radius: 24px; overflow: hidden; cursor: pointer; transition: all .4s; box-shadow: 0 10px 20px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.5s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.icon {
-    font-size: 5em;
-    text-align: center;
-    margin-top: 35px;
-    transition: transform 0.4s;
-}
-.card:hover .icon {
-    transform: scale(1.1) rotate(5deg);
-}
+    .card:hover { transform: translateY(-10px); box-shadow: 0 15px 45px rgba(0,242,254, 0.25); border: 1px solid rgba(0,242,254, 0.5); }
+    .icon { font-size: 5em; text-align: center; margin-top: 35px; transition: 0.4s; }
+    .card-content { position: absolute; bottom: 0; width: 100%; padding: 25px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
+    .play { display:inline-block; padding:6px 20px; border-radius:30px; border: 1px solid #0ff; color:#0ff; font-size:12px; font-weight:bold; }
 
-.card-content {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 25px;
-    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 60%, transparent 100%);
-}
+    /* 背景配色 */
+    .puzzle { background: linear-gradient(135deg,#f9a825,#6b4f00); }
+    .arcade { background: linear-gradient(135deg,#1b5e20,#0d2818); }
+    .multi { background: linear-gradient(135deg,#4527a0,#24135c); }
+    .speed { background: linear-gradient(135deg,#b71c1c,#4a0e0e); }
+    .darts { background: linear-gradient(135deg, #00b4db, #0083b0); }
+    .memory { background: linear-gradient(135deg, #6a11cb, #2575fc); }
 
-.card h2 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.card p {
-    margin: 8px 0 15px;
-    font-size: 14px;
-    color: #a8b2d1;
-    opacity: 0.9;
-}
-
-.play {
-    display:inline-block;
-    padding:6px 20px;
-    border-radius:30px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid #0ff;
-    color:#0ff;
-    font-size:12px;
-    font-weight:bold;
-    transition:.3s;
-}
-
-.card:hover .play{
-    background:#0ff;
-    color:#000;
-}
-
-/* 遊戲背景配色區 - 根據遊戲類型新增 */
-.snake { background: linear-gradient(135deg,#1b5e20,#0d2818); }
-.breakout { background: linear-gradient(135deg,#004d40,#002f2b); }
-.guess { background: linear-gradient(135deg,#37474f,#102027); }
-.ab { background: linear-gradient(135deg,#4527a0,#24135c); }
-.gomoku { background: linear-gradient(135deg,#6d4c41,#3e2723); }4
-/* --- 新增飛鏢與對對碰配色 --- */
-.darts { background: linear-gradient(135deg, #00b4db, #0083b0); } /* 飛鏢挑戰 */
-.memory { background: linear-gradient(135deg, #6a11cb, #2575fc); } /* 記憶對對碰 */
-
-/* --- 新增遊戲配色 --- */
-.speed { background: linear-gradient(135deg,#b71c1c,#4a0e0e); } /* 德國心臟病 */
-.cardmaster { background: linear-gradient(135deg,#ef6c00,#5e3500); } /* 抽牌大師 */
-.game2048 { background: linear-gradient(135deg,#f9a825,#6b4f00); } /* 2048 */
-
-footer{
-    text-align:center;
-    padding:50px;
-    font-size:13px;
-    color:#555;
-    letter-spacing: 1px;
-}
+    footer { text-align:center; padding:50px; font-size:13px; color:#555; }
 </style>
 </head>
 <body>
 
 <header>
     <h1>🎮 Arcade Hub</h1>
-    <p>精選 HTML5 原創小遊戲 · 隨點隨玩無需下載</p>
+    <p>精選小遊戲合集 · 隨點隨玩</p>
 </header>
 
-<div class="container">
-<div class="card darts" onclick="openGame('darts.html')">
-    <div class="icon">🎯</div>
-    <div class="card-content">
-        <h2>技術流飛鏢</h2>
-        <p>精準投射！每 400 分獲得獎勵飛鏢</p>
-        <span class="play">▶ 立即挑戰</span>
-    </div>
+<div class="tabs">
+    <button class="tab-btn active" onclick="filterGames('all')">全部</button>
+    <button class="tab-btn" onclick="filterGames('益智')">益智</button>
+    <button class="tab-btn" onclick="filterGames('街機')">街機</button>
+    <button class="tab-btn" onclick="filterGames('雙人')">雙人</button>
 </div>
 
-<div class="card memory" onclick="openGame('pair.html')">
-    <div class="icon">🧠</div>
-    <div class="card-content">
-        <h2>記憶對對碰</h2>
-        <p>13對撲克挑戰，雙人競技洗牌動畫</p>
-        <span class="play">▶ 立即挑戰</span>
+<div class="container" id="game-container">
+    <div class="card puzzle" data-category="益智" onclick="openGame('2048.html')">
+        <div class="icon">🧩</div>
+        <div class="card-content"><h2>2048</h2><p>挑戰數字巔峰</p><span class="play">▶ PLAY</span></div>
     </div>
-</div>
-    
-<div class="card speed" onclick="openGame('speed.html')">
-    <div class="icon">🔔</div>
-    <div class="card-content">
-        <h2>字母反應</h2>
-        <p>極速反應！相同點數立刻搶答</p>
-        <span class="play">▶ 立即挑戰</span>
+    <div class="card multi" data-category="益智" onclick="openGame('ab.html')">
+        <div class="icon">🔢</div>
+        <div class="card-content"><h2>幾A幾B</h2><p>邏輯推理破解密碼</p><span class="play">▶ PLAY</span></div>
     </div>
-</div>
+    <div class="card arcade" data-category="益智 雙人" onclick="openGame('gomoku.html')">
+        <div class="icon">⚫</div>
+        <div class="card-content"><h2>五子棋</h2><p>智慧博弈對戰</p><span class="play">▶ PLAY</span></div>
+    </div>
+    <div class="card arcade" data-category="益智" onclick="openGame('guess100.html')">
+        <div class="icon">🎯</div>
+        <div class="card-content"><h2>猜數字</h2><p>終極密碼 1-100</p><span class="play">▶ PLAY</span></div>
+    </div>
 
-<div class="card game2048" onclick="openGame('2048.html')">
-    <div class="icon">🧩</div>
-    <div class="card-content">
-        <h2>2048</h2>
-        <p>滑動方塊，挑戰數字巔峰</p>
-        <span class="play">▶ 立即挑戰</span>
+    <div class="card darts" data-category="街機" onclick="openGame('darts.html')">
+        <div class="icon">🎯</div>
+        <div class="card-content"><h2>技術流飛鏢</h2><p>精密投射獎勵挑戰</p><span class="play">▶ PLAY</span></div>
     </div>
-</div>
-
-<div class="card cardmaster" onclick="openGame('card.html')">
-    <div class="icon">🃏</div>
-    <div class="card-content">
-        <h2>心臟病</h2>
-        <p>拍桌拚手速的時刻來臨了</p>
-        <span class="play">▶ 立即挑戰</span>
+    <div class="card arcade" data-category="街機" onclick="openGame('snake.html')">
+        <div class="icon">🐍</div>
+        <div class="card-content"><h2>貪食蛇</h2><p>經典重溫挑戰長度</p><span class="play">▶ PLAY</span></div>
     </div>
-</div>
-
-<div class="card snake" onclick="openGame('snake.html')">
-    <div class="icon">🐍</div>
-    <div class="card-content">
-        <h2>經典貪食蛇</h2>
-        <p>重溫經典，挑戰最長長度</p>
-        <span class="play">▶ PLAY</span>
+    <div class="card arcade" data-category="街機" onclick="openGame('breakout.html')">
+        <div class="icon">🧱</div>
+        <div class="card-content"><h2>打磚塊</h2><p>粉碎壓力的快感</p><span class="play">▶ PLAY</span></div>
     </div>
-</div>
 
-<div class="card breakout" onclick="openGame('breakout.html')">
-    <div class="icon">🧱</div>
-    <div class="card-content">
-        <h2>打磚塊</h2>
-        <p>粉碎壓力，清空所有磚塊</p>
-        <span class="play">▶ PLAY</span>
+    <div class="card memory" data-category="雙人" onclick="openGame('pair.html')">
+        <div class="icon">🧠</div>
+        <div class="card-content"><h2>記憶對對碰</h2><p>雙人 13 對記憶戰</p><span class="play">▶ PLAY</span></div>
     </div>
-</div>
-
-<div class="card ab" onclick="openGame('ab.html')">
-    <div class="icon">🔢</div>
-    <div class="card-content">
-        <h2>幾A幾B</h2>
-        <p>邏輯推理，破解四位密碼</p>
-        <span class="play">▶ PLAY</span>
+    <div class="card speed" data-category="雙人" onclick="openGame('card.html')">
+        <div class="icon">🃏</div>
+        <div class="card-content"><h2>心臟病</h2><p>手速對決拍桌戰</p><span class="play">▶ PLAY</span></div>
     </div>
-</div>
-
-<div class="card gomoku" onclick="openGame('gomoku.html')">
-    <div class="icon">⚫</div>
-    <div class="card-content">
-        <h2>經典五子棋</h2>
-        <p>智慧博弈，五子連線獲勝</p>
-        <span class="play">▶ PLAY</span>
-    </div>
-</div>
-
-<div class="card guess" onclick="openGame('guess100.html')">
-    <div class="icon">💯</div>
-    <div class="card-content">
-        <h2>猜猜 1~100</h2>
-        <p>幸運數字，誰是最終贏家</p>
-        <span class="play">▶ PLAY</span>
-    </div>
-</div>
-
 </div>
 
 <footer>
-    © 2025 Mini Games Collection｜Crafted with HTML5 / CSS3 / JavaScript
+    © 2025 Mini Games Collection｜Crafted with HTML5
 </footer>
 
 <script>
+function filterGames(category) {
+    // 切換按鈕樣式
+    const btns = document.querySelectorAll('.tab-btn');
+    btns.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // 過濾卡片
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        const cat = card.getAttribute('data-category');
+        if (category === 'all' || cat.includes(category)) {
+            card.style.display = 'block';
+            // 重發動畫
+            card.style.animation = 'none';
+            card.offsetHeight; // 觸發重繪
+            card.style.animation = 'fadeIn 0.5s ease forwards';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
 function openGame(file) {
-    // 加入簡單的過場動畫感（可選）
-    window.location.href = file; 
+    window.location.href = file;
 }
 </script>
 
 </body>
 </html>
-
-
-
