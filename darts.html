@@ -2,198 +2,308 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>技術流射飛鏢 PRO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-select=none">
+<title>技術流飛鏢</title>
 <style>
-body {
-    margin: 0;
-    background: #111;
-    color: white;
-    text-align: center;
-    font-family: Arial;
-}
-canvas {
-    background: #222;
-    display: block;
-    margin: auto;
-    cursor: crosshair;
-}
-#info {
-    padding: 8px;
-}
-.bar {
-    width: 200px;
-    height: 18px;
-    border: 2px solid white;
-    margin: auto;
-}
-.fill {
-    height: 100%;
-    background: lime;
-}
+    :root { --primary: #00f2ff; --accent: #f1c40f; --bonus: #2ecc71; }
+    body { margin: 0; background: #050505; color: white; font-family: 'Segoe UI', '微軟正黑體', sans-serif; overflow: hidden; touch-action: none; }
+    
+    #ui { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; z-index: 100; }
+    .stat { 
+        background: rgba(15, 15, 25, 0.85); padding: 10px 20px; border-radius: 15px; 
+        border: 1px solid rgba(0, 242, 255, 0.3); backdrop-filter: blur(5px); min-width: 80px; text-align: center;
+    }
+    .stat label { display: block; font-size: 10px; color: var(--primary); text-transform: uppercase; }
+    .stat span { font-size: 20px; font-weight: bold; }
+
+    #bonus-pop { 
+        position: absolute; top: 100px; left: 50%; transform: translateX(-50%);
+        font-size: 30px; font-weight: bold; color: var(--bonus); 
+        text-shadow: 0 0 10px var(--bonus); opacity: 0; pointer-events: none; transition: 0.5s; z-index: 200;
+    }
+
+    #overlay { position: fixed; inset: 0; background: rgba(0, 0, 5, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; }
+    .menu-box { background: linear-gradient(145deg, #1a1a2e, #0f0f1a); padding: 40px; border-radius: 40px; text-align: center; border: 1px solid rgba(255,255,255,0.1); width: 85%; max-width: 380px; }
+    
+    .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+    .btn { padding: 18px; font-size: 18px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+    .btn-next { background: linear-gradient(45deg, var(--accent), #e67e22); color: #000; }
+    .btn-retry { background: #333; color: white; border: 1px solid #444; }
+    .btn-home { background: transparent; color: #666; font-size: 14px; text-decoration: underline; border:none; margin-top:10px; cursor:pointer;}
+
+    #ingame-controls { position: absolute; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 100; }
+    .small-btn { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; border-radius: 30px; cursor: pointer; }
 </style>
 </head>
 <body>
 
-<h2>🎯 技術流射飛鏢 PRO</h2>
-<div id="info">
-分數 <span id="score">0</span> |
-Combo <span id="combo">1</span>x |
-風 <span id="wind"></span>
+<div id="ui">
+    <div class="stat"><label>Level</label><span id="lv-txt">1</span></div>
+    <div class="stat"><label>Darts</label><span id="darts-txt">🎯🎯🎯</span></div>
+    <div class="stat"><label>Score</label><span id="score-txt">0</span></div>
 </div>
-<div class="bar"><div class="fill" id="power"></div></div>
 
-<canvas id="game" width="500" height="600"></canvas>
+<div id="bonus-pop">+1 DART! 🎯</div>
+
+<div id="overlay">
+    <div class="menu-box">
+        <h2 id="msg-title">DART MASTER</h2>
+        <p id="msg-desc">每得 400 分可獲得一支獎勵飛鏢</p>
+        <div class="btn-group">
+            <button id="action-btn" class="btn btn-next" onclick="handleAction()">開始遊戲</button>
+            <button class="btn btn-home" onclick="toHome()">回首頁 (index.html)</button>
+        </div>
+    </div>
+</div>
+
+<div id="ingame-controls" style="display:none;">
+    <button class="small-btn" onclick="toHome()">🏠 HOME</button>
+    <button class="small-btn" onclick="forceNext()">⏩ SKIP</button>
+</div>
+
+<canvas id="game"></canvas>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let score = 0;
-let combo = 1;
+let lv = 1, score = 0, darts = 3, lastBonusScore = 0;
+let targetScore = 500;
+let isDragging = false, startPos = {x:0, y:0}, curPos = {x:0, y:0};
+let gameState = "HOME", shakeAmount = 0, particles = [];
+let resultTimeout = null; // 用於管理結算計時器
 
-// 蓄力
-let power = 0, dir = 1, charging = false;
+const dartHome = { x: 0, y: 0 };
+const target = { x: 0, y: 220, r: 110, angle: 0, baseX: 0, baseY: 220, destX: 0, destY: 0 };
+const landedDarts = [];
+const flyingDarts = [];
 
-// 風
-let windX = 0, windY = 0;
-
-// 靶
-const target = {
-    x: 250,
-    y: 150,
-    r: 80,
-    angle: 0,
-    speed: 0.01,
-    moveDir: 1
-};
-
-// 飛鏢紀錄
-const darts = [];
-
-function newWind() {
-    windX = Math.floor(Math.random() * 5 - 2);
-windY = Math.floor(Math.random() * 3 - 1);
-
-    document.getElementById("wind").innerText =
-        `${windX > 0 ? "→" : windX < 0 ? "←" : "•"} ${windY > 0 ? "↓" : windY < 0 ? "↑" : ""}`;
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    dartHome.x = canvas.width / 2;
+    dartHome.y = canvas.height - 120;
+    target.baseX = canvas.width / 2;
 }
-newWind();
+window.addEventListener('resize', resize);
+resize();
 
-canvas.addEventListener("mousedown", () => charging = true);
-canvas.addEventListener("mouseup", shoot);
+function checkBonus() {
+    if (score - lastBonusScore >= 400) {
+        darts++;
+        lastBonusScore += 400;
+        showBonusPop();
+        updateUI();
+    }
+}
 
-function shoot() {
-    if (!charging) return;
-    charging = false;
+function showBonusPop() {
+    const el = document.getElementById('bonus-pop');
+    el.style.opacity = "1"; el.style.top = "80px";
+    setTimeout(() => { el.style.opacity = "0"; el.style.top = "100px"; }, 1000);
+}
 
-    let hitX = 250 + windX * power;
-    let hitY = 500 - power * 3 + windY * power;
+function handleAction() {
+    // 只有在結算狀態且達標時才升級
+    if (gameState === "RESULT" && score >= targetScore) {
+        lv++;
+    }
+    startLevel();
+}
 
-    const dx = hitX - target.x;
-    const dy = hitY - target.y;
-    const dist = Math.hypot(dx, dy);
+function startLevel() {
+    // 核心安全清理：防止直接跳失敗
+    clearTimeout(resultTimeout); 
+    flyingDarts.length = 0; 
+    landedDarts.length = 0;
+    
+    gameState = "PLAYING";
+    darts = 3; 
+    score = 0; 
+    lastBonusScore = 0;
+    targetScore = 500 + (lv-1)*400;
+    
+    target.x = target.baseX; target.y = target.baseY;
+    if(lv >= 3) { target.destX = target.baseX; target.destY = target.baseY; }
+    
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('ingame-controls').style.display = 'flex';
+    updateUI();
+}
 
-    let add = 0;
-    if (dist < 30) add = 300;
-else if (dist < 55) add = 100;
-else if (dist < 90) add = 50;
+function toHome() { window.location.href = 'index.html'; }
+function forceNext() { lv++; startLevel(); }
 
+function showResult() {
+    // 安全檢查：如果還在飛，不彈出
+    if (gameState !== "PLAYING" || flyingDarts.length > 0) return;
+    
+    gameState = "RESULT";
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('ingame-controls').style.display = 'none';
+    const title = document.getElementById('msg-title');
+    const desc = document.getElementById('msg-desc');
+    const btn = document.getElementById('action-btn');
 
-    if (add > 0) {
-        score += add * combo;
-        combo++;
-        // 記錄飛鏢（相對角度）
-        darts.push({
-            angle: Math.atan2(dy, dx) - target.angle,
-            dist: dist
-        });
+    if (score >= targetScore) {
+        title.innerText = "成功晉級！";
+        desc.innerText = `得分：${score} / 目標：${targetScore}`;
+        btn.innerText = "下一關挑戰";
+        btn.className = "btn btn-next";
     } else {
-        combo = 1;
-    }
-
-    document.getElementById("score").innerText = score;
-    document.getElementById("combo").innerText = combo;
-    newWind();
-}
-
-function updatePower() {
-    if (charging) {
-        power += dir * 2;
-        if (power >= 100 || power <= 0) dir *= -1;
-        document.getElementById("power").style.width = power * 2 + "px";
+        title.innerText = "挑戰失敗";
+        desc.innerText = `得分：${score} / 需要：${targetScore}`;
+        btn.innerText = "重新嘗試";
+        btn.className = "btn btn-retry";
     }
 }
 
-function updateTarget() {
-    target.angle += target.speed;
-    target.x += target.moveDir * 1.2;
-    if (target.x > 320 || target.x < 180) target.moveDir *= -1;
+// --- 飛鏢系統 ---
+
+canvas.addEventListener("mousedown", startDrag);
+canvas.addEventListener("mousemove", drag);
+window.addEventListener("mouseup", endDrag);
+canvas.addEventListener("touchstart", e => { e.preventDefault(); startDrag(e.touches[0]); });
+canvas.addEventListener("touchmove", e => { e.preventDefault(); drag(e.touches[0]); });
+window.addEventListener("touchend", endDrag);
+
+function startDrag(e) {
+    if (gameState !== "PLAYING" || darts <= 0) return;
+    if (Math.hypot(e.clientX - dartHome.x, e.clientY - dartHome.y) < 70) {
+        isDragging = true;
+        startPos = { x: dartHome.x, y: dartHome.y };
+        curPos = { x: e.clientX, y: e.clientY };
+    }
+}
+function drag(e) { if (isDragging) curPos = { x: e.clientX, y: e.clientY }; }
+function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    const dx = startPos.x - curPos.x, dy = startPos.y - curPos.y;
+    if (Math.hypot(dx, dy) > 30) {
+        darts--;
+        const p = Math.min(Math.hypot(dx, dy) / 180, 1.2);
+        flyingDarts.push({ 
+            x: dartHome.x, y: dartHome.y, 
+            vx: dx*0.13, vy: dy*0.13 - (p*4), 
+            scale: 1, targetY: target.y + (1-p)*45 
+        });
+        updateUI();
+        
+        // 只有在最後一支飛鏢射出時，才啟動一個稍微長的延遲監測
+        if (darts === 0) {
+            clearTimeout(resultTimeout);
+            resultTimeout = setTimeout(() => {
+                if (flyingDarts.length === 0) showResult();
+            }, 3000); // 如果 3 秒還沒反應，強制結算
+        }
+    }
 }
 
-function drawTarget() {
-    ctx.save();
-    ctx.translate(target.x, target.y);
-    ctx.rotate(target.angle);
-
-    ctx.beginPath();
-    ctx.arc(0, 0, 80, 0, Math.PI * 2);
-    ctx.fillStyle = "#555";
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(0, 0, 45, 0, Math.PI * 2);
-    ctx.fillStyle = "red";
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(0, 0, 20, 0, Math.PI * 2);
-    ctx.fillStyle = "gold";
-    ctx.fill();
-
-    ctx.restore();
+function updateUI() {
+    document.getElementById('lv-txt').innerText = lv;
+    document.getElementById('score-txt').innerText = score;
+    document.getElementById('darts-txt').innerText = "🎯".repeat(Math.max(0, darts));
 }
 
-function drawDarts() {
-    ctx.save();
-    ctx.translate(target.x, target.y);
-    ctx.rotate(target.angle);
-
-    darts.forEach(d => {
-        ctx.beginPath();
-        ctx.moveTo(
-            Math.cos(d.angle) * d.dist,
-            Math.sin(d.angle) * d.dist
-        );
-        ctx.lineTo(
-            Math.cos(d.angle) * (d.dist + 15),
-            Math.sin(d.angle) * (d.dist + 15)
-        );
-        ctx.strokeStyle = "white";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    });
-
-    ctx.restore();
-}
+// --- 繪製循環 ---
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    updatePower();
-    updateTarget();
-    drawTarget();
-    drawDarts();
+    ctx.save();
+    if (shakeAmount > 0) {
+        ctx.translate((Math.random()-0.5)*shakeAmount, (Math.random()-0.5)*shakeAmount);
+        shakeAmount *= 0.9;
+    }
+    
+    // 背景
+    const grd = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
+    grd.addColorStop(0, "#0a0a1a"); grd.addColorStop(1, "#050505");
+    ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (gameState === "PLAYING") {
+        // 運動路徑
+        if (lv === 2) target.x = target.baseX + Math.sin(Date.now()*0.002) * 150;
+        if (lv >= 3) {
+            target.x += (target.destX - target.x) * 0.03;
+            target.y += (target.destY - target.y) * 0.03;
+            if (Math.hypot(target.destX-target.x, target.destY-target.y) < 10) {
+                target.destX = target.baseX + (Math.random()-0.5)*300;
+                target.destY = target.baseY + (Math.random()-0.5)*150;
+            }
+        }
+        target.angle += 0.02;
+
+        // 靶子
+        ctx.save(); ctx.translate(target.x, target.y); ctx.rotate(target.angle);
+        const rings = [{r:110, c:'#1a1a2e', s:'#00f2ff'}, {r:85, c:'#0f0f1a', s:'#0062ff'}, {r:55, c:'#1a1a2e', s:'#00f2ff'}, {r:25, c:'#ff2e63', s:'#fff'}];
+        rings.forEach(r => {
+            ctx.beginPath(); ctx.arc(0, 0, r.r, 0, Math.PI*2); ctx.fillStyle = r.c; ctx.fill();
+            ctx.strokeStyle = r.s; ctx.lineWidth = 3; ctx.stroke();
+            ctx.shadowBlur = 10; ctx.shadowColor = r.s;
+        });
+        landedDarts.forEach(d => {
+            ctx.fillStyle = "white"; ctx.shadowBlur = 15; ctx.shadowColor = "white";
+            ctx.beginPath(); ctx.arc(Math.cos(d.ang)*d.d, Math.sin(d.ang)*d.d, 6, 0, Math.PI*2); ctx.fill();
+        });
+        ctx.restore();
+
+        // 飛鏢
+        flyingDarts.forEach((d, i) => {
+            d.x += d.vx; d.y += d.vy; d.scale -= 0.015;
+            ctx.shadowBlur = 20; ctx.shadowColor = "white"; ctx.fillStyle = "white";
+            ctx.beginPath(); ctx.ellipse(d.x, d.y, 12*d.scale, 30*d.scale, 0, 0, Math.PI*2); ctx.fill();
+            
+            if (d.scale <= 0.4 || d.y <= d.targetY) {
+                const dist = Math.hypot(d.x-target.x, d.y-target.y);
+                if (dist < 110) {
+                    let pts = dist < 25 ? 500 : dist < 60 ? 300 : 100;
+                    score += pts;
+                    shakeAmount = pts / 20;
+                    createParticles(d.x, d.y, pts === 500 ? "#f1c40f" : "#00f2ff");
+                    landedDarts.push({ ang: Math.atan2(d.y-target.y, d.x-target.x)-target.angle, d: dist });
+                    checkBonus();
+                }
+                flyingDarts.splice(i, 1);
+                updateUI();
+                // 飛鏢落地後檢查是否結算
+                if (darts === 0 && flyingDarts.length === 0) {
+                    clearTimeout(resultTimeout);
+                    resultTimeout = setTimeout(showResult, 800);
+                }
+            }
+        });
+
+        if (isDragging) {
+            const dx = startPos.x - curPos.x, dy = startPos.y - curPos.y;
+            ctx.setLineDash([8, 4]); ctx.strokeStyle = "#00f2ff";
+            ctx.lineWidth = 3; ctx.shadowBlur = 15; ctx.shadowColor = "#00f2ff";
+            ctx.beginPath(); ctx.moveTo(dartHome.x, dartHome.y);
+            ctx.lineTo(dartHome.x + dx*2.2, dartHome.y + dy*2.2); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        ctx.fillStyle = isDragging ? "#00f2ff" : "#f1c40f";
+        ctx.beginPath(); ctx.arc(dartHome.x, dartHome.y, 35, 0, Math.PI*2); ctx.fill();
+    }
+
+    // 粒子繪製
+    for(let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+        ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+    
+    ctx.globalAlpha = 1; ctx.restore();
     requestAnimationFrame(draw);
-    if (charging) {
-    ctx.beginPath();
-    ctx.arc(250 + windX * power, 500 - power * 3, 8, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(0,255,0,0.5)";
-    ctx.fill();
 }
 
+function createParticles(x, y, color) {
+    for (let i = 0; i < 15; i++) {
+        particles.push({ x: x, y: y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1.0, color: color });
+    }
 }
 
 draw();
 </script>
-
 </body>
 </html>
