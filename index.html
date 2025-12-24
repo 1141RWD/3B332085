@@ -61,6 +61,8 @@
     .memory { background: linear-gradient(135deg, #6a11cb, #2575fc); }
     .ghost { background: linear-gradient(135deg, #334155, #0f172a); }
     .flappy { background: linear-gradient(135deg, #ff00cc, #3333ff); }
+    /* 新增至 CSS 區塊 */
+.mines { background: linear-gradient(135deg, #1e293b, #475569); }
 
     footer { text-align:center; padding:50px; font-size:13px; color:#555; }
 </style>
@@ -106,6 +108,14 @@
         <div class="icon">🎯</div>
         <div class="card-content"><h2>猜數字</h2><p>終極密碼 1-100</p><span class="play">▶ PLAY</span></div>
     </div>
+    <div class="card mines" data-category="益智" onclick="openGame('mines.html')">
+    <div class="icon">💣</div>
+    <div class="card-content">
+        <h2>霓虹掃雷</h2>
+        <p>邏輯推理！按兩下插旗，按一下開挖</p>
+        <span class="play">▶ PLAY</span>
+    </div>
+</div>
     <div class="card flappy" data-category="街機" onclick="openGame('flappy.html')">
     <div class="icon">🚀</div>
     <div class="card-content">
@@ -172,5 +182,6 @@ function openGame(file) {
 
 </body>
 </html>
+
 
 
