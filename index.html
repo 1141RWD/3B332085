@@ -112,7 +112,10 @@ header p {
 .breakout { background: linear-gradient(135deg,#004d40,#002f2b); }
 .guess { background: linear-gradient(135deg,#37474f,#102027); }
 .ab { background: linear-gradient(135deg,#4527a0,#24135c); }
-.gomoku { background: linear-gradient(135deg,#6d4c41,#3e2723); }
+.gomoku { background: linear-gradient(135deg,#6d4c41,#3e2723); }4
+/* --- 新增飛鏢與對對碰配色 --- */
+.darts { background: linear-gradient(135deg, #00b4db, #0083b0); } /* 飛鏢挑戰 */
+.memory { background: linear-gradient(135deg, #6a11cb, #2575fc); } /* 記憶對對碰 */
 
 /* --- 新增遊戲配色 --- */
 .speed { background: linear-gradient(135deg,#b71c1c,#4a0e0e); } /* 德國心臟病 */
@@ -136,7 +139,24 @@ footer{
 </header>
 
 <div class="container">
+<div class="card darts" onclick="openGame('darts.html')">
+    <div class="icon">🎯</div>
+    <div class="card-content">
+        <h2>技術流飛鏢</h2>
+        <p>精準投射！每 400 分獲得獎勵飛鏢</p>
+        <span class="play">▶ 立即挑戰</span>
+    </div>
+</div>
 
+<div class="card memory" onclick="openGame('pair.html')">
+    <div class="icon">🧠</div>
+    <div class="card-content">
+        <h2>記憶對對碰</h2>
+        <p>13對撲克挑戰，雙人競技洗牌動畫</p>
+        <span class="play">▶ 立即挑戰</span>
+    </div>
+</div>
+    
 <div class="card speed" onclick="openGame('speed.html')">
     <div class="icon">🔔</div>
     <div class="card-content">
@@ -224,4 +244,5 @@ function openGame(file) {
 
 </body>
 </html>
+
 
