@@ -13,6 +13,48 @@ body{
 h1{font-size:48px;margin:10px;}
 #score{font-size:20px;margin-bottom:10px;}
 
+#home-btn-container {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 9999; /* 確保在所有遊戲元素之上 */
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 242, 254, 0.5);
+        border-radius: 50px;
+        color: #00f2fe;
+        cursor: pointer;
+        font-family: 'Segoe UI', sans-serif;
+        font-weight: bold;
+        font-size: 14px;
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        transition: 0.3s;
+        user-select: none;
+    }
+
+    #home-btn-container:hover {
+        background: rgba(0, 242, 254, 0.2);
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+        transform: scale(1.05);
+    }
+
+    #home-btn-container:active {
+        transform: scale(0.95);
+    }
+
+    /* 手機版微調：如果覺得太大可以縮小一點 */
+    @media (max-width: 480px) {
+        #home-btn-container {
+            top: 10px;
+            left: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    }
 #board{
   width:360px;
   height:360px;
@@ -168,3 +210,4 @@ init();
 </script>
 </body>
 </html>
+
