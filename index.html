@@ -59,7 +59,8 @@
     .speed { background: linear-gradient(135deg,#b71c1c,#4a0e0e); }
     .darts { background: linear-gradient(135deg, #00b4db, #0083b0); }
     .memory { background: linear-gradient(135deg, #6a11cb, #2575fc); }
-    .ghost { background: linear-gradient(135deg, #334155, #0f172a); } /* 閃靈快手 */
+    .ghost { background: linear-gradient(135deg, #334155, #0f172a); }
+    .flappy { background: linear-gradient(135deg, #ff00cc, #3333ff); }
 
     footer { text-align:center; padding:50px; font-size:13px; color:#555; }
 </style>
@@ -105,7 +106,15 @@
         <div class="icon">🎯</div>
         <div class="card-content"><h2>猜數字</h2><p>終極密碼 1-100</p><span class="play">▶ PLAY</span></div>
     </div>
-
+    <div class="card flappy" data-category="街機" onclick="openGame('flappy.html')">
+    <div class="icon">🚀</div>
+    <div class="card-content">
+        <h2>極速穿梭</h2>
+        <p>單指挑戰！穿越無限霓虹管道</p>
+        <span class="play">▶ PLAY</span>
+    </div>
+    </div>
+    
     <div class="card darts" data-category="街機" onclick="openGame('darts.html')">
         <div class="icon">🎯</div>
         <div class="card-content"><h2>技術流飛鏢</h2><p>精密投射獎勵挑戰</p><span class="play">▶ PLAY</span></div>
@@ -163,4 +172,5 @@ function openGame(file) {
 
 </body>
 </html>
+
 
