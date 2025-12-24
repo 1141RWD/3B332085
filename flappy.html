@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>🚀 極速穿梭 - Arcade Edition</title>
+    <style>
+        :root { --neon: #00f2fe; --pink: #ff00cc; }
+        body {
+            margin: 0; background: #020205; color: white;
+            font-family: 'Segoe UI', sans-serif; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        canvas {
+            display: block; background: #050510;
+            border: 2px solid #1a1a2e; border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.1);
+            margin-top: 20px; max-width: 100vw;
+        }
+        .ui { margin-top: 20px; text-align: center; }
+        .score { font-size: 2rem; font-weight: bold; color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        .hint { color: #8892b0; margin-top: 5px; }
+        button {
+            margin-top: 15px; padding: 10px 30px; border-radius: 20px;
+            border: 1px solid var(--pink); background: transparent;
+            color: var(--pink); font-weight: bold; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui">
+        <div class="score" id="score">0</div>
+        <div class="hint">點擊螢幕或按空白鍵向上飛翔</div>
+    </div>
+
+    <canvas id="game" width="360" height="500"></canvas>
+
+    <button onclick="location.href='index.html'">返回大廳</button>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+
+// 遊戲常數
+let bird = { x: 50, y: 150, w: 30, h: 24, gravity: 0.25, velocity: 0, jump: -4.6 };
+let pipes = [];
+let frame = 0;
+let score = 0;
+let gameActive = true;
+
+// 初始化
+function init() {
+    bird.y = 150; bird.velocity = 0;
+    pipes = []; score = 0; frame = 0; gameActive = true;
+    scoreEl.innerText = score;
+}
+
+// 建立管道
+function createPipe() {
+    let gap = 120;
+    let minPipeHeight = 50;
+    let topHeight = Math.floor(Math.random() * (canvas.height - gap - minPipeHeight * 2)) + minPipeHeight;
+    pipes.push({
+        x: canvas.width,
+        top: topHeight,
+        bottom: canvas.height - topHeight - gap,
+        width: 50,
+        passed: false
+    });
+}
+
+function update() {
+    if (!gameActive) return;
+
+    bird.velocity += bird.gravity;
+    bird.y += bird.velocity;
+
+    // 碰撞偵測 (天花板與地面)
+    if (bird.y + bird.h > canvas.height || bird.y < 0) endGame();
+
+    // 管道邏輯
+    if (frame % 90 === 0) createPipe();
+
+    pipes.forEach((pipe, i) => {
+        pipe.x -= 2.5;
+
+        // 碰撞偵測 (管道)
+        if (bird.x + bird.w > pipe.x && bird.x < pipe.x + pipe.width) {
+            if (bird.y < pipe.top || bird.y + bird.h > canvas.height - pipe.bottom) {
+                endGame();
+            }
+        }
+
+        // 計分
+        if (!pipe.passed && pipe.x + pipe.width < bird.x) {
+            score++;
+            scoreEl.innerText = score;
+            pipe.passed = true;
+        }
+
+        // 移除越界管道
+        if (pipe.x + pipe.width < 0) pipes.splice(i, 1);
+    });
+
+    frame++;
+}
+
+function draw() {
+    // 背景
+    ctx.fillStyle = '#050510';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 繪製管道 (霓虹風格)
+    pipes.forEach(pipe => {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00f2fe';
+        ctx.fillStyle = '#1a1a2e';
+        ctx.strokeStyle = '#00f2fe';
+        ctx.lineWidth = 2;
+        
+        // 上管道
+        ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+        ctx.strokeRect(pipe.x, 0, pipe.width, pipe.top);
+        
+        // 下管道
+        ctx.fillRect(pipe.x, canvas.height - pipe.bottom, pipe.width, pipe.bottom);
+        ctx.strokeRect(pipe.x, canvas.height - pipe.bottom, pipe.width, pipe.bottom);
+    });
+
+    // 繪製主角 (火箭造型)
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = '#ff00cc';
+    ctx.fillStyle = '#ff00cc';
+    ctx.save();
+    ctx.translate(bird.x + bird.w/2, bird.y + bird.h/2);
+    ctx.rotate(bird.velocity * 0.05); // 隨速度旋轉
+    ctx.fillRect(-bird.w/2, -bird.h/2, bird.w, bird.h);
+    ctx.restore();
+
+    ctx.shadowBlur = 0; // 重置
+}
+
+function loop() {
+    update();
+    draw();
+    if (gameActive) requestAnimationFrame(loop);
+}
+
+function endGame() {
+    gameActive = false;
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 30px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('MISSION FAILED', canvas.width/2, canvas.height/2);
+    ctx.font = '16px Arial';
+    ctx.fillText('點擊螢幕重新嘗試', canvas.width/2, canvas.height/2 + 40);
+}
+
+// 點擊事件
+function jump() {
+    if (gameActive) {
+        bird.velocity = bird.jump;
+    } else {
+        init();
+        loop();
+    }
+}
+
+window.addEventListener('keydown', (e) => { if(e.code === 'Space') jump(); });
+canvas.addEventListener('touchstart', (e) => { e.preventDefault(); jump(); });
+canvas.addEventListener('mousedown', jump);
+
+init();
+loop();
+</script>
+</body>
+</html>
