@@ -59,6 +59,7 @@
     .speed { background: linear-gradient(135deg,#b71c1c,#4a0e0e); }
     .darts { background: linear-gradient(135deg, #00b4db, #0083b0); }
     .memory { background: linear-gradient(135deg, #6a11cb, #2575fc); }
+    .ghost { background: linear-gradient(135deg, #334155, #0f172a); } /* 閃靈快手 */
 
     footer { text-align:center; padding:50px; font-size:13px; color:#555; }
 </style>
@@ -82,6 +83,16 @@
         <div class="icon">🧩</div>
         <div class="card-content"><h2>2048</h2><p>挑戰數字巔峰</p><span class="play">▶ PLAY</span></div>
     </div>
+
+    <div class="card ghost" data-category="益智" onclick="openGame('ghost.html')">
+    <div class="icon">👻</div>
+    <div class="card-content">
+        <h2>閃靈快手</h2>
+        <p>AI 極速搶答！圖案或顏色相同即是答案</p>
+        <span class="play">▶ PLAY</span>
+    </div>
+</div>
+    
     <div class="card multi" data-category="益智" onclick="openGame('ab.html')">
         <div class="icon">🔢</div>
         <div class="card-content"><h2>幾A幾B</h2><p>邏輯推理破解密碼</p><span class="play">▶ PLAY</span></div>
@@ -152,3 +163,4 @@ function openGame(file) {
 
 </body>
 </html>
+
