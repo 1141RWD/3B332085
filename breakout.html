@@ -2,127 +2,162 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>打磚塊 Breakout</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+<title>🧱 打磚塊：關卡進化版</title>
 <style>
+    :root {
+        --neon-blue: #00ffff;
+        --neon-pink: #ff00ff;
+    }
     body {
-        background: #111;
-        color: white;
-        text-align: center;
-        font-family: Arial;
+        margin: 0; background: #0a0a12; color: white;
+        text-align: center; font-family: 'Segoe UI', sans-serif;
+        overflow: hidden; touch-action: none;
     }
 
-    canvas {
-        background: #000;
-        display: block;
-        margin: 20px auto;
-        border: 3px solid #0ff;
+    /* 頂部資訊欄 */
+    #header {
+        display: flex; justify-content: space-around;
+        padding: 15px; background: rgba(255,255,255,0.05);
+        font-weight: bold; font-size: 1.1rem;
     }
+    .stat span { color: var(--neon-blue); }
 
-    #info {
-        font-size: 18px;
-        margin-bottom: 10px;
+    /* 遊戲區域 */
+    #canvas-container {
+        position: relative; width: 95vw; max-width: 480px;
+        aspect-ratio: 3/2; margin: 20px auto;
+        border: 2px solid var(--neon-blue); border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
     }
+    canvas { width: 100%; height: 100%; display: block; background: #000; }
 
+    /* 控制說明 */
+    .hint { color: #666; font-size: 0.8rem; margin-bottom: 10px; }
+
+    /* 按鈕樣式 */
     button {
-        padding: 8px 16px;
-        font-size: 16px;
-        cursor: pointer;
+        padding: 12px 24px; font-size: 1rem; border-radius: 30px;
+        border: 1px solid var(--neon-blue); background: transparent;
+        color: var(--neon-blue); cursor: pointer; transition: 0.3s;
     }
+    button:active { background: var(--neon-blue); color: #000; }
 </style>
 </head>
 <body>
 
-<h1>🧱 打磚塊 Breakout</h1>
-<div id="info">分數：0</div>
-<canvas id="game" width="480" height="320"></canvas>
-<button onclick="resetGame()">重新開始</button>
+<div id="header">
+    <div class="stat">關卡: <span id="lv-txt">1</span></div>
+    <div class="stat">分數: <span id="score-txt">0</span></div>
+</div>
+
+<div id="canvas-container">
+    <canvas id="game" width="480" height="320"></canvas>
+</div>
+
+<p class="hint">電腦：滑鼠移動或左右鍵 | 手機：直接滑動螢幕</p>
+<button onclick="resetGame(true)">重置遊戲</button>
+
+
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// 球
-let x, y, dx, dy, ballRadius;
-
-// 擋板
-let paddleHeight, paddleWidth, paddleX;
-
-// 操作
+// 遊戲變數
+let level = 1;
+let score = 0;
+let x, y, dx, dy;
+let ballRadius = 8;
+let paddleHeight = 12;
+let paddleWidth = 90;
+let paddleX;
 let rightPressed = false;
 let leftPressed = false;
 
-// 磚塊
-const brickRowCount = 5;
-const brickColumnCount = 7;
-const brickWidth = 55;
-const brickHeight = 20;
+// 磚塊配置
 const brickPadding = 10;
 const brickOffsetTop = 30;
-const brickOffsetLeft = 30;
-
+const brickOffsetLeft = 25;
 let bricks = [];
-let score = 0;
+let rowCount = 3;
+let colCount = 5;
 
-function init() {
+function initLevel() {
+    // 根據關卡調整難度
+    rowCount = 2 + level; // 每關多一行
+    colCount = 6;
+    
+    // 初始位置
     x = canvas.width / 2;
-    y = canvas.height - 30;
-    dx = 2;
-    dy = -2;
-    ballRadius = 8;
-
-    paddleHeight = 10;
-    paddleWidth = 80;
+    y = canvas.height - 40;
+    
+    // 球速隨關卡略微提升
+    let speed = 2 + (level * 0.5);
+    dx = speed;
+    dy = -speed;
+    
     paddleX = (canvas.width - paddleWidth) / 2;
 
+    // 初始化磚塊
     bricks = [];
-    for (let c = 0; c < brickColumnCount; c++) {
+    for (let c = 0; c < colCount; c++) {
         bricks[c] = [];
-        for (let r = 0; r < brickRowCount; r++) {
-            bricks[c][r] = { x: 0, y: 0, status: 1 };
+        for (let r = 0; r < rowCount; r++) {
+            bricks[c][r] = { x: 0, y: 0, status: 1, color: `hsl(${(r * 40) + (level * 20)}, 70%, 60%)` };
         }
     }
-
-    score = 0;
-    document.getElementById("info").innerText = "分數：0";
+    updateUI();
 }
 
+// --- 控制邏輯 ---
 document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight") rightPressed = true;
     if (e.key === "ArrowLeft") leftPressed = true;
 });
-
 document.addEventListener("keyup", e => {
     if (e.key === "ArrowRight") rightPressed = false;
     if (e.key === "ArrowLeft") leftPressed = false;
 });
 
-document.addEventListener("mousemove", e => {
+// 滑鼠與觸控統一邏輯
+function handleMove(e) {
+    e.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const relativeX = e.clientX - rect.left;
+    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const relativeX = (clientX - rect.left) * (canvas.width / rect.width);
+    
     if (relativeX > 0 && relativeX < canvas.width) {
         paddleX = relativeX - paddleWidth / 2;
     }
-});
+}
+canvas.addEventListener("mousemove", handleMove);
+canvas.addEventListener("touchmove", handleMove, { passive: false });
 
+// --- 碰撞檢測 ---
 function collisionDetection() {
-    for (let c = 0; c < brickColumnCount; c++) {
-        for (let r = 0; r < brickRowCount; r++) {
+    for (let c = 0; c < colCount; c++) {
+        for (let r = 0; r < rowCount; r++) {
             const b = bricks[c][r];
             if (b.status === 1) {
-                if (
-                    x > b.x &&
-                    x < b.x + brickWidth &&
-                    y > b.y &&
-                    y < b.y + brickHeight
-                ) {
+                // 計算磚塊寬度以填滿畫面
+                const bw = (canvas.width - (brickOffsetLeft * 2) - (colCount - 1) * brickPadding) / colCount;
+                const bh = 18;
+                const bx = c * (bw + brickPadding) + brickOffsetLeft;
+                const by = r * (bh + brickPadding) + brickOffsetTop;
+                b.x = bx; b.y = by;
+
+                if (x > bx && x < bx + bw && y > by && y < by + bh) {
                     dy = -dy;
                     b.status = 0;
-                    score++;
-                    document.getElementById("info").innerText = "分數：" + score;
+                    score += 10;
+                    updateUI();
 
-                    if (score === brickRowCount * brickColumnCount) {
-                        alert("🎉 恭喜通關！");
-                        resetGame();
+                    // 檢查過關
+                    if (checkWin()) {
+                        level++;
+                        alert(`🌟 關卡 ${level-1} 完成！準備進入關卡 ${level}`);
+                        initLevel();
                     }
                 }
             }
@@ -130,39 +165,51 @@ function collisionDetection() {
     }
 }
 
+function checkWin() {
+    for(let c=0; c<colCount; c++) {
+        for(let r=0; r<rowCount; r++) {
+            if(bricks[c][r].status === 1) return false;
+        }
+    }
+    return true;
+}
+
+// --- 繪製函數 ---
 function drawBall() {
     ctx.beginPath();
     ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#f00";
+    ctx.fillStyle = "#fff";
     ctx.fill();
     ctx.closePath();
 }
 
 function drawPaddle() {
     ctx.beginPath();
-    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-    ctx.fillStyle = "#0f0";
+    ctx.roundRect(paddleX, canvas.height - paddleHeight - 5, paddleWidth, paddleHeight, 5);
+    ctx.fillStyle = "#00ffff";
     ctx.fill();
     ctx.closePath();
 }
 
 function drawBricks() {
-    for (let c = 0; c < brickColumnCount; c++) {
-        for (let r = 0; r < brickRowCount; r++) {
+    const bw = (canvas.width - (brickOffsetLeft * 2) - (colCount - 1) * brickPadding) / colCount;
+    const bh = 18;
+    for (let c = 0; c < colCount; c++) {
+        for (let r = 0; r < rowCount; r++) {
             if (bricks[c][r].status === 1) {
-                const brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
-                const brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
-                bricks[c][r].x = brickX;
-                bricks[c][r].y = brickY;
-
                 ctx.beginPath();
-                ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                ctx.fillStyle = "#00ffff";
+                ctx.roundRect(bricks[c][r].x, bricks[c][r].y, bw, bh, 3);
+                ctx.fillStyle = bricks[c][r].color;
                 ctx.fill();
                 ctx.closePath();
             }
         }
     }
+}
+
+function updateUI() {
+    document.getElementById("lv-txt").innerText = level;
+    document.getElementById("score-txt").innerText = score;
 }
 
 function draw() {
@@ -172,38 +219,43 @@ function draw() {
     drawPaddle();
     collisionDetection();
 
-    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
-        dx = -dx;
-    }
-
-    if (y + dy < ballRadius) {
-        dy = -dy;
-    } else if (y + dy > canvas.height - ballRadius) {
+    // 牆壁碰撞
+    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
+    if (y + dy < ballRadius) dy = -dy;
+    else if (y + dy > canvas.height - ballRadius - 5) {
         if (x > paddleX && x < paddleX + paddleWidth) {
+            // 根據撞擊擋板的位置改變球的反射角度
+            let hitPos = (x - (paddleX + paddleWidth/2)) / (paddleWidth/2);
+            dx = hitPos * 3;
             dy = -dy;
         } else {
-            alert("💀 遊戲結束");
-            resetGame();
+            alert("💀 遊戲結束！你的分數: " + score);
+            resetGame(true);
+            return;
         }
     }
 
-    if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 5;
-    if (leftPressed && paddleX > 0) paddleX -= 5;
+    // 擋板移動
+    if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 7;
+    if (leftPressed && paddleX > 0) paddleX -= 7;
 
     x += dx;
     y += dy;
+    requestAnimationFrame(draw);
 }
 
-let game;
-function resetGame() {
-    clearInterval(game);
-    init();
-    game = setInterval(draw, 10);
+function resetGame(fullReset) {
+    if (fullReset) {
+        level = 1;
+        score = 0;
+    }
+    initLevel();
 }
 
-init();
-game = setInterval(draw, 10);
+// 啟動
+initLevel();
+draw();
+
 </script>
-
 </body>
 </html>
