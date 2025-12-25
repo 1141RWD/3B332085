@@ -61,6 +61,7 @@
     .memory { background: linear-gradient(135deg, #6a11cb, #2575fc); }
     .ghost { background: linear-gradient(135deg, #334155, #0f172a); }
     .flappy { background: linear-gradient(135deg, #ff00cc, #3333ff); }
+    .escape { background: linear-gradient(135deg, #4338ca, #6366f1); }
     /* 新增至 CSS 區塊 */
 .mines { background: linear-gradient(135deg, #1e293b, #475569); }
 
@@ -142,6 +143,16 @@
         <div class="icon">🧠</div>
         <div class="card-content"><h2>記憶對對碰</h2><p>雙人 13 對記憶戰</p><span class="play">▶ PLAY</span></div>
     </div>
+
+    <div class="card escape" data-category="反應" onclick="openGame('escape.html')">
+    <div class="icon">🚧</div>
+    <div class="card-content">
+        <h2>極限避障</h2>
+        <p>生存倒數 30 秒！在不斷縮小的障礙中尋找缺口</p>
+        <span class="play">▶ PLAY</span>
+    </div>
+</div>
+    
     <div class="card speed" data-category="雙人" onclick="openGame('card.html')">
         <div class="icon">🃏</div>
         <div class="card-content"><h2>心臟病</h2><p>手速對決拍桌戰</p><span class="play">▶ PLAY</span></div>
@@ -182,6 +193,7 @@ function openGame(file) {
 
 </body>
 </html>
+
 
 
 
