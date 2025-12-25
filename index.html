@@ -3,78 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MY Game</title>
+    <title>NEON ARCADE | 14合一霓虹大廳</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="scanline"></div>
+    <div class="grid-bg"></div>
 
-<h1>MY Game</h1>
+    <header>
+        <div class="logo">NEON<span>ARCADE</span></div>
+        <p class="subtitle">14 GAMES LOADED // READY TO PLAY</p>
+    </header>
 
-<div id="hero-carousel">
-    <div class="carousel-inner" id="carousel-inner">
-        <div class="carousel-item preview-farmer" onclick="location.href='farmer.html'">
-            <div class="carousel-overlay"></div>
-            <div class="carousel-content">
-                <p style="color:var(--neon-green); margin:0;">🔥 NEW</p>
-                <h2 style="color:var(--neon-green)">屍田農夫</h2>
-                <p>採收 🌱 躲避 🧟‍♀️！挑戰極限生存</p>
+   <section id="hero-carousel">
+        <div class="carousel-container" id="carousel-container">
+            <div class="carousel-item active" onclick="location.href='farmer.html'" style="--accent: var(--neon-green);">
+                <div class="carousel-content">
+                    <span class="badge">TOP PICK</span>
+                    <h2>屍海農夫</h2>
+                    <p>ULTIMATE SURVIVAL // 一命挑戰，在殭屍海中採收希望</p>
+                    <div class="glow-btn">立即登入</div>
+                </div>
+            </div>
+            <div class="carousel-item" onclick="location.href='2048.html'" style="--accent: var(--neon-cyan);">
+                <div class="carousel-content">
+                    <span class="badge">PUZZLE KING</span>
+                    <h2>2048 NEON</h2>
+                    <p>LOGIC CHALLENGE // 挑戰數字極限，感受流光溢彩</p>
+                    <div class="glow-btn">開始挑戰</div>
+                </div>
+            </div>
+            <div class="carousel-item" onclick="location.href='flappy.html'" style="--accent: var(--neon-pink);">
+                <div class="carousel-content">
+                    <span class="badge">HARDCORE</span>
+                    <h2>極速穿梭</h2>
+                    <p>REFLEX TEST // 穿梭於霓虹光影，挑戰反應天花板</p>
+                    <div class="glow-btn">突破紀錄</div>
+                </div>
             </div>
         </div>
-        <div class="carousel-item preview-2048" onclick="location.href='2048.html'">
-            <div class="carousel-overlay"></div>
-            <div class="carousel-content">
-                <p style="color:var(--neon-cyan); margin:0;">⭐ HOT</p>
-                <h2 style="color:var(--neon-cyan)">2048</h2>
-                <p>滑動數位，拼湊最高分的奇蹟</p>
+        <div class="carousel-dots" id="carousel-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        </div>
+    </section>
+
+    <nav class="filter-section">
+        <div class="filter-group">
+            <button class="btn btn-cat active" onclick="filterType('all', this)">全部遊戲</button>
+            <button class="btn btn-cat" onclick="filterType('益智', this)">益智挑戰</button>
+            <button class="btn btn-cat" onclick="filterType('街機', this)">街機經典</button>
+            <button class="btn btn-cat" onclick="filterType('多人', this)">多人對戰</button>
+        </div>
+        <div class="filter-group">
+            <button class="btn btn-diff active" onclick="filterDiff('all', this)">所有難度</button>
+            <button class="btn btn-diff-easy" onclick="filterDiff('easy', this)">🟢 輕鬆</button>
+            <button class="btn btn-diff-medium" onclick="filterDiff('medium', this)">🟡 挑戰</button>
+            <button class="btn btn-diff-hard" onclick="filterDiff('hard', this)">🔴 硬核</button>
+        </div>
+    </nav>
+
+    <main class="container" id="game-list">
+        <div class="card" data-cat="街機" data-diff="hard" onclick="location.href='farmer.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-green)">👨‍🌾</div>
+                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>屍海農夫</h3><p>街機生存 · 動作反應</p></div>
             </div>
         </div>
-        <div class="carousel-item preview-escape" onclick="location.href='escape.html'">
-            <div class="carousel-overlay"></div>
-            <div class="carousel-content">
-                <p style="color:var(--neon-pink); margin:0;">⚡ SPEED</p>
-                <h2 style="color:var(--neon-pink)">極限避障</h2>
-                <p>生死一瞬間，測驗你的反應極限</p>
+
+        <div class="card" data-cat="益智" data-diff="medium" onclick="location.href='2048.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-cyan)">🧩</div>
+                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>2048</h3><p>益智挑戰 · 數字拼圖</p></div>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="filter-section">
-    <div class="filter-group">
-        <button class="btn btn-cat active" data-type="all">全部類型</button>
-        <button class="btn btn-cat" data-type="益智">益智</button>
-        <button class="btn btn-cat" data-type="街機">街機</button>
-        <button class="btn btn-cat" data-type="多人">多人</button>
-    </div>
-    <div class="filter-group">
-        <button class="btn btn-diff active" data-diff="all">所有難度</button>
-        <button class="btn btn-diff btn-easy" data-diff="easy">🟢 輕鬆</button>
-        <button class="btn btn-diff btn-medium" data-diff="medium">🟡 挑戰</button>
-        <button class="btn btn-diff btn-hard" data-diff="hard">🔴 硬核</button>
-    </div>
-</div>
+        <div class="card" data-cat="街機" data-diff="hard" onclick="location.href='escape.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-pink)">🚧</div>
+                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>極限避障</h3><p>街機經典 · 反應極限</p></div>
+            </div>
+        </div>
 
-<div class="container" id="game-list">
-    <div class="card c14" data-cat="街機" data-diff="hard" onclick="location.href='farmer.html'"><span class="diff-badge hrd">硬核</span><div class="icon">👨‍🌾</div><div class="card-content"><h2>屍田農夫</h2><p>街機 · 極限生存</p></div></div>
-    <div class="card c1" data-cat="益智" data-diff="medium" onclick="location.href='2048.html'"><span class="diff-badge med">挑戰</span><div class="icon">🧩</div><div class="card-content"><h2>2048</h2><p>益智 · 數字拼圖</p></div></div>
-    <div class="card c2" data-cat="街機" data-diff="hard" onclick="location.href='escape.html'"><span class="diff-badge hrd">硬核</span><div class="icon">🚧</div><div class="card-content"><h2>極限避障</h2><p>街機 · 生存反應</p></div></div>
-    <div class="card c3" data-cat="街機" data-diff="medium" onclick="location.href='darts.html'"><span class="diff-badge med">挑戰</span><div class="icon">🎯</div><div class="card-content"><h2>技術流飛鏢</h2><p>街機 · 精準操控</p></div></div>
-    <div class="card c4" data-cat="街機" data-diff="easy" onclick="location.href='snake.html'"><span class="diff-badge esy">輕鬆</span><div class="icon">🐍</div><div class="card-content"><h2>貪食蛇</h2><p>街機 · 經典重現</p></div></div>
-    <div class="card c5" data-cat="益智" data-diff="hard" onclick="location.href='mines.html'"><span class="diff-badge hrd">硬核</span><div class="icon">💣</div><div class="card-content"><h2>掃雷</h2><p>益智 · 邏輯推理</p></div></div>
-    <div class="card c6" data-cat="多人" data-diff="medium" onclick="location.href='gomoku.html'"><span class="diff-badge med">挑戰</span><div class="icon">⚫</div><div class="card-content"><h2>五子棋</h2><p>多人 · 策略對抗</p></div></div>
-    <div class="card c7" data-cat="多人" data-diff="hard" onclick="location.href='card.html'"><span class="diff-badge hrd">硬核</span><div class="icon">🃏</div><div class="card-content"><h2>心臟病</h2><p>多人 · 手速對決</p></div></div>
-    <div class="card c8" data-cat="多人" data-diff="easy" onclick="location.href='pair.html'"><span class="diff-badge esy">輕鬆</span><div class="icon">🧠</div><div class="card-content"><h2>記憶對對碰</h2><p>多人 · 腦力開發</p></div></div>
-    <div class="card c9" data-cat="益智" data-diff="easy" onclick="location.href='guess100.html'"><span class="diff-badge esy">輕鬆</span><div class="icon">❓</div><div class="card-content"><h2>猜數字</h2><p>益智 · 終極密碼</p></div></div>
-    <div class="card c10" data-cat="益智" data-diff="medium" onclick="location.href='ab.html'"><span class="diff-badge med">挑戰</span><div class="icon">🔢</div><div class="card-content"><h2>幾A幾B</h2><p>益智 · 邏輯破譯</p></div></div>
-    <div class="card c11" data-cat="益智" data-diff="hard" onclick="location.href='ghost.html'"><span class="diff-badge hrd">硬核</span><div class="icon">👻</div><div class="card-content"><h2>快手搶牌</h2><p>益智 · 瞬間反應</p></div></div>
-    <div class="card c12" data-cat="街機" data-diff="medium" onclick="location.href='breakout.html'"><span class="diff-badge med">挑戰</span><div class="icon">🧱</div><div class="card-content"><h2>打磚塊</h2><p>街機 · 解壓必備</p></div></div>
-    <div class="card c13" data-cat="街機" data-diff="hard" onclick="location.href='flappy.html'"><span class="diff-badge hrd">硬核</span><div class="icon">🚀</div><div class="card-content"><h2>極速穿梭</h2><p>街機 · 難度天花板</p></div></div>
-</div>
+        <div class="card" data-cat="街機" data-diff="medium" onclick="location.href='darts.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: #9d00ff">🎯</div>
+                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>技術流飛鏢</h3><p>街機經典 · 精準操控</p></div>
+            </div>
+        </div>
 
-<footer>ARCADE HUB © 2025 · READY PLAYER ONE</footer>
-<script src="script.js"></script>
+        <div class="card" data-cat="街機" data-diff="easy" onclick="location.href='snake.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-green)">🐍</div>
+                <div class="card-info"><span class="tag tag-easy">EASY</span><h3>貪食蛇</h3><p>街機經典 · 經典重現</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="益智" data-diff="hard" onclick="location.href='mines.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: #e74c3c">💣</div>
+                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>霓虹掃雷</h3><p>益智挑戰 · 邏輯推理</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="多人" data-diff="medium" onclick="location.href='gomoku.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: #fff">⚫</div>
+                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>五子棋</h3><p>多人對戰 · 策略對抗</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="多人" data-diff="hard" onclick="location.href='card.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-pink)">🃏</div>
+                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>心臟病</h3><p>多人對戰 · 手速對決</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="多人" data-diff="easy" onclick="location.href='pair.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-cyan)">🧠</div>
+                <div class="card-info"><span class="tag tag-easy">EASY</span><h3>記憶對對碰</h3><p>多人對戰 · 腦力開發</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="益智" data-diff="easy" onclick="location.href='guess100.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: #f1c40f">❓</div>
+                <div class="card-info"><span class="tag tag-easy">EASY</span><h3>猜數字</h3><p>益智挑戰 · 終極密碼</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="益智" data-diff="medium" onclick="location.href='ab.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-cyan)">🔢</div>
+                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>幾A幾B</h3><p>益智挑戰 · 邏輯破譯</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="益智" data-diff="hard" onclick="location.href='ghost.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: #ecf0f1">👻</div>
+                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>閃靈快手</h3><p>益智挑戰 · 瞬間反應</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="街機" data-diff="medium" onclick="location.href='breakout.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-cyan)">🧱</div>
+                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>打磚塊</h3><p>街機經典 · 解壓必備</p></div>
+            </div>
+        </div>
+
+        <div class="card" data-cat="街機" data-diff="hard" onclick="location.href='flappy.html'">
+            <div class="card-inner">
+                <div class="card-img" style="color: var(--neon-pink)">🚀</div>
+                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>極速穿梭</h3><p>街機經典 · 難度天花板</p></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="status-bar">
+            SYSTEM STATUS: <span class="online-dot"></span> ONLINE | 14 MODULES LOADED
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
-
-
-
