@@ -55,12 +55,13 @@ function showSlides() {
     slides[slideIndex - 1].classList.add('active');
     dots[slideIndex - 1].classList.add('active');
 
-    // 每 5 秒切換一次
-    setTimeout(showSlides, 5000);
+    // 每 4 秒切換一次
+    setTimeout(showSlides, 4000);
 }
 
 // 啟動輪播
 window.onload = () => {
     showSlides();
     console.log("NEON ARCADE: ALL SYSTEMS GO.");
+
 };
