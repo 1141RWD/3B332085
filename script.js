@@ -2,10 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. 輪播控制器
     let slideIndex = 0;
     const inner = document.getElementById('carousel-inner');
-    setInterval(() => {
-        slideIndex = (slideIndex + 1) % 3;
-        inner.style.transform = `translateX(-${slideIndex * 33.33}%)`;
-    }, 5000);
+    const totalSlides = 3; 
+
+    function moveSlide() {
+        slideIndex = (slideIndex + 1) % totalSlides;
+        // 每次位移 100/3 = 33.333%
+        inner.style.transform = `translateX(-${slideIndex * (100 / totalSlides)}%)`;
+    }
+
+    let carouselTimer = setInterval(moveSlide, 5000);
 
     // 2. 過濾功能
     const catBtns = document.querySelectorAll('.btn-cat');
@@ -25,15 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     catBtns.forEach(btn => btn.addEventListener('click', (e) => {
         catBtns.forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        activeCat = e.target.dataset.type;
+        e.currentTarget.classList.add('active');
+        activeCat = e.currentTarget.dataset.type;
         filter();
     }));
 
     diffBtns.forEach(btn => btn.addEventListener('click', (e) => {
         diffBtns.forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        activeDiff = e.target.dataset.diff;
+        e.currentTarget.classList.add('active');
+        activeDiff = e.currentTarget.dataset.diff;
         filter();
     }));
 });
