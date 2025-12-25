@@ -1,152 +1,103 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-<title>🧱 打磚塊：關卡進化版</title>
-    <div id="home-btn-container" onclick="window.location.href='index.html'">
-    <svg viewBox="0 0 24 24" width="24" height="24">
-        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-    </svg>
-    <span>大廳</span>
-</div>
-<style>
-    :root {
-        --neon-blue: #00ffff;
-        --neon-pink: #ff00ff;
-    }
-    body {
-        margin: 0; background: #0a0a12; color: white;
-        text-align: center; font-family: 'Segoe UI', sans-serif;
-        overflow: hidden; touch-action: none;
-    }
-
-    /* 頂部資訊欄 */
-    #header {
-        display: flex; justify-content: space-around;
-        padding: 15px; background: rgba(255,255,255,0.05);
-        font-weight: bold; font-size: 1.1rem;
-    }
-    .stat span { color: var(--neon-blue); }
-
-    /* 遊戲區域 */
-    #canvas-container {
-        position: relative; width: 95vw; max-width: 480px;
-        aspect-ratio: 3/2; margin: 20px auto;
-        border: 2px solid var(--neon-blue); border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
-    }
-    canvas { width: 100%; height: 100%; display: block; background: #000; }
-
-    /* 控制說明 */
-    .hint { color: #666; font-size: 0.8rem; margin-bottom: 10px; }
-#home-btn-container {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 9999; /* 確保在所有遊戲元素之上 */
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 15px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 242, 254, 0.5);
-        border-radius: 50px;
-        color: #00f2fe;
-        cursor: pointer;
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: bold;
-        font-size: 14px;
-        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        transition: 0.3s;
-        user-select: none;
-    }
-
-    #home-btn-container:hover {
-        background: rgba(0, 242, 254, 0.2);
-        box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-        transform: scale(1.05);
-    }
-
-    #home-btn-container:active {
-        transform: scale(0.95);
-    }
-
-    /* 手機版微調：如果覺得太大可以縮小一點 */
-    @media (max-width: 480px) {
-        #home-btn-container {
-            top: 10px;
-            left: 10px;
-            padding: 6px 12px;
-            font-size: 12px;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🧱 打磚塊：關卡進化版</title>
+    <style>
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
         }
-    }
-    /* 按鈕樣式 */
-    button {
-        padding: 12px 24px; font-size: 1rem; border-radius: 30px;
-        border: 1px solid var(--neon-blue); background: transparent;
-        color: var(--neon-blue); cursor: pointer; transition: 0.3s;
-    }
-    button:active { background: var(--neon-blue); color: #000; }
-</style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; background: #0a0a12; color: white;
+            text-align: center; font-family: 'Segoe UI', sans-serif;
+            overflow: hidden; touch-action: none;
+            display: flex; flex-direction: column; height: 100vh;
+        }
+
+        /* 頂部整合欄 */
+        #header {
+            display: flex; justify-content: flex-end; align-items: center;
+            padding: 10px 15px; background: rgba(255,255,255,0.05);
+            gap: 15px; height: 50px;
+        }
+        .stat { font-weight: bold; font-size: 0.9rem; }
+        .stat span { color: var(--neon-blue); }
+
+        #home-btn-container {
+            position: fixed; top: 10px; left: 10px; z-index: 9999;
+            display: flex; align-items: center; gap: 5px;
+            padding: 6px 12px; background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px); border: 1px solid rgba(0, 242, 254, 0.5);
+            border-radius: 50px; color: #00f2fe; cursor: pointer;
+            font-size: 12px; text-decoration: none;
+        }
+
+        /* 遊戲區域 */
+        #canvas-container {
+            flex: 1; /* 自動分配剩餘空間 */
+            display: flex; align-items: center; justify-content: center;
+            padding: 10px;
+        }
+        canvas { 
+            max-width: 100%; max-height: 100%; 
+            background: #000; border: 2px solid var(--neon-blue);
+            border-radius: 8px; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        /* 底部控制區 */
+        .controls { padding: 10px; }
+        .hint { color: #666; font-size: 0.75rem; margin-bottom: 8px; }
+        button {
+            padding: 10px 20px; font-size: 0.9rem; border-radius: 30px;
+            border: 1px solid var(--neon-blue); background: transparent;
+            color: var(--neon-blue); cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
+<a id="home-btn-container" href="index.html">
+    <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>大廳</span>
+</a>
+
 <div id="header">
-    <div class="stat">關卡: <span id="lv-txt">1</span></div>
-    <div class="stat">分數: <span id="score-txt">0</span></div>
+    <div class="stat">LV: <span id="lv-txt">1</span></div>
+    <div class="stat">SCORE: <span id="score-txt">0</span></div>
 </div>
 
 <div id="canvas-container">
     <canvas id="game" width="480" height="320"></canvas>
 </div>
 
-<p class="hint">電腦：滑鼠移動或左右鍵 | 手機：直接滑動螢幕</p>
-<button onclick="resetGame(true)">重置遊戲</button>
-
-
+<div class="controls">
+    <p class="hint">拖曳畫面下方或滑動來移動擋板</p>
+    <button onclick="resetGame(true)">重置遊戲</button>
+</div>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-// 遊戲變數
 let level = 1;
 let score = 0;
-let x, y, dx, dy;
-let ballRadius = 8;
-let paddleHeight = 12;
-let paddleWidth = 90;
-let paddleX;
-let rightPressed = false;
-let leftPressed = false;
-
-// 磚塊配置
-const brickPadding = 10;
-const brickOffsetTop = 30;
-const brickOffsetLeft = 25;
-let bricks = [];
-let rowCount = 3;
-let colCount = 5;
+let x, y, dx, dy, ballRadius = 8;
+let paddleHeight = 12, paddleWidth = 90, paddleX;
+let bricks = [], rowCount, colCount;
+const brickPadding = 8, brickOffsetTop = 30, brickOffsetLeft = 15;
 
 function initLevel() {
-    // 根據關卡調整難度
-    rowCount = 2 + level; // 每關多一行
+    rowCount = Math.min(2 + level, 6);
     colCount = 6;
-    
-    // 初始位置
     x = canvas.width / 2;
     y = canvas.height - 40;
-    
-    // 球速隨關卡略微提升
-    let speed = 2 + (level * 0.5);
-    dx = speed;
-    dy = -speed;
-    
+    let speed = 2 + (level * 0.4);
+    dx = speed; dy = -speed;
     paddleX = (canvas.width - paddleWidth) / 2;
 
-    // 初始化磚塊
     bricks = [];
     for (let c = 0; c < colCount; c++) {
         bricks[c] = [];
@@ -157,39 +108,29 @@ function initLevel() {
     updateUI();
 }
 
-// --- 控制邏輯 ---
-document.addEventListener("keydown", e => {
-    if (e.key === "ArrowRight") rightPressed = true;
-    if (e.key === "ArrowLeft") leftPressed = true;
-});
-document.addEventListener("keyup", e => {
-    if (e.key === "ArrowRight") rightPressed = false;
-    if (e.key === "ArrowLeft") leftPressed = false;
-});
-
-// 滑鼠與觸控統一邏輯
 function handleMove(e) {
     e.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    let clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const relativeX = (clientX - rect.left) * (canvas.width / rect.width);
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    // 重要：計算縮放後的精確比例
+    const scaleX = canvas.width / rect.width;
+    const relativeX = (clientX - rect.left) * scaleX;
     
-    if (relativeX > 0 && relativeX < canvas.width) {
+    if (relativeX >= 0 && relativeX <= canvas.width) {
         paddleX = relativeX - paddleWidth / 2;
     }
 }
-canvas.addEventListener("mousemove", handleMove);
-canvas.addEventListener("touchmove", handleMove, { passive: false });
 
-// --- 碰撞檢測 ---
+document.addEventListener("mousemove", handleMove);
+document.addEventListener("touchmove", handleMove, { passive: false });
+
 function collisionDetection() {
+    const bw = (canvas.width - (brickOffsetLeft * 2) - (colCount - 1) * brickPadding) / colCount;
+    const bh = 18;
     for (let c = 0; c < colCount; c++) {
         for (let r = 0; r < rowCount; r++) {
             const b = bricks[c][r];
             if (b.status === 1) {
-                // 計算磚塊寬度以填滿畫面
-                const bw = (canvas.width - (brickOffsetLeft * 2) - (colCount - 1) * brickPadding) / colCount;
-                const bh = 18;
                 const bx = c * (bw + brickPadding) + brickOffsetLeft;
                 const by = r * (bh + brickPadding) + brickOffsetTop;
                 b.x = bx; b.y = by;
@@ -199,11 +140,9 @@ function collisionDetection() {
                     b.status = 0;
                     score += 10;
                     updateUI();
-
-                    // 檢查過關
                     if (checkWin()) {
                         level++;
-                        alert(`🌟 關卡 ${level-1} 完成！準備進入關卡 ${level}`);
+                        alert(`🌟 關卡完成！準備進入 LV ${level}`);
                         initLevel();
                     }
                 }
@@ -213,45 +152,31 @@ function collisionDetection() {
 }
 
 function checkWin() {
-    for(let c=0; c<colCount; c++) {
-        for(let r=0; r<rowCount; r++) {
-            if(bricks[c][r].status === 1) return false;
-        }
-    }
-    return true;
+    return bricks.every(col => col.every(b => b.status === 0));
 }
 
-// --- 繪製函數 ---
 function drawBall() {
-    ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
-    ctx.fillStyle = "#fff";
-    ctx.fill();
-    ctx.closePath();
+    ctx.beginPath(); ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff"; ctx.fill(); ctx.closePath();
 }
 
 function drawPaddle() {
     ctx.beginPath();
     ctx.roundRect(paddleX, canvas.height - paddleHeight - 5, paddleWidth, paddleHeight, 5);
-    ctx.fillStyle = "#00ffff";
-    ctx.fill();
-    ctx.closePath();
+    ctx.fillStyle = varColor('--neon-blue'); ctx.fill(); ctx.closePath();
 }
+
+function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
 
 function drawBricks() {
     const bw = (canvas.width - (brickOffsetLeft * 2) - (colCount - 1) * brickPadding) / colCount;
     const bh = 18;
-    for (let c = 0; c < colCount; c++) {
-        for (let r = 0; r < rowCount; r++) {
-            if (bricks[c][r].status === 1) {
-                ctx.beginPath();
-                ctx.roundRect(bricks[c][r].x, bricks[c][r].y, bw, bh, 3);
-                ctx.fillStyle = bricks[c][r].color;
-                ctx.fill();
-                ctx.closePath();
-            }
+    bricks.forEach(col => col.forEach(b => {
+        if (b.status === 1) {
+            ctx.beginPath(); ctx.roundRect(b.x, b.y, bw, bh, 3);
+            ctx.fillStyle = b.color; ctx.fill(); ctx.closePath();
         }
-    }
+    }));
 }
 
 function updateUI() {
@@ -259,51 +184,35 @@ function updateUI() {
     document.getElementById("score-txt").innerText = score;
 }
 
+let animFrame;
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBricks();
-    drawBall();
-    drawPaddle();
-    collisionDetection();
+    drawBricks(); drawBall(); drawPaddle(); collisionDetection();
 
-    // 牆壁碰撞
     if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) dx = -dx;
     if (y + dy < ballRadius) dy = -dy;
     else if (y + dy > canvas.height - ballRadius - 5) {
         if (x > paddleX && x < paddleX + paddleWidth) {
-            // 根據撞擊擋板的位置改變球的反射角度
             let hitPos = (x - (paddleX + paddleWidth/2)) / (paddleWidth/2);
-            dx = hitPos * 3;
-            dy = -dy;
+            dx = hitPos * 4; dy = -dy;
         } else {
-            alert("💀 遊戲結束！你的分數: " + score);
-            resetGame(true);
-            return;
+            alert("💀 遊戲結束！得分: " + score);
+            resetGame(true); return;
         }
     }
-
-    // 擋板移動
-    if (rightPressed && paddleX < canvas.width - paddleWidth) paddleX += 7;
-    if (leftPressed && paddleX > 0) paddleX -= 7;
-
-    x += dx;
-    y += dy;
-    requestAnimationFrame(draw);
+    x += dx; y += dy;
+    animFrame = requestAnimationFrame(draw);
 }
 
 function resetGame(fullReset) {
-    if (fullReset) {
-        level = 1;
-        score = 0;
-    }
+    if (fullReset) { level = 1; score = 0; }
+    cancelAnimationFrame(animFrame);
     initLevel();
+    draw();
 }
 
-// 啟動
 initLevel();
 draw();
-
 </script>
 </body>
 </html>
-
