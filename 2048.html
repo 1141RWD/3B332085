@@ -2,219 +2,197 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>2048 小遊戲</title>
-  <div id="home-btn-container" onclick="window.location.href='index.html'">
-    <svg viewBox="0 0 24 24" width="24" height="24">
-        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-    </svg>
-    <span>大廳</span>
-</div>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+<title>2048 Neon - Arcade Hub</title>
 <style>
-body{
-  font-family: "Segoe UI","微軟正黑體";
-  background:#faf8ef;
-  text-align:center;
-}
-
-h1{font-size:48px;margin:10px;}
-#score{font-size:20px;margin-bottom:10px;}
-
-#home-btn-container {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 9999; /* 確保在所有遊戲元素之上 */
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 15px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 242, 254, 0.5);
-        border-radius: 50px;
-        color: #00f2fe;
-        cursor: pointer;
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: bold;
-        font-size: 14px;
-        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        transition: 0.3s;
-        user-select: none;
+    :root {
+        --bg: #050510;
+        --grid-bg: #101025;
+        --cell-empty: #1a1a35;
+        --neon-cyan: #00f2fe;
+        --neon-pink: #ff00cc;
+        --neon-purple: #9d00ff;
     }
 
-    #home-btn-container:hover {
-        background: rgba(0, 242, 254, 0.2);
-        box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-        transform: scale(1.05);
+    body {
+        font-family: "Segoe UI", sans-serif;
+        background: var(--bg);
+        text-align: center;
+        margin: 0;
+        padding-top: 60px;
+        color: white;
+        touch-action: none; 
     }
 
-    #home-btn-container:active {
-        transform: scale(0.95);
+    h1 { 
+        font-size: 48px; margin: 10px; 
+        color: var(--neon-cyan);
+        text-shadow: 0 0 15px var(--neon-cyan);
     }
 
-    /* 手機版微調：如果覺得太大可以縮小一點 */
-    @media (max-width: 480px) {
-        #home-btn-container {
-            top: 10px;
-            left: 10px;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
+    #score { 
+        font-size: 22px; font-weight: bold; 
+        color: var(--neon-pink); 
+        text-shadow: 0 0 10px var(--neon-pink);
+        margin-bottom: 15px; 
     }
-#board{
-  width:360px;
-  height:360px;
-  margin:20px auto;
-  background:#bbada0;
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  padding:10px;
-  border-radius:10px;
-}
 
-.cell{
-  width:80px;
-  height:80px;
-  background:#cdc1b4;
-  font-size:28px;
-  font-weight:bold;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  border-radius:6px;
-}
+    /* 霓虹版回大廳按鈕 */
+    #home-btn-container {
+        position: fixed; top: 15px; left: 15px; z-index: 9999;
+        display: flex; align-items: center; gap: 5px; padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+        border: 1px solid var(--neon-cyan); border-radius: 50px;
+        color: var(--neon-cyan); cursor: pointer; font-weight: bold; font-size: 14px;
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); transition: 0.3s;
+    }
 
-.cell[data-v="2"]{background:#eee4da;}
-.cell[data-v="4"]{background:#ede0c8;}
-.cell[data-v="8"]{background:#f2b179;color:white;}
-.cell[data-v="16"]{background:#f59563;color:white;}
-.cell[data-v="32"]{background:#f67c5f;color:white;}
-.cell[data-v="64"]{background:#f65e3b;color:white;}
-.cell[data-v="128"]{background:#edcf72;color:white;}
-.cell[data-v="256"]{background:#edcc61;color:white;}
-.cell[data-v="512"]{background:#edc850;color:white;}
-.cell[data-v="1024"]{background:#edc53f;color:white;}
-.cell[data-v="2048"]{background:#edc22e;color:white;}
+    #board {
+        width: 340px; height: 340px;
+        max-width: 92vw; max-height: 92vw;
+        margin: 20px auto; background: var(--grid-bg);
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 12px; padding: 12px; border-radius: 12px;
+        box-sizing: border-box;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    }
 
-#over{
-  font-size:28px;
-  color:red;
-  display:none;
-}
+    .cell {
+        aspect-ratio: 1/1;
+        background: var(--cell-empty);
+        font-size: 26px; font-weight: bold;
+        display: flex; justify-content: center; align-items: center;
+        border-radius: 8px; transition: all 0.15s ease-in-out;
+        color: white;
+    }
+
+    /* 霓虹方塊配色邏輯 */
+    .cell[data-v="2"] { background: #2a0052; color: #d1b3ff; box-shadow: inset 0 0 10px #9d00ff; }
+    .cell[data-v="4"] { background: #3d007a; color: #e6d6ff; box-shadow: inset 0 0 15px #9d00ff; }
+    .cell[data-v="8"] { background: #003d3d; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
+    .cell[data-v="16"] { background: #005c5c; color: white; box-shadow: 0 0 15px var(--neon-cyan); }
+    .cell[data-v="32"] { background: #5c004a; color: #ffb3e6; border: 1px solid var(--neon-pink); box-shadow: 0 0 10px var(--neon-pink); }
+    .cell[data-v="64"] { background: #85006b; color: white; box-shadow: 0 0 20px var(--neon-pink); }
+    .cell[data-v="128"] { background: #1a1a1a; color: #39ff14; border: 1px solid #39ff14; box-shadow: 0 0 15px #39ff14; font-size: 22px; }
+    .cell[data-v="256"] { background: #00ff001a; color: #39ff14; box-shadow: 0 0 25px #39ff14; font-size: 22px; }
+    .cell[data-v="512"] { background: #ffaa001a; color: #ffaa00; border: 1px solid #ffaa00; box-shadow: 0 0 20px #ffaa00; font-size: 22px; }
+    .cell[data-v="1024"] { background: #ff00001a; color: #ff4136; border: 1px solid #ff4136; box-shadow: 0 0 25px #ff4136; font-size: 18px; }
+    .cell[data-v="2048"] { background: #ffffff; color: #000; box-shadow: 0 0 40px #ffffff; font-size: 18px; }
+
+    #over { font-size: 32px; color: var(--neon-pink); font-weight: bold; margin-top: 20px; display: none; text-shadow: 0 0 20px var(--neon-pink); }
+    .hint { font-size: 13px; color: #555577; margin-top: 15px; letter-spacing: 1px; }
 </style>
 </head>
 <body>
 
+<div id="home-btn-container" onclick="window.location.href='index.html'">
+    <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>大廳</span>
+</div>
+
 <h1>2048</h1>
-<div id="score">分數：0</div>
+<div id="score">SCORE: 0</div>
 <div id="board"></div>
-<div id="over">💀 Game Over</div>
+<div id="over">GAME OVER</div>
+<div class="hint">SWIPE TO MOVE TILES</div>
 
 <script>
 const board = document.getElementById("board");
 let grid = Array(16).fill(0);
 let score = 0;
 
-// 初始化
 function init(){
-  grid.fill(0);
-  score = 0;
-  document.getElementById("over").style.display="none";
-  addNumber();
-  addNumber();
-  draw();
-}
-
-// 畫面
-function draw(){
-  board.innerHTML="";
-  grid.forEach(v=>{
-    let d=document.createElement("div");
-    d.className="cell";
-    if(v){
-      d.innerText=v;
-      d.dataset.v=v;
-    }
-    board.appendChild(d);
-  });
-  document.getElementById("score").innerText="分數："+score;
-}
-
-// 隨機產生 2 或 4
-function addNumber(){
-  let empty = grid.map((v,i)=>v==0?i:null).filter(v=>v!=null);
-  if(!empty.length) return;
-  let i = empty[Math.floor(Math.random()*empty.length)];
-  grid[i] = Math.random()<0.9 ? 2 : 4;
-}
-
-// 合併一行
-function merge(row){
-  row = row.filter(v=>v);
-  for(let i=0;i<row.length-1;i++){
-    if(row[i]==row[i+1]){
-      row[i]*=2;
-      score+=row[i];
-      row[i+1]=0;
-    }
-  }
-  row = row.filter(v=>v);
-  while(row.length<4) row.push(0);
-  return row;
-}
-
-// 移動
-function move(dir){
-  let old = grid.join();
-  for(let i=0;i<4;i++){
-    let row=[];
-    for(let j=0;j<4;j++){
-      let idx =
-        dir=="left"  ? i*4+j :
-        dir=="right" ? i*4+3-j :
-        dir=="up"    ? j*4+i :
-                       (3-j)*4+i;
-      row.push(grid[idx]);
-    }
-    row = merge(row);
-    for(let j=0;j<4;j++){
-      let idx =
-        dir=="left"  ? i*4+j :
-        dir=="right" ? i*4+3-j :
-        dir=="up"    ? j*4+i :
-                       (3-j)*4+i;
-      grid[idx]=row[j];
-    }
-  }
-  if(old!=grid.join()){
-    addNumber();
+    grid.fill(0); score = 0;
+    document.getElementById("over").style.display="none";
+    addNumber(); addNumber();
     draw();
-    checkOver();
-  }
 }
 
-// 判斷 Game Over
+function draw(){
+    board.innerHTML="";
+    grid.forEach(v=>{
+        let d=document.createElement("div");
+        d.className="cell";
+        if(v){ 
+            d.innerText=v; d.dataset.v=v;
+            // 讓新生成的方塊有個微小的彈出動畫效果
+            d.style.transform = "scale(1.1)";
+            setTimeout(() => d.style.transform = "scale(1)", 50);
+        }
+        board.appendChild(d);
+    });
+    document.getElementById("score").innerText="SCORE: "+score;
+}
+
+function addNumber(){
+    let empty = grid.map((v,i)=>v==0?i:null).filter(v=>v!=null);
+    if(!empty.length) return;
+    let i = empty[Math.floor(Math.random()*empty.length)];
+    grid[i] = Math.random()<0.9 ? 2 : 4;
+}
+
+function merge(row){
+    row = row.filter(v=>v);
+    for(let i=0;i<row.length-1;i++){
+        if(row[i]==row[i+1]){
+            row[i]*=2; score+=row[i]; row[i+1]=0;
+        }
+    }
+    row = row.filter(v=>v);
+    while(row.length<4) row.push(0);
+    return row;
+}
+
+function move(dir){
+    let old = grid.join();
+    for(let i=0;i<4;i++){
+        let row=[];
+        for(let j=0;j<4;j++){
+            let idx = (dir=="left") ? i*4+j : (dir=="right") ? i*4+3-j : (dir=="up") ? j*4+i : (3-j)*4+i;
+            row.push(grid[idx]);
+        }
+        row = merge(row);
+        for(let j=0;j<4;j++){
+            let idx = (dir=="left") ? i*4+j : (dir=="right") ? i*4+3-j : (dir=="up") ? j*4+i : (3-j)*4+i;
+            grid[idx]=row[j];
+        }
+    }
+    if(old!=grid.join()){
+        addNumber(); draw(); checkOver();
+    }
+}
+
 function checkOver(){
-  if(grid.includes(0)) return;
-  for(let i=0;i<16;i++){
-    if(i%4!=3 && grid[i]==grid[i+1]) return;
-    if(i<12 && grid[i]==grid[i+4]) return;
-  }
-  document.getElementById("over").style.display="block";
+    if(grid.includes(0)) return;
+    for(let i=0;i<16;i++){
+        if(i%4!=3 && grid[i]==grid[i+1]) return;
+        if(i<12 && grid[i]==grid[i+4]) return;
+    }
+    document.getElementById("over").style.display="block";
 }
 
-// 鍵盤控制
-document.addEventListener("keydown",e=>{
-  if(e.key=="ArrowLeft") move("left");
-  if(e.key=="ArrowRight") move("right");
-  if(e.key=="ArrowUp") move("up");
-  if(e.key=="ArrowDown") move("down");
+// 手機滑動
+let touchStartX = 0; let touchStartY = 0;
+document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+}, false);
+
+document.addEventListener('touchend', e => {
+    let dx = e.changedTouches[0].screenX - touchStartX;
+    let dy = e.changedTouches[0].screenY - touchStartY;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) > 30) {
+        if (Math.abs(dx) > Math.abs(dy)) move(dx > 0 ? "right" : "left");
+        else move(dy > 0 ? "down" : "up");
+    }
+}, false);
+
+document.addEventListener("keydown", e => {
+    if(e.key.includes("Arrow")) move(e.key.replace("Arrow","").toLowerCase());
 });
 
 init();
 </script>
 </body>
 </html>
-
-
