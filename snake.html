@@ -1,245 +1,218 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-<title>🐍 經典貪食蛇：進化版</title>
-      <div id="home-btn-container" onclick="window.location.href='index.html'">
-    <svg viewBox="0 0 24 24" width="24" height="24">
-        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-    </svg>
-    <span>大廳</span>
-<style>
-    :root {
-        --primary-green: #2ecc71;
-        --dark-bg: #1a1a2e;
-    }
-    body {
-        margin: 0; background: var(--dark-bg); color: white;
-        text-align: center; font-family: 'Segoe UI', sans-serif;
-        overflow: hidden; touch-action: none; /* 防止手機縮放與滾動 */
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🐍 經典貪食蛇：進化版</title>
+    <style>
+        :root {
+            --primary-green: #2ecc71;
+            --dark-bg: #050510;
+        }
 
-    h1 { margin: 15px 0 5px; font-size: 1.5rem; color: var(--primary-green); }
-    #score { font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; }
+        * { box-sizing: border-box; }
 
-    /* 畫布容器：確保在小螢幕也能完整顯示 */
-    #canvas-container {
-        position: relative; width: 90vw; max-width: 400px;
-        aspect-ratio: 1/1; margin: 0 auto;
-        border: 4px solid #334155; border-radius: 10px; overflow: hidden;
-        background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
-    canvas { width: 100%; height: 100%; display: block; }
+        body {
+            margin: 0; background: var(--dark-bg); color: white;
+            text-align: center; font-family: 'Segoe UI', sans-serif;
+            overflow: hidden; touch-action: none;
+            display: flex; flex-direction: column; align-items: center;
+            height: 100vh; /* 固定高度為螢幕高度 */
+        }
 
-    /* 虛擬搖桿 (手機專用) */
-    .controls {
-        display: grid; grid-template-columns: repeat(3, 1fr);
-        gap: 10px; width: 180px; margin: 20px auto;
-    }
-    .btn {
-        width: 55px; height: 55px; background: rgba(255,255,255,0.1);
-        border: 2px solid var(--primary-green); border-radius: 15px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 24px; color: var(--primary-green); cursor: pointer;
-        user-select: none; transition: 0.2s;
-    }
-    .btn:active { background: var(--primary-green); color: black; transform: scale(0.9); }
-    .btn.up { grid-column: 2; }
-    .btn.left { grid-column: 1; }
-    .btn.right { grid-column: 3; }
-    .btn.down { grid-column: 2; }
+        /* 大廳按鈕 */
+        #home-btn-container {
+            position: fixed; top: 10px; left: 10px; z-index: 9999;
+            display: flex; align-items: center; gap: 5px;
+            padding: 5px 12px; background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px); border: 1px solid rgba(0, 242, 254, 0.5);
+            border-radius: 50px; color: #00f2fe; cursor: pointer; font-size: 13px;
+        }
 
-    .menu { margin-top: 10px; }
-    button.reset {
-        padding: 10px 25px; font-size: 1rem; border-radius: 20px;
-        border: none; background: #e74c3c; color: white; font-weight: bold;
-        cursor: pointer; transition: 0.3s;
-    }
-    button.reset:hover { background: #ff5e57; }
-       #home-btn-container {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 9999; /* 確保在所有遊戲元素之上 */
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 15px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 242, 254, 0.5);
-        border-radius: 50px;
-        color: #00f2fe;
-        cursor: pointer;
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: bold;
-        font-size: 14px;
-        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        transition: 0.3s;
-        user-select: none;
-    }
+        h1 { margin: 10px 0 0; font-size: 1.2rem; color: var(--primary-green); }
+        #score { font-size: 1rem; margin: 5px 0; font-weight: bold; }
 
-    #home-btn-container:hover {
-        background: rgba(0, 242, 254, 0.2);
-        box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-        transform: scale(1.05);
-    }
+        /* 畫布容器優化 */
+        #canvas-container {
+            position: relative; 
+            width: 85vw; height: 85vw; /* 根據寬度決定高度，保持正方形 */
+            max-width: 320px; max-height: 320px;
+            border: 3px solid #334155; border-radius: 10px; 
+            background: #000; box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        canvas { width: 100%; height: 100%; display: block; }
 
-    #home-btn-container:active {
-        transform: scale(0.95);
-    }
+        /* 虛擬搖桿優化：縮小尺寸防止推擠畫面 */
+        .controls {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px; width: 150px; margin: 15px auto;
+        }
+        .btn {
+            width: 45px; height: 45px; background: rgba(255,255,255,0.1);
+            border: 2px solid var(--primary-green); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: var(--primary-green); cursor: pointer;
+            user-select: none; transition: 0.1s;
+        }
+        .btn:active { background: var(--primary-green); color: black; transform: scale(0.9); }
+        .btn.up { grid-column: 2; }
+        .btn.left { grid-column: 1; }
+        .btn.right { grid-column: 3; }
+        .btn.down { grid-column: 2; }
 
-</style>
+        .menu { margin-top: auto; padding-bottom: 20px; }
+        button.reset {
+            padding: 8px 20px; font-size: 0.9rem; border-radius: 20px;
+            border: none; background: #e74c3c; color: white; font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 
-<h1>🐍 SNAKE EVOLUTION</h1>
-<div id="score">SCORE: 0</div>
+    <div id="home-btn-container" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+            <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <span>大廳</span>
+    </div>
 
-<div id="canvas-container">
-    <canvas id="game" width="400" height="400"></canvas>
-</div>
+    <h1>🐍 SNAKE</h1>
+    <div id="score">SCORE: 0</div>
 
-<div class="controls">
-    <div class="btn up" onclick="setDir('UP')">▲</div>
-    <div class="btn left" onclick="setDir('LEFT')">◀</div>
-    <div class="btn right" onclick="setDir('RIGHT')">▶</div>
-    <div class="btn down" onclick="setDir('DOWN')">▼</div>
-</div>
+    <div id="canvas-container">
+        <canvas id="game" width="400" height="400"></canvas>
+    </div>
 
-<div class="menu">
-    <button class="reset" onclick="resetGame()">RESTART</button>
-</div>
+    <div class="controls">
+        <div class="btn up" onclick="setDir('UP')">▲</div>
+        <div class="btn left" onclick="setDir('LEFT')">◀</div>
+        <div class="btn right" onclick="setDir('RIGHT')">▶</div>
+        <div class="btn down" onclick="setDir('DOWN')">▼</div>
+    </div>
+
+    <div class="menu">
+        <button class="reset" onclick="resetGame()">RESTART</button>
+    </div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
 
-const box = 20;
-let snake, direction, nextDirection, food, score, gameLoop;
+    const box = 20;
+    let snake, direction, nextDirection, food, score, gameLoop;
 
-function init() {
-    snake = [{ x: 9 * box, y: 10 * box }];
-    direction = "RIGHT";
-    nextDirection = "RIGHT"; // 預存下一個方向，防止180度自殺
-    score = 0;
-    food = createFood();
-    updateScore();
-}
-
-function createFood() {
-    let newFood;
-    while(true) {
-        newFood = {
-            x: Math.floor(Math.random() * 20) * box,
-            y: Math.floor(Math.random() * 20) * box
-        };
-        // 確保食物不會生在蛇身上
-        let onSnake = snake.some(p => p.x === newFood.x && p.y === newFood.y);
-        if (!onSnake) break;
-    }
-    return newFood;
-}
-
-// 方向控制邏輯
-function setDir(newDir) {
-    if (newDir === "LEFT" && direction !== "RIGHT") nextDirection = "LEFT";
-    else if (newDir === "UP" && direction !== "DOWN") nextDirection = "UP";
-    else if (newDir === "RIGHT" && direction !== "LEFT") nextDirection = "RIGHT";
-    else if (newDir === "DOWN" && direction !== "UP") nextDirection = "DOWN";
-}
-
-// 實體鍵盤支援
-document.addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft") setDir("LEFT");
-    else if (e.key === "ArrowUp") setDir("UP");
-    else if (e.key === "ArrowRight") setDir("RIGHT");
-    else if (e.key === "ArrowDown") setDir("DOWN");
-});
-
-// 手勢滑動支援 (Swipe)
-let touchStartX = 0;
-let touchStartY = 0;
-canvas.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-}, false);
-
-canvas.addEventListener('touchend', e => {
-    let dx = e.changedTouches[0].clientX - touchStartX;
-    let dy = e.changedTouches[0].clientY - touchStartY;
-    if (Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 30) setDir("RIGHT"); else if (dx < -30) setDir("LEFT");
-    } else {
-        if (dy > 30) setDir("DOWN"); else if (dy < -30) setDir("UP");
-    }
-}, false);
-
-function draw() {
-    direction = nextDirection;
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // 畫蛇
-    snake.forEach((part, index) => {
-        ctx.fillStyle = index === 0 ? "#2ecc71" : "#27ae60";
-        ctx.strokeStyle = "#1a1a2e";
-        ctx.fillRect(part.x, part.y, box, box);
-        ctx.strokeRect(part.x, part.y, box, box);
-    });
-
-    // 畫食物
-    ctx.fillStyle = "#e74c3c";
-    ctx.beginPath();
-    ctx.arc(food.x + box/2, food.y + box/2, box/2 - 2, 0, Math.PI*2);
-    ctx.fill();
-
-    let headX = snake[0].x;
-    let headY = snake[0].y;
-
-    if (direction === "LEFT") headX -= box;
-    if (direction === "UP") headY -= box;
-    if (direction === "RIGHT") headX += box;
-    if (direction === "DOWN") headY += box;
-
-    if (headX === food.x && headY === food.y) {
-        score += 10;
+    function init() {
+        snake = [{ x: 9 * box, y: 10 * box }];
+        direction = "RIGHT";
+        nextDirection = "RIGHT";
+        score = 0;
         food = createFood();
         updateScore();
-    } else {
-        snake.pop();
     }
 
-    const newHead = { x: headX, y: headY };
+    function createFood() {
+        let newFood;
+        while(true) {
+            newFood = {
+                x: Math.floor(Math.random() * 20) * box,
+                y: Math.floor(Math.random() * 20) * box
+            };
+            let onSnake = snake.some(p => p.x === newFood.x && p.y === newFood.y);
+            if (!onSnake) break;
+        }
+        return newFood;
+    }
 
-    if (headX < 0 || headY < 0 || headX >= canvas.width || headY >= canvas.height || 
-        snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
+    function setDir(newDir) {
+        if (newDir === "LEFT" && direction !== "RIGHT") nextDirection = "LEFT";
+        else if (newDir === "UP" && direction !== "DOWN") nextDirection = "UP";
+        else if (newDir === "RIGHT" && direction !== "LEFT") nextDirection = "RIGHT";
+        else if (newDir === "DOWN" && direction !== "UP") nextDirection = "DOWN";
+    }
+
+    document.addEventListener("keydown", e => {
+        if (e.key === "ArrowLeft") setDir("LEFT");
+        else if (e.key === "ArrowUp") setDir("UP");
+        else if (e.key === "ArrowRight") setDir("RIGHT");
+        else if (e.key === "ArrowDown") setDir("DOWN");
+    });
+
+    // 滑動手勢優化
+    let touchStartX = 0, touchStartY = 0;
+    document.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: false });
+
+    document.addEventListener('touchend', e => {
+        let dx = e.changedTouches[0].clientX - touchStartX;
+        let dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (Math.abs(dx) > 20) dx > 0 ? setDir("RIGHT") : setDir("LEFT");
+        } else {
+            if (Math.abs(dy) > 20) dy > 0 ? setDir("DOWN") : setDir("UP");
+        }
+    }, { passive: false });
+
+    function draw() {
+        direction = nextDirection;
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        snake.forEach((part, index) => {
+            ctx.fillStyle = index === 0 ? "#2ecc71" : "#27ae60";
+            ctx.fillRect(part.x, part.y, box-1, box-1);
+        });
+
+        ctx.fillStyle = "#e74c3c";
+        ctx.beginPath();
+        ctx.arc(food.x + box/2, food.y + box/2, box/2 - 2, 0, Math.PI*2);
+        ctx.fill();
+
+        let headX = snake[0].x;
+        let headY = snake[0].y;
+
+        if (direction === "LEFT") headX -= box;
+        if (direction === "UP") headY -= box;
+        if (direction === "RIGHT") headX += box;
+        if (direction === "DOWN") headY += box;
+
+        const newHead = { x: headX, y: headY };
+
+        // 碰撞檢測
+        if (headX < 0 || headY < 0 || headX >= canvas.width || headY >= canvas.height || 
+            snake.some(p => p.x === newHead.x && p.y === newHead.y)) {
+            clearInterval(gameLoop);
+            setTimeout(() => {
+                alert("GAME OVER! SCORE: " + score);
+                resetGame();
+            }, 100);
+            return;
+        }
+
+        if (headX === food.x && headY === food.y) {
+            score += 10;
+            food = createFood();
+            updateScore();
+        } else {
+            snake.pop();
+        }
+
+        snake.unshift(newHead);
+    }
+
+    function updateScore() {
+        document.getElementById("score").innerText = "SCORE: " + score;
+    }
+
+    function resetGame() {
         clearInterval(gameLoop);
-        alert("GAME OVER! SCORE: " + score);
-        resetGame();
-        return;
+        init();
+        gameLoop = setInterval(draw, 150); // 稍微放慢一點點，手機比較好操作
     }
 
-    snake.unshift(newHead);
-}
-
-function updateScore() {
-    document.getElementById("score").innerText = "SCORE: " + score;
-}
-
-function resetGame() {
-    clearInterval(gameLoop);
     init();
-    gameLoop = setInterval(draw, 120);
-}
-
-// 啟動
-init();
-gameLoop = setInterval(draw, 120);
+    gameLoop = setInterval(draw, 150);
 </script>
-
 </body>
 </html>
-
-
