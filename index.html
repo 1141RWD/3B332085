@@ -3,199 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎮 極速 Arcade：小遊戲合集</title>
+<title>Game World - Neon Arcade</title>
 <style>
-    /* 繼承原本的基礎樣式並優化 */
-    *{box-sizing:border-box}
+    :root {
+        --neon-cyan: #00f2fe;
+        --neon-pink: #ff00cc;
+        --neon-purple: #9d00ff;
+        --neon-green: #39ff14;
+        --easy: #2ecc71;
+        --medium: #f1c40f;
+        --hard: #e74c3c;
+    }
+
+    * { box-sizing: border-box; }
     body {
-        margin: 0;
-        font-family: "Segoe UI", Arial, "Microsoft JhengHei", sans-serif;
-        background: radial-gradient(circle at center, #1a1a2e 0%, #020205 100%);
-        color: #fff;
-        min-height:100vh;
+        margin: 0; background: #020205; color: #fff;
+        font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+        overflow-x: hidden;
     }
 
-    header { text-align:center; padding:50px 20px 30px; }
-    header h1 {
-        font-size:3em; margin:0; letter-spacing:4px;
-        background: linear-gradient(to right, #00f2fe, #4facfe);
-        -webkit-background-clip: text; -webkit-background-fill-color: transparent;
-        color: transparent; /* 修正相容性 */
-    }
+    h1 { text-align: center; letter-spacing: 5px; color: var(--neon-cyan); margin-top: 20px; }
 
-    /* --- 新增 Tab 分頁樣式 --- */
-    .tabs {
-        display: flex; justify-content: center; gap: 15px; margin-bottom: 40px;
+    /* --- 頂部大熱門輪播 --- */
+    #hero-carousel { position: relative; width: 100%; height: 350px; overflow: hidden; }
+    .carousel-inner {
+        display: flex; width: 400%; /* 4張圖，所以是 400% */
+        height: 100%;
+        transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
     }
-    .tab-btn {
-        padding: 12px 30px; border-radius: 50px; border: 1px solid rgba(0,242,254, 0.3);
+    .carousel-item {
+        width: 100%; height: 100%; display: flex; align-items: center; 
+        justify-content: center; position: relative; cursor: pointer;
+    }
+    .carousel-content {
+        z-index: 2; text-align: center; padding: 25px 50px;
+        background: rgba(0,0,0,0.6); backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 40px;
+    }
+    .carousel-content h2 { font-size: 2.5em; margin: 10px 0; text-shadow: 0 0 20px currentColor; }
+    .carousel-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, #020205); }
+
+    /* --- 多重過濾導覽列 --- */
+    .filter-section {
+        position: sticky; top: 0; z-index: 1000;
+        background: rgba(2, 2, 5, 0.95); padding: 15px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+    }
+    .filter-group { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    
+    .btn {
+        padding: 8px 16px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
         background: rgba(255,255,255,0.05); color: #8892b0; cursor: pointer;
-        font-weight: bold; transition: all 0.3s;
+        font-weight: bold; transition: 0.3s; font-size: 13px;
     }
-    .tab-btn.active {
-        background: #00f2fe; color: #000; box-shadow: 0 0 20px rgba(0,242,254, 0.4);
-        border-color: #00f2fe;
-    }
-    .tab-btn:hover:not(.active) { background: rgba(0,242,254, 0.1); color: #fff; }
+    .btn.active { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); border-color: var(--neon-cyan); }
+    
+    .btn-easy.active { background: var(--easy); border-color: var(--easy); box-shadow: 0 0 15px var(--easy); }
+    .btn-medium.active { background: var(--medium); border-color: var(--medium); box-shadow: 0 0 15px var(--medium); }
+    .btn-hard.active { background: var(--hard); border-color: var(--hard); box-shadow: 0 0 15px var(--hard); }
 
+    /* --- 遊戲卡片區域 --- */
     .container {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px; padding: 0 40px 60px; max-width: 1300px; margin: auto;
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 20px; padding: 20px; max-width: 1300px; margin: auto;
+    }
+    .card {
+        position: relative; height: 220px; border-radius: 20px; overflow: hidden;
+        cursor: pointer; transition: 0.4s; border: 1px solid rgba(255,255,255,0.05);
+    }
+    .card:hover { transform: translateY(-8px); border: 1px solid var(--neon-cyan); box-shadow: 0 10px 30px rgba(0,242,254,0.3); }
+    
+    .diff-badge {
+        position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: bold;
+        padding: 3px 8px; border-radius: 4px; z-index: 10;
     }
 
-    /* 隱藏未選中的遊戲 */
-    .card { display: block; position: relative; height: 250px; border-radius: 24px; overflow: hidden; cursor: pointer; transition: all .4s; box-shadow: 0 10px 20px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); animation: fadeIn 0.5s ease forwards; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .card:hover { transform: translateY(-10px); box-shadow: 0 15px 45px rgba(0,242,254, 0.25); border: 1px solid rgba(0,242,254, 0.5); }
-    .icon { font-size: 5em; text-align: center; margin-top: 35px; transition: 0.4s; }
-    .card-content { position: absolute; bottom: 0; width: 100%; padding: 25px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
-    .play { display:inline-block; padding:6px 20px; border-radius:30px; border: 1px solid #0ff; color:#0ff; font-size:12px; font-weight:bold; }
+    .icon { font-size: 4em; text-align: center; margin-top: 30px; transition: 0.3s; }
+    .card:hover .icon { transform: scale(1.1); }
+    .card-content { position: absolute; bottom: 0; width: 100%; padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.9) 60%, transparent); }
+    .card-content h2 { margin: 0; font-size: 1.2em; letter-spacing: 1px; }
+    .card-content p { margin: 3px 0; font-size: 11px; color: #aaa; }
 
     /* 背景配色 */
-    .puzzle { background: linear-gradient(135deg,#f9a825,#6b4f00); }
-    .arcade { background: linear-gradient(135deg,#1b5e20,#0d2818); }
-    .multi { background: linear-gradient(135deg,#4527a0,#24135c); }
-    .speed { background: linear-gradient(135deg,#b71c1c,#4a0e0e); }
-    .darts { background: linear-gradient(135deg, #00b4db, #0083b0); }
-    .memory { background: linear-gradient(135deg, #6a11cb, #2575fc); }
-    .ghost { background: linear-gradient(135deg, #334155, #0f172a); }
-    .flappy { background: linear-gradient(135deg, #ff00cc, #3333ff); }
-    .escape { background: linear-gradient(135deg, #4338ca, #6366f1); }
-    /* 新增至 CSS 區塊 */
-.mines { background: linear-gradient(135deg, #1e293b, #475569); }
+    .c1 { background: linear-gradient(135deg, #1a1a35, #2a0052); } 
+    .c2 { background: linear-gradient(135deg, #050510, #ff00cc); } 
+    .c3 { background: linear-gradient(135deg, #020205, #9d00ff); } 
+    .c4 { background: linear-gradient(135deg, #1b5e20, #0d2818); } 
+    .c5 { background: linear-gradient(135deg, #1e293b, #475569); } 
+    .c6 { background: linear-gradient(135deg, #334155, #e9e2e2); } 
+    .c7 { background: linear-gradient(135deg, #b71c1c, #4a0e0e); } 
+    .c8 { background: linear-gradient(135deg, #6a11cb, #2575fc); } 
+    .c9 { background: linear-gradient(135deg, #f9a825, #6b4f00); } 
+    .c10 { background: linear-gradient(135deg, #4527a0, #24135c); } 
+    .c11 { background: linear-gradient(135deg, #2c3e50, #000000); } 
+    .c12 { background: linear-gradient(135deg, #00b4db, #0083b0); } 
+    .c13 { background: linear-gradient(135deg, #ff00cc, #3333ff); } 
+    .c14 { background: linear-gradient(135deg, #0d2818, #39ff14); } /* 霓虹農夫專用 */
 
-    footer { text-align:center; padding:50px; font-size:13px; color:#555; }
+    footer { text-align:center; padding:40px; font-size:12px; color:#444; letter-spacing: 2px; }
 </style>
 </head>
 <body>
 
-<header>
-    <h1>🎮 Arcade Hub</h1>
-    <p>精選小遊戲合集 · 隨點隨玩</p>
-</header>
+<h1>GAME WORLD</h1>
 
-<div class="tabs">
-    <button class="tab-btn active" onclick="filterGames('all')">全部</button>
-    <button class="tab-btn" onclick="filterGames('益智')">益智</button>
-    <button class="tab-btn" onclick="filterGames('街機')">街機</button>
-    <button class="tab-btn" onclick="filterGames('雙人')">多人</button>
+<div id="hero-carousel">
+    <div class="carousel-inner" id="carousel-inner">
+        <div class="carousel-item c14" onclick="location.href='farmer.html'">
+            <div class="carousel-overlay"></div>
+            <div class="carousel-content">
+                <p style="color:var(--neon-green); margin:0; font-weight:bold;">逃脫</p>
+                <h2 style="color:var(--neon-green);">屍海農夫</h2>
+                <p>一命挑戰！在殭屍海中採收希望</p>
+            </div>
+        </div>
+        <div class="carousel-item c1" onclick="location.href='2048.html'">
+            <div class="carousel-overlay"></div>
+            <div class="carousel-content">
+                <p style="color:var(--neon-cyan); margin:0; font-weight:bold;">熱門</p>
+                <h2 style="color:var(--neon-cyan);">2048</h2>
+                <p>挑戰數字極限，感受流光溢彩</p>
+            </div>
+        </div>
+        <div class="carousel-item c2" onclick="location.href='escape.html'">
+            <div class="carousel-overlay"></div>
+            <div class="carousel-content">
+                <p style="color:var(--neon-pink); margin:0; font-weight:bold;">最新</p>
+                <h2 style="color:var(--neon-pink);">極限避障</h2>
+                <p>生死時速！考驗你的反應神經</p>
+            </div>
+        </div>
+        <div class="carousel-item c3" onclick="location.href='darts.html'">
+            <div class="carousel-overlay"></div>
+            <div class="carousel-content">
+                <p style="color:var(--neon-purple); margin:0; font-weight:bold;">射擊</p>
+                <h2 style="color:var(--neon-purple);">技術流飛鏢</h2>
+                <p>穩定發力，正中紅心</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="container" id="game-container">
-    <div class="card puzzle" data-category="益智" onclick="openGame('2048.html')">
+<div class="filter-section">
+    <div class="filter-group">
+        <button class="btn btn-cat active" onclick="filterType('all')">全部類型</button>
+        <button class="btn btn-cat" onclick="filterType('益智')">益智</button>
+        <button class="btn btn-cat" onclick="filterType('街機')">街機</button>
+        <button class="btn btn-cat" onclick="filterType('多人')">多人</button>
+    </div>
+    <div class="filter-group">
+        <button class="btn btn-diff active" onclick="filterDiff('all')">所有難度</button>
+        <button class="btn btn-diff btn-easy" onclick="filterDiff('easy')">🟢 輕鬆</button>
+        <button class="btn btn-diff btn-medium" onclick="filterDiff('medium')">🟡 挑戰</button>
+        <button class="btn btn-diff btn-hard" onclick="filterDiff('hard')">🔴 硬核</button>
+    </div>
+</div>
+
+<div class="container" id="game-list">
+    <div class="card c14" data-cat="街機" data-diff="hard" onclick="location.href='farmer.html'">
+        <span class="diff-badge" style="background:var(--hard)">硬核</span>
+        <div class="icon">👨‍🌾</div>
+        <div class="card-content"><h2>屍海農夫</h2><p>街機生存 · 難度隨關卡提升</p></div>
+    </div>
+
+    <div class="card c1" data-cat="益智" data-diff="medium" onclick="location.href='2048.html'">
+        <span class="diff-badge" style="background:var(--medium)">挑戰</span>
         <div class="icon">🧩</div>
-        <div class="card-content"><h2>2048</h2><p>挑戰數字巔峰</p><span class="play">▶ PLAY</span></div>
+        <div class="card-content"><h2>2048</h2><p>益智挑戰 · 數字拼圖</p></div>
     </div>
 
-    <div class="card ghost" data-category="益智" onclick="openGame('ghost.html')">
-    <div class="icon">👻</div>
-    <div class="card-content">
-        <h2>閃靈快手</h2>
-        <p>AI 極速搶答！圖案或顏色相同即是答案</p>
-        <span class="play">▶ PLAY</span>
+    <div class="card c2" data-cat="街機" data-diff="hard" onclick="location.href='escape.html'">
+        <span class="diff-badge" style="background:var(--hard)">硬核</span>
+        <div class="icon">🚧</div>
+        <div class="card-content"><h2>極限避障</h2><p>街機經典 · 生存反應</p></div>
     </div>
-</div>
-    
-    <div class="card multi" data-category="益智" onclick="openGame('ab.html')">
-        <div class="icon">🔢</div>
-        <div class="card-content"><h2>幾A幾B</h2><p>邏輯推理破解密碼</p><span class="play">▶ PLAY</span></div>
-    </div>
-    <div class="card arcade" data-category="益智 雙人" onclick="openGame('gomoku.html')">
-        <div class="icon">⚫</div>
-        <div class="card-content"><h2>五子棋</h2><p>智慧博弈對戰</p><span class="play">▶ PLAY</span></div>
-    </div>
-    <div class="card arcade" data-category="益智" onclick="openGame('guess100.html')">
+
+    <div class="card c3" data-cat="街機" data-diff="medium" onclick="location.href='darts.html'">
+        <span class="diff-badge" style="background:var(--medium)">挑戰</span>
         <div class="icon">🎯</div>
-        <div class="card-content"><h2>猜數字</h2><p>終極密碼 1-100</p><span class="play">▶ PLAY</span></div>
+        <div class="card-content"><h2>技術流飛鏢</h2><p>街機經典 · 精準操控</p></div>
     </div>
-    <div class="card mines" data-category="益智" onclick="openGame('mines.html')">
-    <div class="icon">💣</div>
-    <div class="card-content">
-        <h2>霓虹掃雷</h2>
-        <p>邏輯推理！按兩下插旗，按一下開挖</p>
-        <span class="play">▶ PLAY</span>
-    </div>
-</div>
-    <div class="card flappy" data-category="街機" onclick="openGame('flappy.html')">
-    <div class="icon">🚀</div>
-    <div class="card-content">
-        <h2>極速穿梭</h2>
-        <p>單指挑戰！穿越無限霓虹管道</p>
-        <span class="play">▶ PLAY</span>
-    </div>
-    </div>
-    
-    <div class="card darts" data-category="街機" onclick="openGame('darts.html')">
-        <div class="icon">🎯</div>
-        <div class="card-content"><h2>技術流飛鏢</h2><p>精密投射獎勵挑戰</p><span class="play">▶ PLAY</span></div>
-    </div>
-    <div class="card arcade" data-category="街機" onclick="openGame('snake.html')">
+
+    <div class="card c4" data-cat="街機" data-diff="easy" onclick="location.href='snake.html'">
+        <span class="diff-badge" style="background:var(--easy)">輕鬆</span>
         <div class="icon">🐍</div>
-        <div class="card-content"><h2>貪食蛇</h2><p>經典重溫挑戰長度</p><span class="play">▶ PLAY</span></div>
-    </div>
-    <div class="card arcade" data-category="街機" onclick="openGame('breakout.html')">
-        <div class="icon">🧱</div>
-        <div class="card-content"><h2>打磚塊</h2><p>粉碎壓力的快感</p><span class="play">▶ PLAY</span></div>
+        <div class="card-content"><h2>貪食蛇</h2><p>街機經典 · 經典重現</p></div>
     </div>
 
-    <div class="card memory" data-category="雙人" onclick="openGame('pair.html')">
-        <div class="icon">🧠</div>
-        <div class="card-content"><h2>記憶對對碰</h2><p>雙人 13 對記憶戰</p><span class="play">▶ PLAY</span></div>
+    <div class="card c5" data-cat="益智" data-diff="hard" onclick="location.href='mines.html'">
+        <span class="diff-badge" style="background:var(--hard)">硬核</span>
+        <div class="icon">💣</div>
+        <div class="card-content"><h2>霓虹掃雷</h2><p>益智挑戰 · 邏輯推理</p></div>
     </div>
 
-    <div class="card escape" data-category="街機" onclick="openGame('escape.html')">
-    <div class="icon">🚧</div>
-    <div class="card-content">
-        <h2>極限避障</h2>
-        <p>生存倒數 30 秒！在不斷縮小的障礙中尋找缺口</p>
-        <span class="play">▶ PLAY</span>
+    <div class="card c6" data-cat="多人" data-diff="medium" onclick="location.href='gomoku.html'">
+        <span class="diff-badge" style="background:var(--medium)">挑戰</span>
+        <div class="icon">⚫</div>
+        <div class="card-content"><h2>五子棋</h2><p>多人對戰 · 策略對抗</p></div>
     </div>
-</div>
-    
-    <div class="card speed" data-category="雙人" onclick="openGame('card.html')">
+
+    <div class="card c7" data-cat="多人" data-diff="hard" onclick="location.href='card.html'">
+        <span class="diff-badge" style="background:var(--hard)">硬核</span>
         <div class="icon">🃏</div>
-        <div class="card-content"><h2>心臟病</h2><p>手速對決拍桌戰</p><span class="play">▶ PLAY</span></div>
+        <div class="card-content"><h2>心臟病</h2><p>多人對戰 · 手速對決</p></div>
+    </div>
+
+    <div class="card c8" data-cat="多人" data-diff="easy" onclick="location.href='pair.html'">
+        <span class="diff-badge" style="background:var(--easy)">輕鬆</span>
+        <div class="icon">🧠</div>
+        <div class="card-content"><h2>記憶對對碰</h2><p>多人對戰 · 腦力開發</p></div>
+    </div>
+
+    <div class="card c9" data-cat="益智" data-diff="easy" onclick="location.href='guess100.html'">
+        <span class="diff-badge" style="background:var(--easy)">輕鬆</span>
+        <div class="icon">❓</div>
+        <div class="card-content"><h2>猜數字</h2><p>益智挑戰 · 終極密碼</p></div>
+    </div>
+
+    <div class="card c10" data-cat="益智" data-diff="medium" onclick="location.href='ab.html'">
+        <span class="diff-badge" style="background:var(--medium)">挑戰</span>
+        <div class="icon">🔢</div>
+        <div class="card-content"><h2>幾A幾B</h2><p>益智挑戰 · 邏輯破譯</p></div>
+    </div>
+
+    <div class="card c11" data-cat="益智" data-diff="hard" onclick="location.href='ghost.html'">
+        <span class="diff-badge" style="background:var(--hard)">硬核</span>
+        <div class="icon">👻</div>
+        <div class="card-content"><h2>閃靈快手</h2><p>益智挑戰 · 瞬間反應</p></div>
+    </div>
+
+    <div class="card c12" data-cat="街機" data-diff="medium" onclick="location.href='breakout.html'">
+        <span class="diff-badge" style="background:var(--medium)">挑戰</span>
+        <div class="icon">🧱</div>
+        <div class="card-content"><h2>打磚塊</h2><p>街機經典 · 解壓必備</p></div>
+    </div>
+
+    <div class="card c13" data-cat="街機" data-diff="hard" onclick="location.href='flappy.html'">
+        <span class="diff-badge" style="background:var(--hard)">硬核</span>
+        <div class="icon">🚀</div>
+        <div class="card-content"><h2>極速穿梭</h2><p>街機經典 · 難度天花板</p></div>
     </div>
 </div>
 
-<footer>
-    © 2025 Mini Games Collection｜Crafted with HTML5
-</footer>
+<footer>ARCADE HUB © 2025 · READY PLAYER ONE</footer>
 
 <script>
-function filterGames(category) {
-    // 切換按鈕樣式
-    const btns = document.querySelectorAll('.tab-btn');
-    btns.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+    let currentSlide = 0;
+    const totalSlides = 4; // 修正為 4 張圖
+    let activeCat = 'all';
+    let activeDiff = 'all';
 
-    // 過濾卡片
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        const cat = card.getAttribute('data-category');
-        if (category === 'all' || cat.includes(category)) {
-            card.style.display = 'block';
-            // 重發動畫
-            card.style.animation = 'none';
-            card.offsetHeight; // 觸發重繪
-            card.style.animation = 'fadeIn 0.5s ease forwards';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
+    // 輪播邏輯
+    setInterval(() => {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        // 每張佔 100% / totalSlides
+        document.getElementById('carousel-inner').style.transform = `translateX(-${currentSlide * (100/totalSlides)}%)`;
+    }, 4000);
 
-function openGame(file) {
-    window.location.href = file;
-}
+    function filterType(cat) {
+        activeCat = cat;
+        updateButtons('.btn-cat', event.target);
+        applyFilters();
+    }
+
+    function filterDiff(diff) {
+        activeDiff = diff;
+        updateButtons('.btn-diff', event.target);
+        applyFilters();
+    }
+
+    function updateButtons(selector, target) {
+        document.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
+        if(target) target.classList.add('active');
+    }
+
+    function applyFilters() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            const cat = card.dataset.cat;
+            const diff = card.dataset.diff;
+            const catMatch = activeCat === 'all' || cat.includes(activeCat);
+            const diffMatch = activeDiff === 'all' || diff === activeDiff;
+            card.style.display = (catMatch && diffMatch) ? 'block' : 'none';
+        });
+    }
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
