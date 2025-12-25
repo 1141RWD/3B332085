@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>霓虹農夫 - 極限平衡版</title>
+    <style>
+        :root {
+            --game-bg: #050510;
+            --border-neon: #39ff14;
+            --player-color: #ffffff;
+            --zombie-color: #ff00cc;
+            --plant-color: #00f2fe;
+            --neon-cyan: #00f2fe;
+        }
+
+        body {
+            margin: 0; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 100vh;
+            background: #020205; color: white; font-family: 'Segoe UI', sans-serif;
+            overflow: hidden; touch-action: none;
+        }
+
+        #home-btn {
+            position: fixed; top: 15px; left: 15px; z-index: 9999;
+            padding: 8px 15px; background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--neon-cyan); border-radius: 50px;
+            color: var(--neon-cyan); cursor: pointer; text-decoration: none; font-size: 14px;
+        }
+
+        #game-container {
+            position: relative; width: 90vw; height: 90vw; max-width: 500px; max-height: 500px;
+            background: var(--game-bg); border: 4px solid var(--border-neon);
+            box-shadow: 0 0 20px var(--border-neon); border-radius: 15px; overflow: hidden;
+        }
+
+        .player, .zombie, .plant {
+            position: absolute; font-size: 2em; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            user-select: none; z-index: 5;
+        }
+
+        #ui-panel {
+            display: flex; justify-content: space-around; width: 90vw; max-width: 500px;
+            margin-top: 15px; padding: 10px; background: #0a0a1a; border-radius: 10px;
+            border: 1px solid rgba(57, 255, 20, 0.3);
+        }
+        .stat { text-align: center; }
+        .stat label { display: block; font-size: 0.7em; color: #aaa; margin-bottom: 2px; }
+        .stat span { font-weight: bold; font-size: 1.2em; color: var(--border-neon); }
+
+        #overlay {
+            position: fixed; inset: 0; background: rgba(0,0,5,0.9);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .menu-box {
+            background: #0a0a1a; padding: 30px; border-radius: 20px; text-align: center;
+            border: 2px solid var(--zombie-color); width: 80%; max-width: 300px;
+        }
+
+        .btn {
+            padding: 12px 25px; border: none; border-radius: 30px;
+            cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s;
+            background: var(--border-neon); color: #000; margin-top: 15px;
+        }
+
+        #controls {
+            display: grid; grid-template-areas: ". up ." "left . right" ". down .";
+            gap: 15px; margin-top: 20px;
+        }
+        .control-btn {
+            width: 60px; height: 60px; background: rgba(255,255,255,0.1);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5em; border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        @media (min-width: 768px) { #controls { display: none; } }
+    </style>
+</head>
+<body>
+
+<a href="index.html" id="home-btn">返回大廳</a>
+
+<div id="game-container">
+    <div id="player" class="player">👨‍🌾</div>
+</div>
+
+<div id="ui-panel">
+    <div class="stat"><label>關卡</label><span id="level-txt">1</span></div>
+    <div class="stat"><label>目標</label><span id="score-txt">0 / 5</span></div>
+    <div class="stat"><label>生命</label><span>❤️</span></div>
+    <div class="stat"><label>時間</label><span id="time-txt">60s</span></div>
+</div>
+
+<div id="controls">
+    <div class="control-btn" style="grid-area: up" id="btn-up">⬆️</div>
+    <div class="control-btn" style="grid-area: left" id="btn-left">⬅️</div>
+    <div class="control-btn" style="grid-area: right" id="btn-right">➡️</div>
+    <div class="control-btn" style="grid-area: down" id="btn-down">⬇️</div>
+</div>
+
+<div id="overlay">
+    <div class="menu-box">
+        <h2 id="m-title" style="color:var(--border-neon)">霓虹農夫</h2>
+        <p id="m-text">採集 🌱 並躲避 🧟‍♀️<br>只有一條命，且戰且走！<br>死後關卡會重置</p>
+        <button id="main-btn" class="btn" onclick="startGame()">開始挑戰</button>
+    </div>
+</div>
+
+<script>
+    const container = document.getElementById('game-container');
+    const playerEl = document.getElementById('player');
+    const scoreEl = document.getElementById('score-txt');
+    const timeEl = document.getElementById('time-txt');
+    const levelEl = document.getElementById('level-txt');
+    const overlay = document.getElementById('overlay');
+    const mainBtn = document.getElementById('main-btn');
+
+    let pX, pY, score, timeLeft, gameActive = false;
+    let level = 1;
+    let zombies = [], plants = [];
+    let timerInterval = null;
+    
+    const basePlayerSpeed = 4.8; 
+    const baseZombieSpeed = 1.35;
+    
+    const keys = {};
+    const activeMoves = {up: false, down: false, left: false, right: false};
+
+    window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+    window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+    function renderPlayer() {
+        playerEl.style.transform = `translate(${pX}px, ${pY}px)`;
+    }
+
+    function startGame() {
+        overlay.style.display = 'none';
+        pX = 230; pY = 230; score = 0; timeLeft = 60;
+        renderPlayer();
+        
+        // 確保舊物體清理乾淨
+        zombies.forEach(z => z.el.remove());
+        plants.forEach(p => p.el.remove());
+        zombies = []; plants = [];
+        
+        const zombieCount = 2 + level; 
+        const plantGoal = 4 + level;
+
+        for(let i=0; i < zombieCount; i++) spawn('zombie');
+        for(let i=0; i < plantGoal; i++) spawn('plant');
+        
+        gameActive = true;
+        updateUI(plantGoal);
+        requestAnimationFrame(() => loop(plantGoal));
+        
+        // 嚴謹重設計時器
+        if(timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if(!gameActive) return;
+            timeLeft--;
+            timeEl.innerText = timeLeft + 's';
+            if(timeLeft <= 0) end(false);
+        }, 1000);
+    }
+
+    function spawn(type) {
+        const el = document.createElement('div');
+        el.className = type;
+        el.innerText = type === 'zombie' ? '🧟‍♀️' : '🌱';
+        container.appendChild(el);
+        let x, y;
+        do {
+            x = Math.random() * 460;
+            y = Math.random() * 460;
+        } while (Math.hypot(x - 230, y - 230) < 120);
+        const obj = { el, x, y };
+        if(type === 'zombie') zombies.push(obj); else plants.push(obj);
+        el.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    function loop(plantGoal) {
+        if(!gameActive) return;
+
+        const currentSpeed = basePlayerSpeed + (level - 1) * 0.1;
+        const currentZSpeed = Math.max(0.5, baseZombieSpeed - (level - 1) * 0.05);
+
+        let moved = false;
+        if(keys['w'] || keys['arrowup'] || activeMoves.up) { pY -= currentSpeed; moved = true; }
+        if(keys['s'] || keys['arrowdown'] || activeMoves.down) { pY += currentSpeed; moved = true; }
+        if(keys['a'] || keys['arrowleft'] || activeMoves.left) { pX -= currentSpeed; moved = true; }
+        if(keys['d'] || keys['arrowright'] || activeMoves.right) { pX += currentSpeed; moved = true; }
+
+        if(moved) {
+            pX = Math.max(0, Math.min(460, pX));
+            pY = Math.max(0, Math.min(460, pY));
+            renderPlayer();
+        }
+
+        zombies.forEach(z => {
+            const dx = pX - z.x, dy = pY - z.y;
+            const dist = Math.hypot(dx, dy);
+            if(dist > 0) {
+                z.x += (dx/dist) * currentZSpeed;
+                z.y += (dy/dist) * currentZSpeed;
+                z.el.style.transform = `translate(${z.x}px, ${z.y}px)`;
+            }
+            if(dist < 28) end(false);
+        });
+
+        plants.forEach((p, i) => {
+            if(Math.hypot(pX - p.x, pY - p.y) < 30) {
+                p.el.remove();
+                plants.splice(i, 1);
+                score++;
+                updateUI(plantGoal);
+                if(score >= plantGoal) end(true);
+            }
+        });
+
+        requestAnimationFrame(() => loop(plantGoal));
+    }
+
+    function updateUI(goal) {
+        scoreEl.innerText = `${score} / ${goal}`;
+        levelEl.innerText = level;
+    }
+
+    function end(win) {
+        gameActive = false;
+        if(timerInterval) clearInterval(timerInterval);
+        overlay.style.display = 'flex';
+        const title = document.getElementById('m-title');
+        const text = document.getElementById('m-text');
+        
+        if(win) {
+            title.innerText = "Level " + level + " 完成！";
+            title.style.color = "var(--border-neon)";
+            text.innerHTML = `成功收成！<br>農夫速度 +0.1，殭屍速度 -0.05<br>作物數量 +1，殭屍數量 +1。`;
+            mainBtn.innerText = "進入第 " + (level + 1) + " 關";
+            level++; 
+        } else {
+            title.innerText = "遊戲結束";
+            title.style.color = "var(--zombie-color)";
+            text.innerHTML = `下次再跑更快更謹慎一點`;
+            mainBtn.innerText = "重新挑戰第一關";
+            level = 1; 
+        }
+    }
+
+    function setupMobile(id, dir) {
+        const btn = document.getElementById(id);
+        btn.addEventListener('touchstart', (e) => { 
+            e.preventDefault(); 
+            activeMoves[dir] = true; 
+        }, {passive: false});
+        btn.addEventListener('touchend', () => activeMoves[dir] = false);
+        btn.addEventListener('touchcancel', () => activeMoves[dir] = false);
+    }
+    setupMobile('btn-up', 'up'); setupMobile('btn-down', 'down');
+    setupMobile('btn-left', 'left'); setupMobile('btn-right', 'right');
+</script>
+</body>
+</html>
