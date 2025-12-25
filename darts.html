@@ -3,58 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-select=none">
-<title>技術流飛鏢</title>
-    <div id="home-btn-container" onclick="window.location.href='index.html'">
-    <svg viewBox="0 0 24 24" width="24" height="24">
-        <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-    </svg>
-    <span>大廳</span>
-</div>
+<title>技術流飛鏢 - Arcade Hub</title>
 <style>
+    /* 統一回首頁按鈕樣式 */
     #home-btn-container {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 9999; /* 確保在所有遊戲元素之上 */
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 15px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 242, 254, 0.5);
-        border-radius: 50px;
-        color: #00f2fe;
-        cursor: pointer;
-        font-family: 'Segoe UI', sans-serif;
-        font-weight: bold;
-        font-size: 14px;
-        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        transition: 0.3s;
-        user-select: none;
+        position: fixed; top: 15px; left: 15px; z-index: 9999;
+        display: flex; align-items: center; gap: 5px; padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 242, 254, 0.5); border-radius: 50px;
+        color: #00f2fe; cursor: pointer; font-family: 'Segoe UI', sans-serif;
+        font-weight: bold; font-size: 14px; box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        transition: 0.3s; user-select: none;
     }
+    #home-btn-container:hover { background: rgba(0, 242, 254, 0.2); transform: scale(1.05); }
+    @media (max-width: 480px) { #home-btn-container { top: 10px; left: 10px; padding: 6px 12px; font-size: 12px; } }
 
-    #home-btn-container:hover {
-        background: rgba(0, 242, 254, 0.2);
-        box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
-        transform: scale(1.05);
-    }
-
-    #home-btn-container:active {
-        transform: scale(0.95);
-    }
-
-    /* 手機版微調：如果覺得太大可以縮小一點 */
-    @media (max-width: 480px) {
-        #home-btn-container {
-            top: 10px;
-            left: 10px;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-    }
     :root { --primary: #00f2ff; --accent: #f1c40f; --bonus: #2ecc71; }
-    body { margin: 0; background: #050505; color: white; font-family: 'Segoe UI', '微軟正黑體', sans-serif; overflow: hidden; touch-action: none; }
+    body { margin: 0; background: #050505; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; touch-action: none; }
     
     #ui { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; z-index: 100; }
     .stat { 
@@ -70,20 +35,22 @@
         text-shadow: 0 0 10px var(--bonus); opacity: 0; pointer-events: none; transition: 0.5s; z-index: 200;
     }
 
+    /* 結算畫面 */
     #overlay { position: fixed; inset: 0; background: rgba(0, 0, 5, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; }
     .menu-box { background: linear-gradient(145deg, #1a1a2e, #0f0f1a); padding: 40px; border-radius: 40px; text-align: center; border: 1px solid rgba(255,255,255,0.1); width: 85%; max-width: 380px; }
-    
-    .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-    .btn { padding: 18px; font-size: 18px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+    .btn { padding: 18px; font-size: 18px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; margin-top: 20px; }
     .btn-next { background: linear-gradient(45deg, var(--accent), #e67e22); color: #000; }
     .btn-retry { background: #333; color: white; border: 1px solid #444; }
-    .btn-home { background: transparent; color: #666; font-size: 14px; text-decoration: underline; border:none; margin-top:10px; cursor:pointer;}
 
-    #ingame-controls { position: absolute; bottom: 30px; left: 0; width: 100%; display: flex; justify-content: center; gap: 20px; z-index: 100; }
-    .small-btn { padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; border-radius: 30px; cursor: pointer; }
+    canvas { display: block; }
 </style>
 </head>
 <body>
+
+<div id="home-btn-container" onclick="window.location.href='index.html'">
+    <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span>大廳</span>
+</div>
 
 <div id="ui">
     <div class="stat"><label>Level</label><span id="lv-txt">1</span></div>
@@ -97,29 +64,22 @@
     <div class="menu-box">
         <h2 id="msg-title">DART MASTER</h2>
         <p id="msg-desc">每得 400 分可獲得一支獎勵飛鏢</p>
-        <div class="btn-group">
-            <button id="action-btn" class="btn btn-next" onclick="handleAction()">開始遊戲</button>
-            <button class="btn btn-home" onclick="toHome()">回首頁 (index.html)</button>
-        </div>
+        <button id="action-btn" class="btn btn-next" onclick="handleAction()">開始遊戲</button>
     </div>
 </div>
 
-<div id="ingame-controls" style="display:none;">
-    <button class="small-btn" onclick="toHome()">🏠 HOME</button>
-    <button class="small-btn" onclick="forceNext()">⏩ SKIP</button>
-</div>
-
 <canvas id="game"></canvas>
+
+
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let lv = 1, score = 0, darts = 3, lastBonusScore = 0;
-let targetScore = 500;
+let lv = 1, score = 0, darts = 3, lastBonusScore = 0, targetScore = 500;
 let isDragging = false, startPos = {x:0, y:0}, curPos = {x:0, y:0};
 let gameState = "HOME", shakeAmount = 0, particles = [];
-let resultTimeout = null; // 用於管理結算計時器
+let resultTimeout = null;
 
 const dartHome = { x: 0, y: 0 };
 const target = { x: 0, y: 220, r: 110, angle: 0, baseX: 0, baseY: 220, destX: 0, destY: 0 };
@@ -138,10 +98,8 @@ resize();
 
 function checkBonus() {
     if (score - lastBonusScore >= 400) {
-        darts++;
-        lastBonusScore += 400;
-        showBonusPop();
-        updateUI();
+        darts++; lastBonusScore += 400;
+        showBonusPop(); updateUI();
     }
 }
 
@@ -152,43 +110,26 @@ function showBonusPop() {
 }
 
 function handleAction() {
-    // 只有在結算狀態且達標時才升級
-    if (gameState === "RESULT" && score >= targetScore) {
-        lv++;
-    }
+    if (gameState === "RESULT" && score >= targetScore) lv++;
     startLevel();
 }
 
 function startLevel() {
-    // 核心安全清理：防止直接跳失敗
-    clearTimeout(resultTimeout); 
-    flyingDarts.length = 0; 
-    landedDarts.length = 0;
-    
+    clearTimeout(resultTimeout);
+    flyingDarts.length = 0; landedDarts.length = 0;
     gameState = "PLAYING";
-    darts = 3; 
-    score = 0; 
-    lastBonusScore = 0;
+    darts = 3; score = 0; lastBonusScore = 0;
     targetScore = 500 + (lv-1)*400;
-    
     target.x = target.baseX; target.y = target.baseY;
     if(lv >= 3) { target.destX = target.baseX; target.destY = target.baseY; }
-    
     document.getElementById('overlay').style.display = 'none';
-    document.getElementById('ingame-controls').style.display = 'flex';
     updateUI();
 }
 
-function toHome() { window.location.href = 'index.html'; }
-function forceNext() { lv++; startLevel(); }
-
 function showResult() {
-    // 安全檢查：如果還在飛，不彈出
     if (gameState !== "PLAYING" || flyingDarts.length > 0) return;
-    
     gameState = "RESULT";
     document.getElementById('overlay').style.display = 'flex';
-    document.getElementById('ingame-controls').style.display = 'none';
     const title = document.getElementById('msg-title');
     const desc = document.getElementById('msg-desc');
     const btn = document.getElementById('action-btn');
@@ -206,8 +147,7 @@ function showResult() {
     }
 }
 
-// --- 飛鏢系統 ---
-
+// 事件監聽
 canvas.addEventListener("mousedown", startDrag);
 canvas.addEventListener("mousemove", drag);
 window.addEventListener("mouseup", endDrag);
@@ -218,9 +158,7 @@ window.addEventListener("touchend", endDrag);
 function startDrag(e) {
     if (gameState !== "PLAYING" || darts <= 0) return;
     if (Math.hypot(e.clientX - dartHome.x, e.clientY - dartHome.y) < 70) {
-        isDragging = true;
-        startPos = { x: dartHome.x, y: dartHome.y };
-        curPos = { x: e.clientX, y: e.clientY };
+        isDragging = true; startPos = { x: dartHome.x, y: dartHome.y }; curPos = { x: e.clientX, y: e.clientY };
     }
 }
 function drag(e) { if (isDragging) curPos = { x: e.clientX, y: e.clientY }; }
@@ -231,19 +169,11 @@ function endDrag() {
     if (Math.hypot(dx, dy) > 30) {
         darts--;
         const p = Math.min(Math.hypot(dx, dy) / 180, 1.2);
-        flyingDarts.push({ 
-            x: dartHome.x, y: dartHome.y, 
-            vx: dx*0.13, vy: dy*0.13 - (p*4), 
-            scale: 1, targetY: target.y + (1-p)*45 
-        });
+        flyingDarts.push({ x: dartHome.x, y: dartHome.y, vx: dx*0.13, vy: dy*0.13 - (p*4), scale: 1, targetY: target.y + (1-p)*45 });
         updateUI();
-        
-        // 只有在最後一支飛鏢射出時，才啟動一個稍微長的延遲監測
         if (darts === 0) {
             clearTimeout(resultTimeout);
-            resultTimeout = setTimeout(() => {
-                if (flyingDarts.length === 0) showResult();
-            }, 3000); // 如果 3 秒還沒反應，強制結算
+            resultTimeout = setTimeout(() => { if (flyingDarts.length === 0) showResult(); }, 3000);
         }
     }
 }
@@ -254,105 +184,81 @@ function updateUI() {
     document.getElementById('darts-txt').innerText = "🎯".repeat(Math.max(0, darts));
 }
 
-// --- 繪製循環 ---
-
 function draw() {
     ctx.save();
     if (shakeAmount > 0) {
         ctx.translate((Math.random()-0.5)*shakeAmount, (Math.random()-0.5)*shakeAmount);
         shakeAmount *= 0.9;
     }
-    
-    // 背景
     const grd = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
     grd.addColorStop(0, "#0a0a1a"); grd.addColorStop(1, "#050505");
     ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (gameState === "PLAYING") {
-        // 運動路徑
         if (lv === 2) target.x = target.baseX + Math.sin(Date.now()*0.002) * 150;
         if (lv >= 3) {
-            target.x += (target.destX - target.x) * 0.03;
-            target.y += (target.destY - target.y) * 0.03;
+            target.x += (target.destX - target.x) * 0.03; target.y += (target.destY - target.y) * 0.03;
             if (Math.hypot(target.destX-target.x, target.destY-target.y) < 10) {
-                target.destX = target.baseX + (Math.random()-0.5)*300;
-                target.destY = target.baseY + (Math.random()-0.5)*150;
+                target.destX = target.baseX + (Math.random()-0.5)*300; target.destY = target.baseY + (Math.random()-0.5)*150;
             }
         }
         target.angle += 0.02;
 
-        // 靶子
         ctx.save(); ctx.translate(target.x, target.y); ctx.rotate(target.angle);
         const rings = [{r:110, c:'#1a1a2e', s:'#00f2ff'}, {r:85, c:'#0f0f1a', s:'#0062ff'}, {r:55, c:'#1a1a2e', s:'#00f2ff'}, {r:25, c:'#ff2e63', s:'#fff'}];
         rings.forEach(r => {
             ctx.beginPath(); ctx.arc(0, 0, r.r, 0, Math.PI*2); ctx.fillStyle = r.c; ctx.fill();
             ctx.strokeStyle = r.s; ctx.lineWidth = 3; ctx.stroke();
-            ctx.shadowBlur = 10; ctx.shadowColor = r.s;
         });
         landedDarts.forEach(d => {
-            ctx.fillStyle = "white"; ctx.shadowBlur = 15; ctx.shadowColor = "white";
-            ctx.beginPath(); ctx.arc(Math.cos(d.ang)*d.d, Math.sin(d.ang)*d.d, 6, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(Math.cos(d.ang)*d.d, Math.sin(d.ang)*d.d, 6, 0, Math.PI*2); ctx.fill();
         });
         ctx.restore();
 
-        // 飛鏢
         flyingDarts.forEach((d, i) => {
             d.x += d.vx; d.y += d.vy; d.scale -= 0.015;
-            ctx.shadowBlur = 20; ctx.shadowColor = "white"; ctx.fillStyle = "white";
-            ctx.beginPath(); ctx.ellipse(d.x, d.y, 12*d.scale, 30*d.scale, 0, 0, Math.PI*2); ctx.fill();
-            
+            ctx.fillStyle = "white"; ctx.beginPath(); ctx.ellipse(d.x, d.y, 12*d.scale, 30*d.scale, 0, 0, Math.PI*2); ctx.fill();
             if (d.scale <= 0.4 || d.y <= d.targetY) {
                 const dist = Math.hypot(d.x-target.x, d.y-target.y);
                 if (dist < 110) {
                     let pts = dist < 25 ? 500 : dist < 60 ? 300 : 100;
-                    score += pts;
-                    shakeAmount = pts / 20;
+                    score += pts; shakeAmount = pts / 20;
                     createParticles(d.x, d.y, pts === 500 ? "#f1c40f" : "#00f2ff");
                     landedDarts.push({ ang: Math.atan2(d.y-target.y, d.x-target.x)-target.angle, d: dist });
                     checkBonus();
                 }
                 flyingDarts.splice(i, 1);
                 updateUI();
-                // 飛鏢落地後檢查是否結算
                 if (darts === 0 && flyingDarts.length === 0) {
-                    clearTimeout(resultTimeout);
-                    resultTimeout = setTimeout(showResult, 800);
+                    clearTimeout(resultTimeout); resultTimeout = setTimeout(showResult, 800);
                 }
             }
         });
 
         if (isDragging) {
             const dx = startPos.x - curPos.x, dy = startPos.y - curPos.y;
-            ctx.setLineDash([8, 4]); ctx.strokeStyle = "#00f2ff";
-            ctx.lineWidth = 3; ctx.shadowBlur = 15; ctx.shadowColor = "#00f2ff";
-            ctx.beginPath(); ctx.moveTo(dartHome.x, dartHome.y);
-            ctx.lineTo(dartHome.x + dx*2.2, dartHome.y + dy*2.2); ctx.stroke();
-            ctx.setLineDash([]);
+            ctx.setLineDash([8, 4]); ctx.strokeStyle = "#00f2ff"; ctx.beginPath(); ctx.moveTo(dartHome.x, dartHome.y);
+            ctx.lineTo(dartHome.x + dx*2.2, dartHome.y + dy*2.2); ctx.stroke(); ctx.setLineDash([]);
         }
         ctx.fillStyle = isDragging ? "#00f2ff" : "#f1c40f";
         ctx.beginPath(); ctx.arc(dartHome.x, dartHome.y, 35, 0, Math.PI*2); ctx.fill();
     }
 
-    // 粒子繪製
     for(let i = particles.length - 1; i >= 0; i--) {
         let p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.02;
         ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
         ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
         if (p.life <= 0) particles.splice(i, 1);
     }
-    
     ctx.globalAlpha = 1; ctx.restore();
     requestAnimationFrame(draw);
 }
 
 function createParticles(x, y, color) {
-    for (let i = 0; i < 15; i++) {
-        particles.push({ x: x, y: y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1.0, color: color });
-    }
+    for (let i = 0; i < 15; i++) particles.push({ x: x, y: y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, life: 1.0, color: color });
 }
 
 draw();
 </script>
 </body>
 </html>
-
