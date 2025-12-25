@@ -1,75 +1,46 @@
 :root {
-    --neon-cyan: #00f2fe;
-    --neon-pink: #ff00cc;
-    --neon-purple: #9d00ff;
-    --neon-green: #39ff14;
-    --easy: #2ecc71;
-    --medium: #f1c40f;
-    --hard: #e74c3c;
+    --neon-cyan: #00f2fe; --neon-pink: #ff00cc; --neon-purple: #9d00ff; --neon-green: #39ff14;
+    --easy: #2ecc71; --medium: #f1c40f; --hard: #e74c3c;
 }
 
-* { box-sizing: border-box; }
-body {
-    margin: 0; background: #020205; color: #fff;
-    font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
-    overflow-x: hidden;
-}
+body { margin: 0; background: #020205; color: #fff; font-family: "Segoe UI", sans-serif; overflow-x: hidden; }
+h1 { text-align: center; letter-spacing: 8px; color: var(--neon-cyan); text-shadow: 0 0 15px var(--neon-cyan); margin: 30px 0; }
 
-h1 { text-align: center; letter-spacing: 5px; color: var(--neon-cyan); margin-top: 20px; }
+/* 輪播樣式 */
+#hero-carousel { position: relative; width: 100%; height: 380px; overflow: hidden; }
+.carousel-inner { display: flex; width: 300%; height: 100%; transition: transform 0.8s ease-in-out; }
+.carousel-item { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; background-size: cover; background-position: center; }
 
-/* --- 輪播主體 --- */
-#hero-carousel { position: relative; width: 100%; height: 350px; overflow: hidden; }
-.carousel-inner {
-    display: flex; width: 400%; height: 100%;
-    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
-}
+/* 圖片預覽設定 */
+.preview-farmer { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1000'); }
+.preview-2048 { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000'); }
+.preview-escape { background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000'); }
 
-.carousel-item {
-    width: 100%; height: 100%; display: flex; align-items: center; 
-    justify-content: center; position: relative; cursor: pointer;
-    background-size: cover; background-position: center;
-}
+.carousel-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, #020205 5%, transparent 50%, rgba(0,0,0,0.5) 100%); z-index: 1; }
+.carousel-content { z-index: 5; text-align: center; padding: 30px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); border-radius: 30px; max-width: 80%; }
+.carousel-content h2 { font-size: 2.5em; margin: 10px 0; }
 
-/* 預覽圖疊加效果 */
-.carousel-overlay { 
-    position: absolute; inset: 0; 
-    background: linear-gradient(to bottom, transparent, #020205); 
-    z-index: 1;
-}
+/* 篩選按鈕 */
+.filter-section { position: sticky; top: 0; z-index: 100; background: rgba(2, 2, 5, 0.9); backdrop-filter: blur(10px); padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.filter-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+.btn { padding: 8px 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: #888; cursor: pointer; transition: 0.3s; font-weight: bold; }
+.btn.active { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); border-color: var(--neon-cyan); }
 
-.carousel-content {
-    z-index: 2; text-align: center; padding: 25px 50px;
-    background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1); border-radius: 40px;
-}
+/* 卡片與網格 */
+.container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; padding: 30px; max-width: 1200px; margin: auto; }
+.card { position: relative; height: 200px; border-radius: 15px; overflow: hidden; cursor: pointer; transition: 0.3s; background: #111; border: 1px solid #222; }
+.card:hover { transform: translateY(-5px); border-color: var(--neon-cyan); box-shadow: 0 5px 20px rgba(0,242,254,0.2); }
+.diff-badge { position: absolute; top: 10px; right: 10px; font-size: 10px; padding: 2px 8px; border-radius: 5px; color: #fff; z-index: 10; }
+.hrd { background: var(--hard); } .med { background: var(--medium); } .esy { background: var(--easy); }
+.icon { font-size: 3.5em; text-align: center; margin-top: 30px; }
+.card-content { position: absolute; bottom: 0; width: 100%; padding: 12px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
+.card-content h2 { margin: 0; font-size: 1.1em; }
+.card-content p { margin: 5px 0 0; font-size: 0.8em; color: #888; }
 
-.carousel-content h2 { font-size: 2.5em; margin: 10px 0; text-shadow: 0 0 20px currentColor; }
+/* 各遊戲卡片背景 */
+.c14 { background: linear-gradient(135deg, #0d2818, #1b5e20); }
+.c1 { background: linear-gradient(135deg, #1a1a35, #2a0052); }
+.c2 { background: linear-gradient(135deg, #200, #500); }
+/* 其他以此類推... */
 
-/* --- 篩選與卡片 (其餘樣式保持不變) --- */
-.filter-section {
-    position: sticky; top: 0; z-index: 1000;
-    background: rgba(2, 2, 5, 0.95); padding: 15px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-}
-.filter-group { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.btn {
-    padding: 8px 16px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.05); color: #8892b0; cursor: pointer;
-    font-weight: bold; transition: 0.3s;
-}
-.btn.active { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); }
-
-.container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; padding: 20px; max-width: 1300px; margin: auto; }
-.card { position: relative; height: 220px; border-radius: 20px; overflow: hidden; cursor: pointer; transition: 0.4s; border: 1px solid rgba(255,255,255,0.05); }
-.card:hover { transform: translateY(-8px); border: 1px solid var(--neon-cyan); }
-.icon { font-size: 4em; text-align: center; margin-top: 30px; }
-.card-content { position: absolute; bottom: 0; width: 100%; padding: 15px; background: linear-gradient(to top, rgba(0,0,0,0.9) 60%, transparent); }
-
-/* 背景與預覽圖模擬 */
-.c14 { background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000'); }
-.c1 { background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000'); }
-.c2 { background: linear-gradient(135deg, #050510, #ff00cc); }
-.c3 { background: linear-gradient(135deg, #020205, #9d00ff); }
-
-footer { text-align:center; padding:40px; font-size:12px; color:#444; }
+footer { text-align: center; padding: 50px; color: #444; font-size: 12px; letter-spacing: 2px; }
