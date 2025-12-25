@@ -3,45 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game World - Neon Arcade</title>
+    <title>Neon Arcade Hub</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>GAME WORLD</h1>
+<h1>NEON ARCADE</h1>
 
 <div id="hero-carousel">
     <div class="carousel-inner" id="carousel-inner">
-        <div class="carousel-item c14" onclick="location.href='farmer.html'">
+        <div class="carousel-item preview-farmer" onclick="location.href='farmer.html'">
             <div class="carousel-overlay"></div>
             <div class="carousel-content">
-                <p class="highlight-text" style="color:var(--neon-green);">🔥 本周主打</p>
-                <h2 style="color:var(--neon-green);">霓虹農夫</h2>
-                <p>一命挑戰！在殭屍海中採收希望</p>
+                <p class="highlight">🔥 NEW RELEASE</p>
+                <h2 style="color:var(--neon-green)">霓虹農夫</h2>
+                <p>在無限進化的殭屍潮中生存並採收 🌱</p>
             </div>
         </div>
-        <div class="carousel-item c1" onclick="location.href='2048.html'">
+        <div class="carousel-item preview-2048" onclick="location.href='2048.html'">
             <div class="carousel-overlay"></div>
             <div class="carousel-content">
-                <p class="highlight-text" style="color:var(--neon-cyan);">熱門</p>
-                <h2 style="color:var(--neon-cyan);">2048</h2>
-                <p>挑戰數字極限，感受流光溢彩</p>
+                <p class="highlight">⭐ POPULAR</p>
+                <h2 style="color:var(--neon-cyan)">2048 Neon</h2>
+                <p>滑動數位，挑戰極限色彩與數字</p>
             </div>
         </div>
-        <div class="carousel-item c2" onclick="location.href='escape.html'">
+        <div class="carousel-item preview-escape" onclick="location.href='escape.html'">
             <div class="carousel-overlay"></div>
             <div class="carousel-content">
-                <p class="highlight-text" style="color:var(--neon-pink);">最新</p>
-                <h2 style="color:var(--neon-pink);">極限避障</h2>
-                <p>生死時速！考驗你的反應神經</p>
-            </div>
-        </div>
-        <div class="carousel-item c3" onclick="location.href='darts.html'">
-            <div class="carousel-overlay"></div>
-            <div class="carousel-content">
-                <p class="highlight-text" style="color:var(--neon-purple);">射擊</p>
-                <h2 style="color:var(--neon-purple);">技術流飛鏢</h2>
-                <p>穩定發力，正中紅心</p>
+                <p class="highlight">⚡ FAST PACED</p>
+                <h2 style="color:var(--neon-pink)">極限避障</h2>
+                <p>閃避霓虹障礙物，測試你的反射神經</p>
             </div>
         </div>
     </div>
@@ -63,12 +55,21 @@
 </div>
 
 <div class="container" id="game-list">
-    <div class="card c14" data-cat="街機" data-diff="hard" onclick="location.href='farmer.html'">
-        <span class="diff-badge" style="background:var(--hard)">硬核</span>
-        <div class="icon">👨‍🌾</div>
-        <div class="card-content"><h2>霓虹農夫</h2><p>街機生存 · 難度隨關卡提升</p></div>
-    </div>
-    </div>
+    <div class="card c14" data-cat="街機" data-diff="hard" onclick="location.href='farmer.html'"><span class="diff-badge hrd">硬核</span><div class="icon">👨‍🌾</div><div class="card-content"><h2>霓虹農夫</h2><p>街機 · 極限生存</p></div></div>
+    <div class="card c1" data-cat="益智" data-diff="medium" onclick="location.href='2048.html'"><span class="diff-badge med">挑戰</span><div class="icon">🧩</div><div class="card-content"><h2>2048</h2><p>益智 · 數字拼圖</p></div></div>
+    <div class="card c2" data-cat="街機" data-diff="hard" onclick="location.href='escape.html'"><span class="diff-badge hrd">硬核</span><div class="icon">🚧</div><div class="card-content"><h2>極限避障</h2><p>街機 · 生存反應</p></div></div>
+    <div class="card c3" data-cat="街機" data-diff="medium" onclick="location.href='darts.html'"><span class="diff-badge med">挑戰</span><div class="icon">🎯</div><div class="card-content"><h2>技術流飛鏢</h2><p>街機 · 精準操控</p></div></div>
+    <div class="card c4" data-cat="街機" data-diff="easy" onclick="location.href='snake.html'"><span class="diff-badge esy">輕鬆</span><div class="icon">🐍</div><div class="card-content"><h2>貪食蛇</h2><p>街機 · 經典重現</p></div></div>
+    <div class="card c5" data-cat="益智" data-diff="hard" onclick="location.href='mines.html'"><span class="diff-badge hrd">硬核</span><div class="icon">💣</div><div class="card-content"><h2>霓虹掃雷</h2><p>益智 · 邏輯推理</p></div></div>
+    <div class="card c6" data-cat="多人" data-diff="medium" onclick="location.href='gomoku.html'"><span class="diff-badge med">挑戰</span><div class="icon">⚫</div><div class="card-content"><h2>五子棋</h2><p>多人 · 策略對抗</p></div></div>
+    <div class="card c7" data-cat="多人" data-diff="hard" onclick="location.href='card.html'"><span class="diff-badge hrd">硬核</span><div class="icon">🃏</div><div class="card-content"><h2>心臟病</h2><p>多人 · 手速對決</p></div></div>
+    <div class="card c8" data-cat="多人" data-diff="easy" onclick="location.href='pair.html'"><span class="diff-badge esy">輕鬆</span><div class="icon">🧠</div><div class="card-content"><h2>記憶對對碰</h2><p>多人 · 腦力開發</p></div></div>
+    <div class="card c9" data-cat="益智" data-diff="easy" onclick="location.href='guess100.html'"><span class="diff-badge esy">輕鬆</span><div class="icon">❓</div><div class="card-content"><h2>猜數字</h2><p>益智 · 終極密碼</p></div></div>
+    <div class="card c10" data-cat="益智" data-diff="medium" onclick="location.href='ab.html'"><span class="diff-badge med">挑戰</span><div class="icon">🔢</div><div class="card-content"><h2>幾A幾B</h2><p>益智 · 邏輯破譯</p></div></div>
+    <div class="card c11" data-cat="益智" data-diff="hard" onclick="location.href='ghost.html'"><span class="diff-badge hrd">硬核</span><div class="icon">👻</div><div class="card-content"><h2>閃靈快手</h2><p>益智 · 瞬間反應</p></div></div>
+    <div class="card c12" data-cat="街機" data-diff="medium" onclick="location.href='breakout.html'"><span class="diff-badge med">挑戰</span><div class="icon">🧱</div><div class="card-content"><h2>打磚塊</h2><p>街機 · 解壓必備</p></div></div>
+    <div class="card c13" data-cat="街機" data-diff="hard" onclick="location.href='flappy.html'"><span class="diff-badge hrd">硬核</span><div class="icon">🚀</div><div class="card-content"><h2>極速穿梭</h2><p>街機 · 難度天花板</p></div></div>
+</div>
 
 <footer>ARCADE HUB © 2025 · READY PLAYER ONE</footer>
 
