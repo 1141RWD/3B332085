@@ -65,3 +65,39 @@ window.onload = () => {
     console.log("NEON ARCADE: ALL SYSTEMS GO.");
 
 };
+function addComment(btn, listId) {
+    const input = btn.previousElementSibling;
+    const list = document.getElementById(listId);
+    
+    if (input.value.trim() === "") {
+        alert("請輸入評論內容！");
+        return;
+    }
+
+    // 建立新評論
+    const newReview = document.createElement('div');
+    newReview.className = 'player-review';
+    newReview.style.animation = 'fadeIn 0.5s ease forwards';
+    newReview.innerHTML = `
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+        <p class="review-quote">"${input.value}"</p>
+        <p class="reviewer">- Guest Player</p>
+    `;
+
+    // 插入到列表最前方
+    list.insertBefore(newReview, list.firstChild);
+    
+    // 自動滾動到頂部
+    list.scrollTop = 0;
+
+    // 清空輸入
+    input.value = "";
+}
+
+// 動態動畫
+const style = document.createElement('style');
+style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }`;
+document.head.appendChild(style);
+
+console.log("NEON ARCADE: INTERACTIVE SYSTEM ONLINE.");
+
