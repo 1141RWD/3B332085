@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEON ARCADE | 14合一霓虹大廳</title>
+    <title>NEON ARCADE | 14合一互動大廳</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
@@ -13,165 +13,311 @@
 
     <header>
         <div class="logo">NEON<span>ARCADE</span></div>
-        <p class="subtitle">14 GAMES LOADED // READY TO PLAY</p>
+        <p class="subtitle">INTERACTIVE GAMING HUB // 14 MODULES</p>
     </header>
 
-   <section id="hero-carousel">
-        <div class="carousel-container" id="carousel-container">
-            <div class="carousel-item active" onclick="location.href='farmer.html'" style="--accent: var(--neon-green);">
-                <div class="carousel-content">
-                    <span class="badge">TOP PICK</span>
-                    <h2>Just Run in Horror Farm</h2>
-                    <p>ULTIMATE SURVIVAL // 一命挑戰，在殭屍海中採收希望</p>
-                    <div class="glow-btn">立即登入</div>
-                </div>
-            </div>
-            <div class="carousel-item" onclick="location.href='2048.html'" style="--accent: var(--neon-cyan);">
-                <div class="carousel-content">
-                    <span class="badge">PUZZLE KING</span>
-                    <h2>2048</h2>
-                    <p>LOGIC CHALLENGE // 挑戰數字極限，感受流光溢彩</p>
-                    <div class="glow-btn">開始挑戰</div>
-                </div>
-            </div>
-            <div class="carousel-item" onclick="location.href='flappy.html'" style="--accent: var(--neon-pink);">
-                <div class="carousel-content">
-                    <span class="badge">HARDCORE</span>
-                    <h2>極速穿梭</h2>
-                    <p>REFLEX TEST // 穿梭於霓虹光影，挑戰反應天花板</p>
-                    <div class="glow-btn">突破紀錄</div>
-                </div>
-            </div>
-        </div>
-        <div class="carousel-dots" id="carousel-dots">
-            <span class="dot active"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        </div>
-    </section>
-
-    <nav class="filter-section">
-        <div class="filter-group">
-            <button class="btn btn-cat active" onclick="filterType('all', this)">全部遊戲</button>
-            <button class="btn btn-cat" onclick="filterType('益智', this)">益智挑戰</button>
-            <button class="btn btn-cat" onclick="filterType('街機', this)">街機經典</button>
-            <button class="btn btn-cat" onclick="filterType('多人', this)">多人對戰</button>
-        </div>
-        <div class="filter-group">
-            <button class="btn btn-diff active" onclick="filterDiff('all', this)">所有難度</button>
-            <button class="btn btn-diff-easy" onclick="filterDiff('easy', this)">🟢 輕鬆</button>
-            <button class="btn btn-diff-medium" onclick="filterDiff('medium', this)">🟡 挑戰</button>
-            <button class="btn btn-diff-hard" onclick="filterDiff('hard', this)">🔴 硬核</button>
-        </div>
-    </nav>
-
     <main class="container" id="game-list">
-        <div class="card" data-cat="街機" data-diff="hard" onclick="location.href='farmer.html'">
+        <div class="card" data-cat="街機" data-diff="hard">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-green)">👨‍🌾</div>
-                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>Just Run in Horror Farm</h3><p>街機生存 · 動作反應<br>玩家評論</p></div>
+                <div class="card-img" style="color: var(--neon-green)" onclick="location.href='farmer.html'">👨‍🌾</div>
+                <div class="card-info">
+                    <span class="tag tag-hard">HARD</span>
+                    <h3>Horror Farm</h3>
+                    <div class="review-container" id="list-farmer">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                            <p class="review-quote">"氣氛超緊張！"</p>
+                            <p class="reviewer">- Admin</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-farmer')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="益智" data-diff="medium" onclick="location.href='2048.html'">
+        <div class="card" data-cat="益智" data-diff="medium">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-cyan)">🧩</div>
-                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>2048</h3><p>益智挑戰 · 數字拼圖</p></div>
+                <div class="card-img" style="color: var(--neon-cyan)" onclick="location.href='2048.html'">🧩</div>
+                <div class="card-info">
+                    <span class="tag tag-medium">MEDIUM</span>
+                    <h3>2048</h3>
+                    <div class="review-container" id="list-2048">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐★</div>
+                            <p class="review-quote">"霓虹配色很美。"</p>
+                            <p class="reviewer">- User_A</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-2048')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="街機" data-diff="hard" onclick="location.href='escape.html'">
+        <div class="card" data-cat="街機" data-diff="hard">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-pink)">🚧</div>
-                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>極限避障</h3><p>街機經典 · 反應極限</p></div>
+                <div class="card-img" style="color: var(--neon-pink)" onclick="location.href='escape.html'">🚧</div>
+                <div class="card-info">
+                    <span class="tag tag-hard">HARD</span>
+                    <h3>極限避障</h3>
+                    <div class="review-container" id="list-escape">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐★★</div>
+                            <p class="review-quote">"挑戰手速極限！"</p>
+                            <p class="reviewer">- Reflex_God</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-escape')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="街機" data-diff="medium" onclick="location.href='darts.html'">
+        <div class="card" data-cat="街機" data-diff="medium">
             <div class="card-inner">
-                <div class="card-img" style="color: #9d00ff">🎯</div>
-                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>技術流飛鏢</h3><p>街機經典 · 精準操控</p></div>
+                <div class="card-img" style="color: #9d00ff" onclick="location.href='darts.html'">🎯</div>
+                <div class="card-info">
+                    <span class="tag tag-medium">MEDIUM</span>
+                    <h3>技術流飛鏢</h3>
+                    <div class="review-container" id="list-darts">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐★</div>
+                            <p class="review-quote">"很有街機的感覺。"</p>
+                            <p class="reviewer">- DartsMaster</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-darts')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="街機" data-diff="easy" onclick="location.href='snake.html'">
+        <div class="card" data-cat="街機" data-diff="easy">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-green)">🐍</div>
-                <div class="card-info"><span class="tag tag-easy">EASY</span><h3>貪食蛇</h3><p>街機經典 · 經典重現</p></div>
+                <div class="card-img" style="color: var(--neon-green)" onclick="location.href='snake.html'">🐍</div>
+                <div class="card-info">
+                    <span class="tag tag-easy">EASY</span>
+                    <h3>貪食蛇</h3>
+                    <div class="review-container" id="list-snake">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                            <p class="review-quote">"童年回憶大升級。"</p>
+                            <p class="reviewer">- RetroFan</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-snake')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="益智" data-diff="hard" onclick="location.href='mines.html'">
+        <div class="card" data-cat="益智" data-diff="hard">
             <div class="card-inner">
-                <div class="card-img" style="color: #e74c3c">💣</div>
-                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>霓虹掃雷</h3><p>益智挑戰 · 邏輯推理</p></div>
+                <div class="card-img" style="color: #e74c3c" onclick="location.href='mines.html'">💣</div>
+                <div class="card-info">
+                    <span class="tag tag-hard">HARD</span>
+                    <h3>霓虹掃雷</h3>
+                    <div class="review-container" id="list-mines">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐★</div>
+                            <p class="review-quote">"配色很解壓。"</p>
+                            <p class="reviewer">- LogicKing</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-mines')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="多人" data-diff="medium" onclick="location.href='gomoku.html'">
+        <div class="card" data-cat="多人" data-diff="medium">
             <div class="card-inner">
-                <div class="card-img" style="color: #fff">⚫</div>
-                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>五子棋</h3><p>多人對戰 · 策略對抗</p></div>
+                <div class="card-img" style="color: #fff" onclick="location.href='gomoku.html'">⚫</div>
+                <div class="card-info">
+                    <span class="tag tag-medium">MEDIUM</span>
+                    <h3>五子棋</h3>
+                    <div class="review-container" id="list-gomoku">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐★</div>
+                            <p class="review-quote">"AI 有點強度。"</p>
+                            <p class="reviewer">- Chess_99</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-gomoku')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="多人" data-diff="hard" onclick="location.href='card.html'">
+        <div class="card" data-cat="多人" data-diff="hard">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-pink)">🃏</div>
-                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>心臟病</h3><p>多人對戰 · 手速對決</p></div>
+                <div class="card-img" style="color: var(--neon-pink)" onclick="location.href='card.html'">🃏</div>
+                <div class="card-info">
+                    <span class="tag tag-hard">HARD</span>
+                    <h3>心臟病</h3>
+                    <div class="review-container" id="list-card">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                            <p class="review-quote">"玩到螢幕快破了！"</p>
+                            <p class="reviewer">- SpeedKing</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-card')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="多人" data-diff="easy" onclick="location.href='pair.html'">
+        <div class="card" data-cat="多人" data-diff="easy">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-cyan)">🧠</div>
-                <div class="card-info"><span class="tag tag-easy">EASY</span><h3>記憶對對碰</h3><p>多人對戰 · 腦力開發</p></div>
+                <div class="card-img" style="color: var(--neon-cyan)" onclick="location.href='pair.html'">🧠</div>
+                <div class="card-info">
+                    <span class="tag tag-easy">EASY</span>
+                    <h3>記憶對對碰</h3>
+                    <div class="review-container" id="list-pair">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐★</div>
+                            <p class="review-quote">"訓練腦力首選。"</p>
+                            <p class="reviewer">- BrainUp</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-pair')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="益智" data-diff="easy" onclick="location.href='guess100.html'">
+        <div class="card" data-cat="益智" data-diff="easy">
             <div class="card-inner">
-                <div class="card-img" style="color: #f1c40f">❓</div>
-                <div class="card-info"><span class="tag tag-easy">EASY</span><h3>猜數字</h3><p>益智挑戰 · 終極密碼</p></div>
+                <div class="card-img" style="color: #f1c40f" onclick="location.href='guess100.html'">❓</div>
+                <div class="card-info">
+                    <span class="tag tag-easy">EASY</span>
+                    <h3>猜數字</h3>
+                    <div class="review-container" id="list-guess">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐★★</div>
+                            <p class="review-quote">"簡單好玩的小遊戲。"</p>
+                            <p class="reviewer">- LuckyBoy</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-guess')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="益智" data-diff="medium" onclick="location.href='ab.html'">
+        <div class="card" data-cat="益智" data-diff="medium">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-cyan)">🔢</div>
-                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>幾A幾B</h3><p>益智挑戰 · 邏輯破譯</p></div>
+                <div class="card-img" style="color: var(--neon-cyan)" onclick="location.href='ab.html'">🔢</div>
+                <div class="card-info">
+                    <span class="tag tag-medium">MEDIUM</span>
+                    <h3>幾A幾B</h3>
+                    <div class="review-container" id="list-ab">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐★</div>
+                            <p class="review-quote">"邏輯破譯很有趣。"</p>
+                            <p class="reviewer">- CoderX</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-ab')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="益智" data-diff="hard" onclick="location.href='ghost.html'">
+        <div class="card" data-cat="益智" data-diff="hard">
             <div class="card-inner">
-                <div class="card-img" style="color: #ecf0f1">👻</div>
-                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>閃靈快手</h3><p>益智挑戰 · 瞬間反應</p></div>
+                <div class="card-img" style="color: #ecf0f1" onclick="location.href='ghost.html'">👻</div>
+                <div class="card-info">
+                    <span class="tag tag-hard">HARD</span>
+                    <h3>閃靈快手</h3>
+                    <div class="review-container" id="list-ghost">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                            <p class="review-quote">"測試瞬間反應力。"</p>
+                            <p class="reviewer">- Flash</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-ghost')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="街機" data-diff="medium" onclick="location.href='breakout.html'">
+        <div class="card" data-cat="街機" data-diff="medium">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-cyan)">🧱</div>
-                <div class="card-info"><span class="tag tag-medium">MEDIUM</span><h3>打磚塊</h3><p>街機經典 · 解壓必備</p></div>
+                <div class="card-img" style="color: var(--neon-cyan)" onclick="location.href='breakout.html'">🧱</div>
+                <div class="card-info">
+                    <span class="tag tag-medium">MEDIUM</span>
+                    <h3>打磚塊</h3>
+                    <div class="review-container" id="list-breakout">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐★</div>
+                            <p class="review-quote">"聲光效果超棒。"</p>
+                            <p class="reviewer">- Arkanoid</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-breakout')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card" data-cat="街機" data-diff="hard" onclick="location.href='flappy.html'">
+        <div class="card" data-cat="街機" data-diff="hard">
             <div class="card-inner">
-                <div class="card-img" style="color: var(--neon-pink)">🚀</div>
-                <div class="card-info"><span class="tag tag-hard">HARD</span><h3>極速穿梭</h3><p>街機經典 · 難度天花板</p></div>
+                <div class="card-img" style="color: var(--neon-pink)" onclick="location.href='flappy.html'">🚀</div>
+                <div class="card-info">
+                    <span class="tag tag-hard">HARD</span>
+                    <h3>極速穿梭</h3>
+                    <div class="review-container" id="list-flappy">
+                        <div class="player-review">
+                            <div class="stars">⭐⭐⭐⭐⭐</div>
+                            <p class="review-quote">"根本停不下來。"</p>
+                            <p class="reviewer">- Pilot_Z</p>
+                        </div>
+                    </div>
+                    <div class="comment-input-group">
+                        <input type="text" placeholder="輸入評論..." class="user-comment">
+                        <button class="send-btn" onclick="addComment(this, 'list-flappy')">🚀</button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
     <footer>
         <div class="status-bar">
-            SYSTEM STATUS: <span class="online-dot"></span> ONLINE | 14 MODULES LOADED
+            SYSTEM STATUS: <span class="online-dot"></span> ONLINE | 14 MODULES READY
         </div>
     </footer>
 
     <script src="script.js"></script>
 </body>
-
 </html>
