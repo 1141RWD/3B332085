@@ -46,7 +46,7 @@
         padding: 8px 15px;
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(8px);
-        border: 1px solid rgba(0, 242, 254, 0.5);
+        border: 1px solid rgba(0, 12, 24, 0.5);
         border-radius: 50px;
         color: #00f2fe;
         cursor: pointer;
@@ -159,7 +159,7 @@ function drawStone(i, j, player) {
     gradient.addColorStop(1, "#000");
   } else { // 白子
     gradient.addColorStop(0, "#fff");
-    gradient.addColorStop(1, "#aaa");
+    gradient.addColorStop(1, "#ddd");
   }
   ctx.beginPath();
   ctx.fillStyle = gradient;
@@ -250,4 +250,5 @@ initBoard();
 
 </body>
 </html>
+
 
