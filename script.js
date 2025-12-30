@@ -26,21 +26,28 @@ function applyFilters() {
 }
 
 // 輪播系統
-let slideIndex = 0;
-function showSlides() {
-    const slides = document.querySelectorAll('.carousel-item');
-    const dots = document.querySelectorAll('.dot');
-    if (slides.length === 0) return;
+let currentSlide = 0;
+const slides = document.querySelectorAll('.carousel-item');
+const dots = document.querySelectorAll('.dot');
 
+function showSlide(n) {
     slides.forEach(s => s.classList.remove('active'));
     dots.forEach(d => d.classList.remove('active'));
-
-    slideIndex = (slideIndex + 1) % slides.length;
-    slides[slideIndex].classList.add('active');
-    dots[slideIndex].classList.add('active');
-
-    setTimeout(showSlides, 5000);
+    
+    currentSlide = (n + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
 }
+
+// 自動輪播
+setInterval(() => {
+    showSlide(currentSlide + 1);
+}, 5000);
+
+// 點擊點點切換
+dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => showSlide(index));
+});
 function addComment(btn, listId) {
     const cardInfo = btn.closest('.card-info');
     const input = cardInfo.querySelector('.user-comment');
@@ -99,3 +106,4 @@ document.addEventListener('DOMContentLoaded', () => {
     showSlides();
     console.log("NEON ARCADE: RESPONSIVE SYSTEM ONLINE");
 });
+
