@@ -127,6 +127,17 @@ header { padding: 40px 15px; text-align: center; }
 footer { text-align: center; padding: 40px; font-size: 0.7rem; color: #444; letter-spacing: 2px; }
 .online-dot { display: inline-block; width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); margin-right: 5px; }
 
+.carousel-item {
+    cursor: pointer;
+    transition: transform 0.5s ease, opacity 0.8s ease;
+}
+
+.carousel-item:hover .carousel-content {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 20px var(--neon-pink);
+    transform: scale(1.02);
+}
+
 /* --- 手機版 RWD --- */
 @media (max-width: 600px) {
     .container { grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px; }
@@ -136,3 +147,4 @@ footer { text-align: center; padding: 40px; font-size: 0.7rem; color: #444; lett
     .comment-input-group input { padding: 5px; font-size: 0.75rem; }
     .logo { letter-spacing: 4px; }
 }
+
