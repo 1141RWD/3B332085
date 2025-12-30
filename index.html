@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NEON ARCADE | 互動遊戲大廳</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+TC:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="scanline"></div>
@@ -16,75 +16,72 @@
         <p class="subtitle">MULTI-MODULE GAMING SYSTEM</p>
     </header>
 
-   <section id="hero-carousel">
-    <div class="carousel-container">
-        <div class="carousel-item active" 
-             style="cursor: pointer; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200')"
-             onclick="location.href='farmer.html'">
-            <div class="carousel-content">
-                <h2>精選推薦: Horror Farm</h2>
-                <p>在恐懼中求生存，體驗最極致的農場冒險。</p>
+    <section id="hero-carousel">
+        <div class="carousel-container">
+            <div class="carousel-item active" 
+                 style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200')"
+                 onclick="location.href='farmer.html'">
+                <div class="carousel-content">
+                    <span class="badge">HOT RECOM</span>
+                    <h2>Horror Farm</h2>
+                    <p>在恐懼中求生存，體驗最極致的農場冒險。</p>
+                </div>
             </div>
-        </div>
 
-        <div class="carousel-item" 
-             style="cursor: pointer; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&q=80&w=1200')"
-             onclick="location.href='card.html'">
-            <div class="carousel-content">
-                <h2>多人連線: 心臟病</h2>
-                <p>反應力的大考驗！誰的手速最快？</p>
+            <div class="carousel-item" 
+                 style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&q=80&w=1200')"
+                 onclick="location.href='card.html'">
+                <div class="carousel-content">
+                    <span class="badge" style="background: var(--neon-pink);">MULTIPLAYER</span>
+                    <h2>多人連線: 心臟病</h2>
+                    <p>反應力的大考驗！誰的手速能超越極限？</p>
+                </div>
             </div>
-        </div>
 
-        <div class="carousel-item" 
-             style="cursor: pointer; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&q=80&w=1200')"
-             onclick="location.href='2048.html'">
-            <div class="carousel-content">
-                <h2>益智挑戰: 2048</h2>
-                <p>滑動方塊，挑戰你的數位邏輯極限。</p>
+            <div class="carousel-item" 
+                 style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&q=80&w=1200')"
+                 onclick="location.href='2048.html'">
+                <div class="carousel-content">
+                    <span class="badge" style="background: var(--neon-green); color: #000;">LOGIC PUZZLE</span>
+                    <h2>益智挑戰: 2048</h2>
+                    <p>滑動方塊，挑戰你的數位邏輯極限。</p>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="carousel-dots">
-        <div class="dot active"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-    </div>
-</section>
+        
+        <div class="carousel-dots">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+    </section>
 
     <nav class="filter-section">
         <div class="filter-group">
-            <button class="btn btn-cat active" onclick="filterType('all', this)">全部</button>
-            <button class="btn btn-cat" onclick="filterType('街機', this)">街機</button>
-            <button class="btn btn-cat" onclick="filterType('益智', this)">益智</button>
-            <button class="btn btn-cat" onclick="filterType('多人', this)">多人</button>
+            <div class="btn-group">
+                <button class="btn btn-cat active" onclick="filterType('all', this)">全部</button>
+                <button class="btn btn-cat" onclick="filterType('街機', this)">街機</button>
+                <button class="btn btn-cat" onclick="filterType('益智', this)">益智</button>
+                <button class="btn btn-cat" onclick="filterType('多人', this)">多人</button>
+            </div>
+
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="game-search" placeholder="搜尋遊戲名稱..." onkeyup="searchGames()">
+            </div>
         </div>
-        <div class="filter-group">
-        <button class="btn btn-cat active" onclick="filterType('all', this)">全部</button>
-        <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="game-search" placeholder="搜尋遊戲名稱..." onkeyup="searchGames()">
-        </div>
-    </div>
     </nav>
     
     <main class="container" id="game-list">
         
-        <div class="card" data-cat="街機">
+        <div class="card" data-cat="街機" data-diff="hard">
             <div class="card-inner">
                 <div class="card-img cat-arcade-1" onclick="location.href='farmer.html'">👨‍🌾</div>
                 <div class="card-info">
                     <h3>Horror Farm</h3>
                     <div class="review-container" id="list-farmer"></div>
                     <div class="comment-area">
-                        <select class="star-select">
-                            <option value="5">⭐⭐⭐⭐⭐</option>
-                            <option value="4">⭐⭐⭐⭐</option>
-                            <option value="3">⭐⭐⭐</option>
-                            <option value="2">⭐⭐</option>
-                            <option value="1">⭐</option>
-                        </select>
+                        <select class="star-select"></select>
                         <div class="comment-input-group">
                             <input type="text" placeholder="留個言吧..." class="user-comment">
                             <button class="send-btn" onclick="addComment(this, 'list-farmer')">🚀</button>
@@ -94,183 +91,86 @@
             </div>
         </div>
 
-        <div class="card" data-cat="街機">
+        <div class="card" data-cat="街機" data-diff="medium">
             <div class="card-inner">
                 <div class="card-img cat-arcade-2" onclick="location.href='escape.html'">🚧</div>
                 <div class="card-info">
                     <h3>極限避障</h3>
                     <div class="review-container" id="list-escape"></div>
                     <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="挑戰心得..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-escape')">🚀</button></div>
+                        <select class="star-select"></select>
+                        <div class="comment-input-group">
+                            <input type="text" placeholder="挑戰心得..." class="user-comment">
+                            <button class="send-btn" onclick="addComment(this, 'list-escape')">🚀</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card" data-cat="街機">
-            <div class="card-inner">
-                <div class="card-img cat-arcade-3" onclick="location.href='darts.html'">🎯</div>
-                <div class="card-info">
-                    <h3>技術流飛鏢</h3>
-                    <div class="review-container" id="list-darts"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-darts')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="街機">
-            <div class="card-inner">
-                <div class="card-img cat-arcade-4" onclick="location.href='snake.html'">🐍</div>
-                <div class="card-info">
-                    <h3>經典貪食蛇</h3>
-                    <div class="review-container" id="list-snake"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-snake')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="益智">
+        <div class="card" data-cat="益智" data-diff="easy">
             <div class="card-inner">
                 <div class="card-img cat-puzzle-1" onclick="location.href='2048.html'">🧩</div>
                 <div class="card-info">
                     <h3>2048 Neon</h3>
                     <div class="review-container" id="list-2048"></div>
                     <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-2048')">🚀</button></div>
+                        <select class="star-select"></select>
+                        <div class="comment-input-group">
+                            <input type="text" placeholder="留言..." class="user-comment">
+                            <button class="send-btn" onclick="addComment(this, 'list-2048')">🚀</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card" data-cat="益智">
-            <div class="card-inner">
-                <div class="card-img cat-puzzle-2" onclick="location.href='mines.html'">💣</div>
-                <div class="card-info">
-                    <h3>霓虹掃雷</h3>
-                    <div class="review-container" id="list-mines"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-mines')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="益智">
-            <div class="card-inner">
-                <div class="card-img cat-puzzle-3" onclick="location.href='guess100.html'">❓</div>
-                <div class="card-info">
-                    <h3>猜數字 1-100</h3>
-                    <div class="review-container" id="list-guess"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-guess')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="益智">
-            <div class="card-inner">
-                <div class="card-img cat-puzzle-4" onclick="location.href='ab.html'">🔢</div>
-                <div class="card-info">
-                    <h3>幾A幾B</h3>
-                    <div class="review-container" id="list-ab"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-ab')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="益智">
-            <div class="card-inner">
-                <div class="card-img cat-puzzle-5" onclick="location.href='ghost.html'">👻</div>
-                <div class="card-info">
-                    <h3>快手搶牌</h3>
-                    <div class="review-container" id="list-ghost"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-ghost')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="多人">
-            <div class="card-inner">
-                <div class="card-img cat-multi-1" onclick="location.href='gomoku.html'">⚫</div>
-                <div class="card-info">
-                    <h3>五子棋</h3>
-                    <div class="review-container" id="list-gomoku"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="對弈心得..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-gomoku')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="多人">
+        <div class="card" data-cat="多人" data-diff="hard">
             <div class="card-inner">
                 <div class="card-img cat-multi-2" onclick="location.href='card.html'">🃏</div>
                 <div class="card-info">
                     <h3>心臟病</h3>
                     <div class="review-container" id="list-card"></div>
                     <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-card')">🚀</button></div>
+                        <select class="star-select"></select>
+                        <div class="comment-input-group">
+                            <input type="text" placeholder="留言..." class="user-comment">
+                            <button class="send-btn" onclick="addComment(this, 'list-card')">🚀</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card" data-cat="多人">
+        <div class="card" data-cat="多人" data-diff="medium">
             <div class="card-inner">
-                <div class="card-img cat-multi-3" onclick="location.href='pair.html'">🧠</div>
+                <div class="card-img cat-multi-1" onclick="location.href='gomoku.html'">⚫</div>
                 <div class="card-info">
-                    <h3>記憶對對碰</h3>
-                    <div class="review-container" id="list-pair"></div>
+                    <h3>五子棋</h3>
+                    <div class="review-container" id="list-gomoku"></div>
                     <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-pair')">🚀</button></div>
+                        <select class="star-select"></select>
+                        <div class="comment-input-group">
+                            <input type="text" placeholder="對弈心得..." class="user-comment">
+                            <button class="send-btn" onclick="addComment(this, 'list-gomoku')">🚀</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card" data-cat="街機">
+        <div class="card" data-cat="益智" data-diff="medium">
             <div class="card-inner">
-                <div class="card-img cat-arcade-1" onclick="location.href='breakout.html'">🧱</div>
+                <div class="card-img cat-puzzle-2" onclick="location.href='mines.html'">💣</div>
                 <div class="card-info">
-                    <h3>打磚塊</h3>
-                    <div class="review-container" id="list-breakout"></div>
+                    <h3>霓虹掃雷</h3>
+                    <div class="review-container" id="list-mines"></div>
                     <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-breakout')">🚀</button></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card" data-cat="街機">
-            <div class="card-inner">
-                <div class="card-img cat-arcade-2" onclick="location.href='flappy.html'">🚀</div>
-                <div class="card-info">
-                    <h3>極速穿梭</h3>
-                    <div class="review-container" id="list-flappy"></div>
-                    <div class="comment-area">
-                        <select class="star-select"><option value="5">⭐⭐⭐⭐⭐</option></select>
-                        <div class="comment-input-group"><input type="text" placeholder="留言..." class="user-comment"><button class="send-btn" onclick="addComment(this, 'list-flappy')">🚀</button></div>
+                        <select class="star-select"></select>
+                        <div class="comment-input-group">
+                            <input type="text" placeholder="留言..." class="user-comment">
+                            <button class="send-btn" onclick="addComment(this, 'list-mines')">🚀</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -279,12 +179,12 @@
     </main>
 
     <footer>
-        <span class="online-dot"></span> SYSTEM ONLINE | MULTI-GRADIENT VERSION
+        <div class="footer-status">
+            <span class="online-dot"></span> SYSTEM ONLINE | VERSION 2.5.0
+        </div>
+        <p>© 2025 NEON ARCADE CORE. ALL RIGHTS RESERVED.</p>
     </footer>
 
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
