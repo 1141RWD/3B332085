@@ -16,26 +16,42 @@
         <p class="subtitle">MULTI-MODULE GAMING SYSTEM</p>
     </header>
 
-    <section id="hero-carousel">
-        <div class="carousel-container">
-            <div class="carousel-item active" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200')">
-                <div class="carousel-content">
-                    <h2>精選推薦: Horror Farm</h2>
-                    <p>在恐懼中求生存，體驗最極致的農場冒險。</p>
-                </div>
-            </div>
-            <div class="carousel-item" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&q=80&w=1200')">
-                <div class="carousel-content">
-                    <h2>益智挑戰: 2048</h2>
-                    <p>滑動方塊，挑戰你的數位邏輯極限。</p>
-                </div>
+   <section id="hero-carousel">
+    <div class="carousel-container">
+        <div class="carousel-item active" 
+             style="cursor: pointer; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1200')"
+             onclick="location.href='farmer.html'">
+            <div class="carousel-content">
+                <h2>精選推薦: Horror Farm</h2>
+                <p>在恐懼中求生存，體驗最極致的農場冒險。</p>
             </div>
         </div>
-        <div class="carousel-dots">
-            <div class="dot active"></div>
-            <div class="dot"></div>
+
+        <div class="carousel-item" 
+             style="cursor: pointer; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&q=80&w=1200')"
+             onclick="location.href='card.html'">
+            <div class="carousel-content">
+                <h2>多人連線: 心臟病</h2>
+                <p>反應力的大考驗！誰的手速最快？</p>
+            </div>
         </div>
-    </section>
+
+        <div class="carousel-item" 
+             style="cursor: pointer; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&q=80&w=1200')"
+             onclick="location.href='2048.html'">
+            <div class="carousel-content">
+                <h2>益智挑戰: 2048</h2>
+                <p>滑動方塊，挑戰你的數位邏輯極限。</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="carousel-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</section>
 
     <nav class="filter-section">
         <div class="filter-group">
@@ -262,4 +278,5 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
