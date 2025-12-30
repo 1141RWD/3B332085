@@ -81,7 +81,16 @@
             background: var(--border-neon); color: #000; font-weight: bold;
             width: 100%; margin-top: 10px; cursor: pointer;
         }
+/* 加入到 <style> 中 */
+#countdown {
+    animation: zoomInOut 0.8s ease-in-out infinite;
+}
 
+@keyframes zoomInOut {
+    0% { transform: scale(0.5); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
         #countdown {
     animation: pulse 0.8s infinite;
 }
@@ -182,24 +191,17 @@
         }, 800);
     }
 
-    // 修改：原本的 startGame 變成「啟動倒數」
+  // 修改：startGame 負責初始化舞台並開始倒數
     function startGame() {
         overlay.style.display = 'none';
         
-        // 先重置玩家位置和基本介面(讓玩家看到畫面但不能動)
+        // 1. 初始化容器尺寸與玩家位置
         containerSize = container.clientWidth;
-        pX = containerSize / 2 - 15; pY = containerSize / 2 - 15;
+        pX = containerSize / 2 - 15; 
+        pY = containerSize / 2 - 15;
         renderPlayer();
-        
-        // 執行倒數，結束後執行 initGame
-        startCountdown(initGame);
-    }
 
-    // 新增：真正的遊戲初始化邏輯
-    function initGame() {
-        score = 0; timeLeft = 60;
-        
-        // 清除舊物體
+        // 2. 清除舊物體並「預先生成」本關的殭屍與植物
         zombies.forEach(z => z.el.remove());
         plants.forEach(p => p.el.remove());
         zombies = []; plants = [];
@@ -207,13 +209,51 @@
         const zombieCount = 2 + level; 
         const plantGoal = 4 + level;
 
+        // 這裡先生成，讓玩家倒數時看得到路線
         for(let i=0; i < zombieCount; i++) spawn('zombie');
         for(let i=0; i < plantGoal; i++) spawn('plant');
         
-        gameActive = true;
+        // 更新目標介面
+        score = 0;
         updateUI(plantGoal);
+
+        // 3. 開始倒數，結束後才啟動物理引擎
+        startCountdown(() => {
+            activateGame(plantGoal);
+        });
+    }
+
+    // 新增：倒數函數 (3, 2, 1, GO)
+    function startCountdown(callback) {
+        const cdEl = document.getElementById('countdown');
+        cdEl.style.display = 'flex';
+        let count = 3;
+        cdEl.innerText = count;
+
+        const timer = setInterval(() => {
+            count--;
+            if (count > 0) {
+                cdEl.innerText = count;
+            } else if (count === 0) {
+                cdEl.innerText = "GO!";
+            } else {
+                clearInterval(timer);
+                cdEl.style.display = 'none';
+                callback(); // 倒數結束，物體開始移動
+            }
+        }, 800);
+    }
+
+    // 修改：正式啟動遊戲計時與循環
+    function activateGame(plantGoal) {
+        gameActive = true;
+        timeLeft = 60;
+        timeEl.innerText = timeLeft + 's';
+
+        // 啟動移動循環
         requestAnimationFrame(() => loop(plantGoal));
         
+        // 啟動時間倒數
         if(timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             if(!gameActive) return;
@@ -222,7 +262,6 @@
             if(timeLeft <= 0) end(false);
         }, 1000);
     }
-
     function spawn(type) {
         const el = document.createElement('div');
         el.className = type;
