@@ -1,21 +1,19 @@
 let currentType = 'all';
 let currentDiff = 'all';
 
+// 過濾系統
 function filterType(type, btn) {
     currentType = type;
-    updateActiveButton('.btn-cat', btn);
+    document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
     applyFilters();
 }
 
 function filterDiff(diff, btn) {
     currentDiff = diff;
-    updateActiveButton('[class*="btn-diff"]', btn);
+    document.querySelectorAll('[class*="btn-diff"]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
     applyFilters();
-}
-
-function updateActiveButton(groupSelector, activeBtn) {
-    document.querySelectorAll(groupSelector).forEach(b => b.classList.remove('active'));
-    activeBtn.classList.add('active');
 }
 
 function applyFilters() {
@@ -23,81 +21,81 @@ function applyFilters() {
     cards.forEach(card => {
         const catMatch = currentType === 'all' || card.dataset.cat === currentType;
         const diffMatch = currentDiff === 'all' || card.dataset.diff === currentDiff;
-        
-        if (catMatch && diffMatch) {
-            card.style.display = 'block';
-            card.style.animation = 'fadeIn 0.5s ease forwards';
-        } else {
-            card.style.display = 'none';
-        }
+        card.style.display = (catMatch && diffMatch) ? 'block' : 'none';
     });
 }
 
-const style = document.createElement('style');
-style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }`;
-document.head.appendChild(style);
-
-console.log("NEON ARCADE: 14 GAMES READY.");
-// --- 輪播邏輯 ---
+// 輪播系統
 let slideIndex = 0;
-const slides = document.querySelectorAll('.carousel-item');
-const dots = document.querySelectorAll('.dot');
-
 function showSlides() {
-    // 移除所有 active 狀態
-    slides.forEach(slide => slide.classList.remove('active'));
-    dots.forEach(dot => dot.classList.remove('active'));
+    const slides = document.querySelectorAll('.carousel-item');
+    const dots = document.querySelectorAll('.dot');
+    if (slides.length === 0) return;
 
-    slideIndex++;
-    if (slideIndex > slides.length) { slideIndex = 1; }
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
 
-    // 顯示當前 slide
-    slides[slideIndex - 1].classList.add('active');
-    dots[slideIndex - 1].classList.add('active');
+    slideIndex = (slideIndex + 1) % slides.length;
+    slides[slideIndex].classList.add('active');
+    dots[slideIndex].classList.add('active');
 
-    // 每 4 秒切換一次
-    setTimeout(showSlides, 4000);
+    setTimeout(showSlides, 5000);
 }
-
-// 啟動輪播
-window.onload = () => {
-    showSlides();
-    console.log("NEON ARCADE: ALL SYSTEMS GO.");
-
-};
 function addComment(btn, listId) {
-    const input = btn.previousElementSibling;
+    const cardInfo = btn.closest('.card-info');
+    const input = cardInfo.querySelector('.user-comment');
+    const starSelect = cardInfo.querySelector('.star-select');
     const list = document.getElementById(listId);
     
-    if (input.value.trim() === "") {
-        alert("請輸入評論內容！");
-        return;
-    }
+    if (input.value.trim() === "") return;
 
-    // 建立新評論
-    const newReview = document.createElement('div');
-    newReview.className = 'player-review';
-    newReview.style.animation = 'fadeIn 0.5s ease forwards';
-    newReview.innerHTML = `
-        <div class="stars">⭐⭐⭐⭐⭐</div>
-        <p class="review-quote">"${input.value}"</p>
-        <p class="reviewer">- Guest Player</p>
+    // 取得玩家選的星星數量並轉換成星星圖案
+    const starCount = parseInt(starSelect.value);
+    const starsHtml = "⭐".repeat(starCount);
+
+    const div = document.createElement('div');
+    div.className = 'player-review';
+    // 留言出現的小動畫
+    div.style.animation = 'fadeIn 0.5s ease forwards'; 
+    div.innerHTML = `
+        <div class="stars" style="color:#f1c40f; font-size:12px;">${starsHtml}</div>
+        <p class="review-quote" style="font-size:13px; margin:5px 0; color:#ddd;">"${input.value}"</p>
     `;
 
-    // 插入到列表最前方
-    list.insertBefore(newReview, list.firstChild);
+    // 插入到列表最上方
+    list.insertBefore(div, list.firstChild);
     
-    // 自動滾動到頂部
-    list.scrollTop = 0;
-
-    // 清空輸入
+    // 清空輸入框
     input.value = "";
+    
+    // 成功回饋：讓卡片閃一下藍光
+    const cardInner = btn.closest('.card-inner');
+    cardInner.style.boxShadow = "0 0 30px var(--neon-cyan)";
+    setTimeout(() => {
+        cardInner.style.boxShadow = "";
+    }, 500);
 }
+// 評論功能
 
-// 動態動畫
-const style = document.createElement('style');
-style.innerHTML = `@keyframes fadeIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }`;
-document.head.appendChild(style);
+window.onload = function() {
+    const starMenus = document.querySelectorAll('.star-select');
+    const starOptions = `
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+    `;
 
-console.log("NEON ARCADE: INTERACTIVE SYSTEM ONLINE.");
-
+    starMenus.forEach(menu => {
+        // 如果該選單只有一個選項（或是空的），就自動補齊
+        if (menu.options.length <= 1) {
+            menu.innerHTML = starOptions;
+        }
+    });
+};
+// 初始化
+document.addEventListener('DOMContentLoaded', () => {
+    showSlides();
+    console.log("NEON ARCADE: RESPONSIVE SYSTEM ONLINE");
+});
