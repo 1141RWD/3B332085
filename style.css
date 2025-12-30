@@ -193,28 +193,65 @@ header { padding: 40px 15px; text-align: center; }
 .send-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
 
 /* --- 7. 響應式佈局 (RWD) --- */
-@media (max-width: 600px) {
-    header { padding: 20px 10px; }
-    #hero-carousel { height: 250px; }
-    .carousel-content { padding: 15px; width: 90%; }
-    .carousel-content h2 { font-size: 1.2rem; }
-    
-    .filter-section { padding: 10px; }
-    .search-box { margin-left: 0; margin-top: 10px; width: 100%; }
-    #game-search { width: 100% !important; height: 40px; }
 
-    .container { grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px; }
-    .card-img { height: 100px; font-size: 2.5rem; }
-    .card-info { padding: 10px; }
-    .card-info h3 { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 針對窄螢幕手機 (直向拿) */
+@media (max-width: 480px) {
+    .container { 
+        grid-template-columns: 1fr; /* 強制單欄排版 */
+        gap: 20px; 
+        padding: 15px; 
+    }
     
-    .review-container { display: none; } /* 手機端隱藏評論以節省空間 */
-    .star-select { font-size: 0.7rem; }
-    .send-btn { padding: 0 10px; }
+    .card-img { 
+        height: 160px; /* 直向時高度稍微加高，視覺更好看 */
+    }
+
+    .card-info h3 { 
+        font-size: 1.2rem; /* 文字加大，方便閱讀 */
+    }
+
+    /* 在直向手機版重新顯示評論區，因為現在空間夠了 */
+    .review-container { 
+        display: block; 
+        max-height: 100px;
+    }
+
+    .search-box {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+
+    #game-search {
+        width: 100% !important;
+        font-size: 1rem; /* 手機字體建議至少 16px (1rem) 才不會觸發 iOS 自動放大 */
+    }
+
+    .btn-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 分類按鈕兩兩一排 */
+        width: 100%;
+        gap: 8px;
+    }
+    
+    .btn {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+    }
 }
 
-footer { text-align: center; padding: 40px; font-size: 0.7rem; color: #444; letter-spacing: 2px; }
-.online-dot { 
-    display: inline-block; width: 8px; height: 8px; background: var(--neon-green); 
-    border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); margin-right: 5px; 
+/* 針對平板或大螢幕手機 (橫向拿) */
+@media (min-width: 481px) and (max-width: 900px) {
+    .container { 
+        grid-template-columns: repeat(2, 1fr); /* 橫向時兩欄 */
+    }
 }
+
+/* 針對桌機 */
+@media (min-width: 901px) {
+    .container { 
+        grid-template-columns: repeat(3, 1fr); /* 大螢幕三欄 */
+    }
+}
+
