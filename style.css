@@ -1,15 +1,11 @@
-/* --- 1. 全局變數與基礎設定 --- */
+/* --- 核心變數與重置 --- */
 :root {
     --neon-cyan: #00f2fe;
     --neon-pink: #ff00cc;
-    --neon-purple: #9d00ff;
     --neon-green: #39ff14;
-    --easy: #2ecc71;
-    --medium: #f1c40f;
-    --hard: #e74c3c;
     --bg-dark: #020205;
-    --card-bg: #0a0a1a;
-    --glass: rgba(255, 255, 255, 0.05);
+    --card-bg: rgba(10, 10, 26, 0.9);
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * { box-sizing: border-box; }
@@ -22,152 +18,121 @@ body {
     overflow-x: hidden;
 }
 
-/* --- 2. 特效背景 (網格與掃描線) --- */
-.scanline {
-    position: fixed; inset: 0; pointer-events: none; z-index: 1000;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-    background-size: 100% 4px; opacity: 0.1;
-}
+/* --- 背景特效 --- */
+.scanline { position: fixed; inset: 0; pointer-events: none; z-index: 1000; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 4px; opacity: 0.1; }
+.grid-bg { position: fixed; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 254, 0.03) 1px, transparent 1px); background-size: 30px 30px; z-index: -1; }
 
-.grid-bg {
-    position: fixed; inset: 0; pointer-events: none;
-    background-image: linear-gradient(rgba(0, 242, 254, 0.03) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(0, 242, 254, 0.03) 1px, transparent 1px);
-    background-size: 40px 40px; z-index: -1;
-}
-
-/* --- 3. 頁首與 Logo --- */
-header { padding: 40px 20px; text-align: center; }
-.logo { 
-    font-size: 3rem; font-weight: 900; letter-spacing: 12px; 
-    text-shadow: 0 0 20px var(--neon-cyan); margin: 0;
-}
+/* --- 標題區 --- */
+header { padding: 40px 15px; text-align: center; }
+.logo { font-size: clamp(1.8rem, 8vw, 3.5rem); letter-spacing: 8px; text-shadow: 0 0 20px var(--neon-cyan); font-weight: 900; }
 .logo span { color: var(--neon-pink); text-shadow: 0 0 20px var(--neon-pink); }
-.subtitle { font-size: 0.75rem; color: #444; letter-spacing: 6px; margin-top: 10px; }
+.subtitle { font-size: 0.8rem; letter-spacing: 4px; color: #666; margin-top: 10px; }
 
-/* --- 4. 修正版輪播圖 (Hero Carousel) --- */
-#hero-carousel {
-    position: relative; width: 100%; height: 450px;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; margin-bottom: 40px;
+/* --- 輪播圖 --- */
+#hero-carousel { position: relative; width: 100%; height: 350px; overflow: hidden; margin-bottom: 30px; }
+.carousel-item { 
+    position: absolute; inset: 0; opacity: 0; transition: 0.8s; 
+    display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center;
+}
+.carousel-item.active { opacity: 1; }
+.carousel-content { 
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); padding: 25px; 
+    border-radius: 15px; border: 1px solid var(--neon-cyan); width: 85%; max-width: 600px;
+    text-align: center;
 }
 
-.carousel-container { width: 100%; height: 100%; position: relative; }
+/* --- 分類按鈕 (Sticky) --- */
+.filter-section { 
+    position: sticky; top: 0; z-index: 900; background: rgba(2,2,5,0.95); 
+    backdrop-filter: blur(15px); padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.filter-group { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.btn { 
+    font-size: 12px; padding: 8px 18px; background: transparent; color: #fff; 
+    border: 1px solid #444; cursor: pointer; transition: var(--transition);
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+}
+.btn.active { background: var(--neon-cyan); color: #000; border-color: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); }
 
-.carousel-item {
-    position: absolute; inset: 0; opacity: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.8s ease-in-out, transform 0.8s ease;
-    background-size: cover; background-position: center;
-    pointer-events: none; transform: scale(1.05);
+/* --- 遊戲卡片網格 --- */
+.container { 
+    display: grid; padding: 20px; gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    max-width: 1300px; margin: auto;
 }
 
-.carousel-item.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+.card { perspective: 1000px; }
+.card-inner { 
+    background: var(--card-bg); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); 
+    overflow: hidden; height: 100%; transition: var(--transition); display: flex; flex-direction: column;
+}
+.card:hover .card-inner { border-color: var(--neon-cyan); transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15); }
 
-.carousel-content {
-    z-index: 5; text-align: center; padding: 40px;
-    background: rgba(0,0,0,0.7); backdrop-filter: blur(15px);
-    border: 1px solid var(--glass); border-radius: 30px;
-    max-width: 800px; width: 90%;
+/* --- 類型漸層顏色系統 --- */
+.card-img { 
+    height: 140px; display: flex; align-items: center; justify-content: center; 
+    font-size: 3.5rem; transition: var(--transition);
+}
+/* 街機 (暖色) */
+.cat-arcade-1 { background: linear-gradient(135deg, #FF512F, #DD2476); }
+.cat-arcade-2 { background: linear-gradient(135deg, #FF0080, #FF8C00); }
+.cat-arcade-3 { background: linear-gradient(135deg, #e52d27, #b31217); }
+.cat-arcade-4 { background: linear-gradient(135deg, #F09819, #EDDE5D); }
+/* 益智 (冷色) */
+.cat-puzzle-1 { background: linear-gradient(135deg, #1FA2FF, #12D8FA, #A6FFCB); }
+.cat-puzzle-2 { background: linear-gradient(135deg, #00FF87, #60EFFF); }
+.cat-puzzle-3 { background: linear-gradient(135deg, #2193b0, #6dd5ed); }
+.cat-puzzle-4 { background: linear-gradient(135deg, #00dbde, #fc00ff); }
+.cat-puzzle-5 { background: linear-gradient(135deg, #3a7bd5, #00d2ff); }
+/* 多人 (紫色) */
+.cat-multi-1 { background: linear-gradient(135deg, #8E2DE2, #4A00E0); }
+.cat-multi-2 { background: linear-gradient(135deg, #7928CA, #FF0080); }
+.cat-multi-3 { background: linear-gradient(135deg, #6A11CB, #2575FC); }
+
+.card:hover .card-img { transform: scale(1.1); }
+
+/* --- 卡片內容與評論區 --- */
+.card-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
+.card-info h3 { margin: 0 0 10px 0; font-size: 1.1rem; color: #fff; }
+
+.review-container { 
+    max-height: 80px; overflow-y: auto; margin-bottom: 15px; 
+    font-size: 0.8rem; padding-right: 5px;
+}
+.player-review { background: rgba(255,255,255,0.03); padding: 5px 8px; border-radius: 5px; margin-bottom: 5px; }
+
+/* --- 評論輸入與星星選擇 --- */
+.comment-area { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); pt: 15px; }
+
+.star-select {
+    width: 100%; background: #000; color: #f1c40f; 
+    border: 1px solid #333; border-radius: 5px; 
+    padding: 5px; font-size: 0.8rem; cursor: pointer; margin-bottom: 8px;
 }
 
-.carousel-content h2 { 
-    font-size: 3rem; color: var(--neon-green); 
-    text-shadow: 0 0 20px var(--neon-green); margin: 10px 0;
-}
-
-.carousel-dots { position: absolute; bottom: 20px; display: flex; gap: 10px; z-index: 10; }
-.dot { width: 30px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; cursor: pointer; }
-.dot.active { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); }
-
-/* --- 5. 篩選導覽列 --- */
-.filter-section {
-    position: sticky; top: 0; z-index: 900;
-    padding: 15px; background: rgba(2,2,5,0.95); backdrop-filter: blur(15px);
-    border-bottom: 1px solid var(--glass);
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;
-}
-
-.btn {
-    font-family: 'Orbitron'; padding: 10px 20px; background: transparent;
-    border: 1px solid rgba(255,255,255,0.1); color: #777; cursor: pointer;
-    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); transition: 0.3s;
-}
-.btn.active, .btn:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 20px var(--neon-cyan); }
-
-/* --- 6. 遊戲卡片系統 --- */
-.container {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px; padding: 40px; max-width: 1400px; margin: auto;
-}
-
-.card { cursor: pointer; transition: 0.4s ease; }
-.card-inner {
-    background: var(--card-bg); border-radius: 15px; overflow: hidden;
-    border: 1px solid rgba(255,255,255,0.05); position: relative;
-    display: flex; flex-direction: column; height: 100%;
-}
-
-.card:hover { transform: translateY(-10px); }
-.card:hover .card-inner { border-color: var(--neon-cyan); box-shadow: 0 10px 30px rgba(0, 242, 254, 0.2); }
-
-.card-img {
-    height: 140px; display: flex; align-items: center; justify-content: center;
-    font-size: 4rem; background: rgba(255,255,255,0.02);
-}
-
-/* 14 種漸變顏色 */
-.c1 { background: linear-gradient(135deg, #1e3a8a, #1e40af); }
-.c2 { background: linear-gradient(135deg, #881337, #be123c); }
-.c3 { background: linear-gradient(135deg, #4c1d95, #6d28d9); }
-.c4 { background: linear-gradient(135deg, #064e3b, #059669); }
-.c5 { background: linear-gradient(135deg, #451a03, #92400e); }
-.c6 { background: linear-gradient(135deg, #0f172a, #334155); }
-.c7 { background: linear-gradient(135deg, #7c2d12, #ea580c); }
-.c8 { background: linear-gradient(135deg, #164e63, #0891b2); }
-.c9 { background: linear-gradient(135deg, #3f6212, #65a30d); }
-.c10 { background: linear-gradient(135deg, #312e81, #4338ca); }
-.c11 { background: linear-gradient(135deg, #111, #444); }
-.c12 { background: linear-gradient(135deg, #1e1b4b, #312e81); }
-.c13 { background: linear-gradient(135deg, #701a75, #a21caf); }
-.c14 { background: linear-gradient(135deg, #064e3b, #39ff14); }
-
-/* --- 7. 評論與標籤 --- */
-.card-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
-.card-info h3 { margin: 0 0 10px; font-size: 1.1rem; letter-spacing: 1px; }
-
-.review-container {
-    max-height: 80px; overflow-y: auto; margin: 10px 0;
-    border-left: 2px solid var(--neon-cyan); padding-left: 8px;
-}
-.review-container::-webkit-scrollbar { width: 3px; }
-.review-container::-webkit-scrollbar-thumb { background: var(--neon-cyan); }
-
-.player-review { margin-bottom: 8px; font-size: 0.75rem; }
-.stars { color: #f1c40f; }
-.review-quote { color: #ccc; margin: 2px 0; font-style: italic; }
-.reviewer { color: #555; text-align: right; margin: 0; font-size: 0.6rem; }
-
-.comment-input-group { display: flex; gap: 5px; margin-top: auto; }
+.comment-input-group { display: flex; gap: 8px; }
 .user-comment { 
-    flex: 1; background: #000; border: 1px solid #333; border-radius: 4px; 
-    color: #fff; font-size: 0.7rem; padding: 5px; 
+    flex: 1; background: rgba(0,0,0,0.5); border: 1px solid #333; 
+    color: #fff; padding: 8px; border-radius: 5px; font-size: 0.85rem;
 }
 .user-comment:focus { border-color: var(--neon-cyan); outline: none; }
+
 .send-btn { 
-    background: transparent; border: 1px solid var(--neon-cyan); 
-    color: var(--neon-cyan); border-radius: 4px; cursor: pointer; 
+    background: var(--neon-cyan); border: none; padding: 0 15px; 
+    border-radius: 5px; cursor: pointer; transition: 0.2s;
 }
+.send-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
 
-.tag { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; padding: 2px 8px; border-radius: 3px; font-weight: bold; z-index: 2; }
-.tag-hard { background: var(--hard); box-shadow: 0 0 10px var(--hard); }
-.tag-medium { background: var(--medium); color: #000; }
-.tag-easy { background: var(--neon-green); color: #000; }
+/* --- 底部 --- */
+footer { text-align: center; padding: 40px; font-size: 0.7rem; color: #444; letter-spacing: 2px; }
+.online-dot { display: inline-block; width: 8px; height: 8px; background: var(--neon-green); border-radius: 50%; box-shadow: 0 0 10px var(--neon-green); margin-right: 5px; }
 
-/* --- 8. 頁尾 --- */
-footer { padding: 40px; text-align: center; font-size: 0.7rem; color: #333; }
-.online-dot { 
-    display: inline-block; width: 8px; height: 8px; background: var(--neon-green); 
-    border-radius: 50%; margin-right: 5px; animation: blink 1.5s infinite; 
+/* --- 手機版 RWD --- */
+@media (max-width: 600px) {
+    .container { grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px; }
+    .card-img { height: 100px; font-size: 2.5rem; }
+    .card-info h3 { font-size: 0.85rem; }
+    .review-container { display: none; } /* 手機版隱藏歷史評論讓畫面乾淨 */
+    .comment-input-group input { padding: 5px; font-size: 0.75rem; }
+    .logo { letter-spacing: 4px; }
 }
-@keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
