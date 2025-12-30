@@ -125,4 +125,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log("NEON ARCADE: SYSTEM ONLINE");
 });
+let searchQuery = "";
+
+function searchGames() {
+    // 取得輸入框的值並轉為小寫（不區分大小寫）
+    searchQuery = document.getElementById('game-search').value.toLowerCase();
+    applyFilters();
+}
+
+// 修改原有的 applyFilters，讓它支援搜尋
+function applyFilters() {
+    const cards = document.querySelectorAll('.card');
+    
+    cards.forEach(card => {
+        const gameName = card.querySelector('h3').innerText.toLowerCase();
+        const cardCat = card.dataset.cat;
+        
+        // 判斷分類是否符合
+        const catMatch = (currentType === 'all' || cardCat === currentType);
+        // 判斷搜尋文字是否符合
+        const searchMatch = gameName.includes(searchQuery);
+        
+        // 兩者皆符合才顯示
+        if (catMatch && searchMatch) {
+            card.style.display = 'block';
+            // 可以加一點小動畫
+            card.style.animation = 'fadeIn 0.3s ease forwards';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // 如果搜尋不到任何結果，顯示提示文字 (可選)
+    checkNoResults();
+}
+
+function checkNoResults() {
+    let visibleCards = document.querySelectorAll('.card[style="display: block;"]').length;
+    let container = document.getElementById('game-list');
+    let noMsg = document.getElementById('no-results-msg');
+
+    if (visibleCards === 0) {
+        if (!noMsg) {
+            noMsg = document.createElement('div');
+            noMsg.id = 'no-results-msg';
+            noMsg.style.cssText = "grid-column: 1/-1; text-align: center; padding: 50px; color: #666; font-family: Orbitron;";
+            noMsg.innerHTML = "SYSTEM ERROR: NO GAMES FOUND";
+            container.appendChild(noMsg);
+        }
+    } else if (noMsg) {
+        noMsg.remove();
+    }
+}
+
 
