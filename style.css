@@ -195,7 +195,7 @@ header { padding: 40px 15px; text-align: center; }
 /* --- 7. 響應式佈局 (RWD) --- */
 
 /* 針對窄螢幕手機 (直向拿) */
-@media (max-width: 480px) {
+@media (max-width: 600px) {
     .container { 
         grid-template-columns: 1fr; /* 強制單欄排版 */
         gap: 20px; 
@@ -242,7 +242,7 @@ header { padding: 40px 15px; text-align: center; }
 }
 
 /* 針對平板或大螢幕手機 (橫向拿) */
-@media (min-width: 481px) and (max-width: 900px) {
+@media (min-width: 601px) and (max-width: 900px) {
     .container { 
         grid-template-columns: repeat(2, 1fr); /* 橫向時兩欄 */
     }
@@ -251,7 +251,8 @@ header { padding: 40px 15px; text-align: center; }
 /* 針對桌機 */
 @media (min-width: 901px) {
     .container { 
-        grid-template-columns: repeat(3, 1fr); /* 大螢幕三欄 */
+        grid-template-columns: repeat(4, 1fr); /* 大螢幕三欄 */
     }
 }
+
 
