@@ -60,6 +60,13 @@
             <button class="btn btn-cat" onclick="filterType('益智', this)">益智</button>
             <button class="btn btn-cat" onclick="filterType('多人', this)">多人</button>
         </div>
+        <div class="filter-group">
+        <button class="btn btn-cat active" onclick="filterType('all', this)">全部</button>
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="game-search" placeholder="搜尋遊戲名稱..." onkeyup="searchGames()">
+        </div>
+    </div>
     </nav>
     
     <main class="container" id="game-list">
@@ -278,5 +285,6 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
