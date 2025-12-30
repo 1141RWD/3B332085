@@ -51,7 +51,7 @@ function startAutoPlay() {
     stopAutoPlay(); 
     autoPlayInterval = setInterval(() => {
         showSlide(currentSlide + 1);
-    }, 5000);
+    }, 3000);
 }
 
 function stopAutoPlay() {
@@ -125,3 +125,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log("NEON ARCADE: SYSTEM ONLINE");
 });
+
