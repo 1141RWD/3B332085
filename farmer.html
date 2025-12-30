@@ -82,6 +82,16 @@
             width: 100%; margin-top: 10px; cursor: pointer;
         }
 
+        #countdown {
+    animation: pulse 0.8s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
         @media (min-width: 768px) { #controls { display: none; } }
     </style>
 </head>
@@ -91,6 +101,7 @@
 
 <div id="game-container">
     <div id="player" class="player">👨‍🌾</div>
+    <div id="countdown" style="position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 80px; font-weight: 900; color: var(--neon-cyan); z-index: 100; text-shadow: 0 0 20px var(--neon-cyan);"></div>
 </div>
 
 <div id="ui-panel">
@@ -150,15 +161,45 @@
         playerEl.style.top = pY + 'px';
     }
 
+   // 新增：倒數函數
+    function startCountdown(callback) {
+        const cdEl = document.getElementById('countdown');
+        cdEl.style.display = 'flex';
+        let count = 3;
+        cdEl.innerText = count;
+
+        const timer = setInterval(() => {
+            count--;
+            if (count > 0) {
+                cdEl.innerText = count;
+            } else if (count === 0) {
+                cdEl.innerText = "GO!";
+            } else {
+                clearInterval(timer);
+                cdEl.style.display = 'none';
+                callback(); // 倒數結束，執行遊戲開始
+            }
+        }, 800);
+    }
+
+    // 修改：原本的 startGame 變成「啟動倒數」
     function startGame() {
         overlay.style.display = 'none';
+        
+        // 先重置玩家位置和基本介面(讓玩家看到畫面但不能動)
         containerSize = container.clientWidth;
-        // 初始位置設為中心
-        pX = containerSize / 2 - 15; 
-        pY = containerSize / 2 - 15; 
-        score = 0; timeLeft = 60;
+        pX = containerSize / 2 - 15; pY = containerSize / 2 - 15;
         renderPlayer();
         
+        // 執行倒數，結束後執行 initGame
+        startCountdown(initGame);
+    }
+
+    // 新增：真正的遊戲初始化邏輯
+    function initGame() {
+        score = 0; timeLeft = 60;
+        
+        // 清除舊物體
         zombies.forEach(z => z.el.remove());
         plants.forEach(p => p.el.remove());
         zombies = []; plants = [];
