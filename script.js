@@ -34,17 +34,79 @@ const app = {
         carousel.init();
     },
 
-    render() {
-        const grid = document.getElementById('game-grid');
-        const search = document.getElementById('game-search').value.toLowerCase();
-        const userData = this.user;
+  // 修改 render 函數中的留言顯示部分
+render() {
+    const grid = document.getElementById('game-grid');
+    const search = document.getElementById('game-search').value.toLowerCase();
+    const userData = this.user;
 
-        const filtered = GAMES.filter(g => {
-            const matchSearch = g.name.toLowerCase().includes(search);
-            const matchCat = (this.currentCat === 'all') || 
-                             (this.currentCat === 'fav' ? userData.favs.includes(g.id) : g.cat === this.currentCat);
-            return matchSearch && matchCat;
+    const filtered = GAMES.filter(g => {
+        const matchSearch = g.name.toLowerCase().includes(search);
+        const matchCat = (this.currentCat === 'all') || 
+                         (this.currentCat === 'fav' ? userData.favs.includes(g.id) : g.cat === this.currentCat);
+        return matchSearch && matchCat;
+    });
+
+    grid.innerHTML = filtered.map(g => {
+        const plays = userData.playCounts[g.id] || 0;
+        const isFav = userData.favs.includes(g.id);
+
+        // 核心改動：從 allData 裡抓取「所有帳號」對這款遊戲的留言
+        let allReviews = [];
+        Object.keys(this.allData).forEach(userName => {
+            const userReviews = this.allData[userName].reviews?.[g.id] || [];
+            allReviews = allReviews.concat(userReviews);
         });
+        
+        // 按照留言內容排序（最新的在上面）
+        allReviews.sort((a, b) => b.timestamp - a.timestamp);
+
+        return `
+        <div class="card">
+            <span onclick="app.toggleFav(${g.id})" style="position:absolute; top:10px; right:10px; cursor:pointer; color:${isFav?'var(--pink)':'#444'}; font-size:1.5rem; z-index:10">${isFav?'★':'☆'}</span>
+            <div class="card-img" style="background:linear-gradient(135deg, ${g.col}, #000)" onclick="app.playGame(${g.id}, '${g.url}')">${g.icon}</div>
+            <div class="card-body">
+                <h3 style="margin:0">${g.name}</h3>
+                <div style="font-size:0.75rem; color:var(--neon); margin:5px 0">總遊玩次數: ${plays}</div>
+                
+                <div class="review-area" style="border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);">
+                    ${allReviews.length > 0 ? allReviews.map(rev => `
+                        <div class="msg" style="margin-bottom:5px; border-bottom:1px dashed #333; padding-bottom:2px;">
+                            <b style="color:var(--pink)">@${rev.user}</b>: <span style="color:#ccc">${rev.text}</span>
+                        </div>
+                    `).join('') : '<div style="color:#666; font-size:0.7rem;">尚無特工回報...</div>'}
+                </div>
+
+                <div style="display:flex; gap:5px">
+                    <input type="text" id="in-${g.id}" placeholder="回報戰況..." style="flex:1; background:#000; border:1px solid #333; color:#fff; font-size:0.7rem; padding:5px;">
+                    <button class="btn-cyber" style="padding:2px 8px; font-size:0.7rem;" onclick="app.addReview(${g.id})">發送</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+},
+
+// 修改 addReview 函數，存入更多資訊
+addReview(id) {
+    if (!this.currentUser) return ui.toggleAuthModal(true);
+    const input = document.getElementById(`in-${id}`);
+    const text = input.value.trim();
+    if (!text) return;
+
+    let d = this.user;
+    if (!d.reviews[id]) d.reviews[id] = [];
+    
+    // 存入物件：包含發送者名字、內容、時間戳記
+    d.reviews[id].unshift({
+        user: this.currentUser,
+        text: text,
+        timestamp: Date.now()
+    });
+
+    input.value = '';
+    this.save(d);
+    this.render(); // 立即重新渲染看到留言
+}
 
         grid.innerHTML = filtered.map(g => {
             const plays = userData.playCounts[g.id] || 0;
@@ -184,3 +246,4 @@ const carousel = {
 };
 
 window.onload = () => app.init();
+
