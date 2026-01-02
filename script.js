@@ -1,90 +1,194 @@
-let currentType = 'all';
-let searchQuery = "";
-let currentSlide = 0;
-let autoPlayInterval;
+// 1. 遊戲資料庫
+const GAMES = [
+    { id: 1, name: "Horror Farm", cat: "街機", icon: "👨‍🌾", url: "farmer.html", col: "#FF512F" },
+    { id: 2, name: "2048 Neon", cat: "益智", icon: "🧩", url: "2048.html", col: "#1FA2FF" },
+    { id: 3, name: "心臟病", cat: "多人", icon: "🃏", url: "card.html", col: "#8E2DE2" },
+    { id: 4, name: "極限避障", cat: "街機", icon: "🚧", url: "escape.html", col: "#F09819" },
+    { id: 5, name: "霓虹掃雷", cat: "益智", icon: "💣", url: "mines.html", col: "#00FF87" },
+    { id: 6, name: "五子棋", cat: "多人", icon: "⚫", url: "gomoku.html", col: "#7928CA" },
+    { id: 7, name: "技術流飛鏢", cat: "街機", icon: "🎯", url: "darts.html", col: "#e52d27" },
+    { id: 8, name: "猜數字 100", cat: "益智", icon: "❓", url: "guess100.html", col: "#2193b0" },
+    { id: 9, name: "記憶對對碰", cat: "多人", icon: "🧠", url: "pair.html", col: "#6A11CB" },
+    { id: 10, name: "經典貪食蛇", cat: "街機", icon: "🐍", url: "FF8C00", col: "#FF8C00" },
+    { id: 11, name: "幾A幾B", cat: "益智", icon: "🔢", url: "ab.html", col: "#00dbde" },
+    { id: 12, name: "打磚塊", cat: "街機", icon: "🧱", url: "breakout.html", col: "#3a7bd5" },
+    { id: 13, name: "極速穿梭", cat: "街機", icon: "🚀", url: "flappy.html", col: "#DD2476" },
+    { id: 14, name: "快手搶牌", cat: "益智", icon: "👻", url: "ghost.html", col: "#FF0080" }
+];
 
-const slides = document.querySelectorAll('.carousel-item');
-const dots = document.querySelectorAll('.dot');
+const app = {
+    currentCat: 'all',
+    currentUser: localStorage.getItem('neon_last_user') || null,
+    allData: JSON.parse(localStorage.getItem('neon_multi_user_save')) || {},
 
-// 分類過濾
-function filterType(type, btn) {
-    currentType = type;
-    document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    applyFilters();
-}
-
-// 搜尋過濾
-function searchGames() {
-    searchQuery = document.getElementById('game-search').value.toLowerCase();
-    applyFilters();
-}
-
-// 核心過濾邏輯：必須同時符合「分類」與「搜尋字」
-function applyFilters() {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        const gameName = card.querySelector('h3').innerText.toLowerCase();
-        const cardCat = card.dataset.cat;
-
-        const catMatch = (currentType === 'all' || cardCat === currentType);
-        const searchMatch = gameName.includes(searchQuery);
-
-        // 如果兩個條件都滿足才顯示
-        if (catMatch && searchMatch) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
+    // 獲取當前使用者的獨立資料
+    get user() {
+        if (!this.currentUser || !this.allData[this.currentUser]) {
+            return { isLoggedIn: false, name: '', level: 1, exp: 0, score: 0, favs: [], playCounts: {}, reviews: {}, highScores: {} };
         }
-    });
-}
+        return this.allData[this.currentUser];
+    },
 
-// 輪播系統
-function showSlide(n) {
-    if (slides.length === 0) return;
-    slides.forEach(s => s.classList.remove('active'));
-    dots.forEach(d => d.classList.remove('active'));
-    currentSlide = (n + slides.length) % slides.length;
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-}
+    init() {
+        ui.loadTheme();
+        ui.updateStatus();
+        this.render();
+        carousel.init();
+    },
 
-function startAutoPlay() {
-    stopAutoPlay();
-    autoPlayInterval = setInterval(() => { showSlide(currentSlide + 1); }, 3000);
-}
+    render() {
+        const grid = document.getElementById('game-grid');
+        const search = document.getElementById('game-search').value.toLowerCase();
+        const userData = this.user;
 
-function stopAutoPlay() { clearInterval(autoPlayInterval); }
-
-// 評論功能
-function addComment(btn, listId) {
-    const cardInfo = btn.closest('.card-info');
-    const input = cardInfo.querySelector('.user-comment');
-    const starSelect = cardInfo.querySelector('.star-select');
-    const list = document.getElementById(listId);
-    if (input.value.trim() === "") return;
-
-    const starsHtml = "⭐".repeat(parseInt(starSelect.value));
-    const div = document.createElement('div');
-    div.className = 'player-review';
-    div.innerHTML = `<div class="stars" style="color:#f1c40f; font-size:12px;">${starsHtml}</div><p style="font-size:13px; margin:5px 0; color:#ddd;">"${input.value}"</p>`;
-    list.insertBefore(div, list.firstChild);
-    input.value = "";
-}
-
-// 初始化
-document.addEventListener('DOMContentLoaded', () => {
-    showSlide(0);
-    startAutoPlay();
-    dots.forEach((dot, index) => {
-        dot.addEventListener('click', (e) => {
-            e.stopPropagation();
-            showSlide(index);
-            startAutoPlay();
+        const filtered = GAMES.filter(g => {
+            const matchSearch = g.name.toLowerCase().includes(search);
+            const matchCat = (this.currentCat === 'all') || 
+                             (this.currentCat === 'fav' ? userData.favs.includes(g.id) : g.cat === this.currentCat);
+            return matchSearch && matchCat;
         });
-    });
 
-    // 自動補齊星星選單內容
-    const starOptions = `<option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>`;
-    document.querySelectorAll('.star-select').forEach(menu => { menu.innerHTML = starOptions; });
-});
+        grid.innerHTML = filtered.map(g => {
+            const high = userData.highScores[g.id] || 0;
+            const plays = userData.playCounts[g.id] || 0;
+            const isFav = userData.favs.includes(g.id);
+
+            return `
+            <div class="card">
+                <span onclick="app.toggleFav(${g.id})" style="position:absolute; top:10px; right:10px; cursor:pointer; color:${isFav?'var(--pink)':'#444'}; font-size:1.5rem; z-index:10">${isFav?'★':'☆'}</span>
+                <div class="card-img" style="background:linear-gradient(135deg, ${g.col}, #000)" onclick="app.playGame(${g.id}, '${g.url}')">${g.icon}</div>
+                <div class="card-body">
+                    <h3 style="margin:0">${g.name}</h3>
+                    <div style="font-size:0.7rem; color:var(--neon); margin:5px 0">遊玩: ${plays} 次 | 最高分: ${high}</div>
+                    <div class="review-area">${(userData.reviews[g.id] || []).map(m => `<div class="msg">${m}</div>`).join('')}</div>
+                    <div style="display:flex; gap:5px">
+                        <input type="text" id="in-${g.id}" placeholder="留言..." style="flex:1; background:#000; border:1px solid #333; color:#fff; font-size:0.7rem; padding:5px;">
+                        <button class="btn-cyber" style="padding:2px 8px" onclick="app.addReview(${g.id})">送出</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    },
+
+    save(updatedData) {
+        if (this.currentUser) {
+            this.allData[this.currentUser] = { ...updatedData, isLoggedIn: true, name: this.currentUser };
+            localStorage.setItem('neon_multi_user_save', JSON.stringify(this.allData));
+        }
+    },
+
+    playGame(id, url) {
+        if (!this.currentUser) return ui.toggleAuthModal(true);
+        let d = this.user;
+        d.playCounts[id] = (d.playCounts[id] || 0) + 1;
+        const fakeScore = Math.floor(Math.random() * 500) + 100;
+        if (fakeScore > (d.highScores[id] || 0)) d.highScores[id] = fakeScore;
+        d.exp += 50; d.score += fakeScore;
+        if (d.exp >= d.level * 200) d.level++;
+        this.save(d);
+        ui.updateStatus();
+        this.render();
+        setTimeout(() => window.location.href = url, 300);
+    },
+
+    toggleFav(id) {
+        if (!this.currentUser) return ui.toggleAuthModal(true);
+        let d = this.user;
+        const idx = d.favs.indexOf(id);
+        idx > -1 ? d.favs.splice(idx, 1) : d.favs.push(id);
+        this.save(d);
+        this.render();
+    },
+
+    addReview(id) {
+        if (!this.currentUser) return ui.toggleAuthModal(true);
+        const input = document.getElementById(`in-${id}`);
+        if (!input.value.trim()) return;
+        let d = this.user;
+        if (!d.reviews[id]) d.reviews[id] = [];
+        d.reviews[id].unshift(`${this.currentUser}: ${input.value}`);
+        input.value = '';
+        this.save(d);
+        this.render();
+    },
+
+    setCategory(cat, btn) {
+        this.currentCat = cat;
+        document.querySelectorAll('.btn-cyber').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.render();
+    }
+};
+
+const ui = {
+    toggleAuthModal(show) { document.getElementById('auth-modal').style.display = show ? 'flex' : 'none'; },
+    
+    updateStatus() {
+        const section = document.getElementById('user-section');
+        const isLight = document.body.classList.contains('light-mode');
+        const themeBtn = `<button class="btn-cyber" style="margin-right:10px" onclick="ui.toggleTheme()">${isLight?'🌙':'☀️'}</button>`;
+        
+        if (app.currentUser) {
+            section.innerHTML = themeBtn + `<span style="margin-right:10px; color:var(--neon)">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
+            document.getElementById('player-status-bar').style.display = 'flex';
+            document.getElementById('p-level').innerText = app.user.level;
+            document.getElementById('p-score').innerText = app.user.score;
+            document.getElementById('p-exp-fill').style.width = `${(app.user.exp % (app.user.level * 200)) / (app.user.level * 2)}%`;
+        } else {
+            section.innerHTML = themeBtn + `<button class="btn-cyber" onclick="ui.toggleAuthModal(true)">LOGIN</button>`;
+            document.getElementById('player-status-bar').style.display = 'none';
+        }
+    },
+
+    toggleTheme() {
+        const isLight = document.body.classList.toggle('light-mode');
+        localStorage.setItem('neon_theme', isLight ? 'light' : 'dark');
+        this.updateStatus();
+    },
+
+    loadTheme() {
+        if (localStorage.getItem('neon_theme') === 'light') document.body.classList.add('light-mode');
+    }
+};
+
+const account = {
+    login() {
+        const name = document.getElementById('auth-user').value.trim();
+        if (!name) return;
+        app.currentUser = name;
+        localStorage.setItem('neon_last_user', name);
+        if (!app.allData[name]) {
+            app.allData[name] = { level: 1, exp: 0, score: 0, favs: [], playCounts: {}, reviews: {}, highScores: {} };
+        }
+        app.save(app.allData[name]);
+        ui.toggleAuthModal(false);
+        ui.updateStatus();
+        app.render();
+    },
+    logout() {
+        localStorage.removeItem('neon_last_user');
+        location.reload();
+    }
+};
+
+const carousel = {
+    idx: 0,
+    init() {
+        const track = document.getElementById('carousel-track');
+        const items = [GAMES[0], GAMES[1], GAMES[2]];
+        track.innerHTML = items.map(g => `
+            <div class="carousel-slide" style="background-image: linear-gradient(90deg, rgba(0,0,0,0.8), transparent), url('https://picsum.photos/1200/400?sig=${g.id}')">
+                <div class="slide-box">
+                    <h2 style="font-family:Orbitron; margin:0">${g.name}</h2>
+                    <button class="btn-cyber" onclick="app.playGame(${g.id}, '${g.url}')">PLAY NOW</button>
+                </div>
+            </div>
+        `).join('');
+        setInterval(() => {
+            this.idx = (this.idx + 1) % 3;
+            track.style.transform = `translateX(-${this.idx * 100}%)`;
+        }, 5000);
+    }
+};
+
+window.onload = () => app.init();
