@@ -57,16 +57,42 @@
         .stat label { display: block; font-size: 10px; color: #aaa; }
         .stat span { font-weight: bold; font-size: 14px; color: var(--border-neon); }
 
-        /* 虛擬手把縮小，避免推擠畫面 */
-        #controls {
-            display: grid; grid-template-areas: ". up ." "left . right" ". down .";
-            gap: 10px; margin-top: 15px; padding-bottom: 10px;
-        }
-        .control-btn {
-            width: 50px; height: 50px; background: rgba(255,255,255,0.1);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2em; border: 1px solid rgba(255,255,255,0.2);
-        }
+        /* 虛擬手把優化：加大並調整位置 */
+#controls {
+    display: grid; 
+    grid-template-areas: 
+        ". up ." 
+        "left . right" 
+        ". down .";
+    gap: 15px; /* 增加間距避免誤觸 */
+    margin-top: 25px; 
+    padding-bottom: 30px;
+    touch-action: none; /* 防止滑動畫面 */
+}
+
+.control-btn {
+    width: 65px;  /* 從 50px 加大到 65px */
+    height: 65px; 
+    background: rgba(0, 242, 254, 0.15); /* 增加一點底色 */
+    border-radius: 15px; /* 改成圓角方塊更好按 */
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    font-size: 1.8em; /* 圖標變大 */
+    border: 2px solid var(--neon-cyan); /* 線條加粗 */
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+    color: white;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent; /* 移除手機點擊灰色框 */
+}
+
+/* 點擊時的視覺反饋 */
+.control-btn:active {
+    background: var(--neon-cyan);
+    color: #000;
+    transform: scale(0.9); /* 按下去有縮小效果 */
+    box-shadow: 0 0 20px var(--neon-cyan);
+}
 
         #overlay {
             position: fixed; inset: 0; background: rgba(0,0,5,0.9);
