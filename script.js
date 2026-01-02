@@ -9,7 +9,7 @@ const GAMES = [
     { id: 7, name: "技術流飛鏢", cat: "街機", icon: "🎯", url: "darts.html", col: "#e52d27" },
     { id: 8, name: "猜數字 100", cat: "益智", icon: "❓", url: "guess100.html", col: "#2193b0" },
     { id: 9, name: "記憶對對碰", cat: "多人", icon: "🧠", url: "pair.html", col: "#6A11CB" },
-    { id: 10, name: "經典貪食蛇", cat: "街機", icon: "🐍", url: "FF8C00", col: "#FF8C00" },
+    { id: 10, name: "經典貪食蛇", cat: "街機", icon: "🐍", url: "snack.html", col: "#FF8C00" },
     { id: 11, name: "幾A幾B", cat: "益智", icon: "🔢", url: "ab.html", col: "#00dbde" },
     { id: 12, name: "打磚塊", cat: "街機", icon: "🧱", url: "breakout.html", col: "#3a7bd5" },
     { id: 13, name: "極速穿梭", cat: "街機", icon: "🚀", url: "flappy.html", col: "#DD2476" },
@@ -192,3 +192,4 @@ const carousel = {
 };
 
 window.onload = () => app.init();
+
