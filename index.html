@@ -12,9 +12,25 @@
     <div class="grid-bg"></div>
 
     <header>
-        <div class="logo">NEON<span>ARCADE</span></div>
-        <p class="subtitle">SYSTEM ONLINE - ALL MODULES LOADED</p>
-    </header>
+    <div class="logo">NEON<span>ARCADE</span></div>
+    <p class="subtitle">MULTI-MODULE GAMING SYSTEM</p>
+
+    <div class="header-nav">
+        <div class="filter-group">
+            <div class="btn-group">
+                <button class="btn btn-cat active" onclick="filterType('all', this)">全部</button>
+                <button class="btn btn-cat" onclick="filterType('街機', this)">街機</button>
+                <button class="btn btn-cat" onclick="filterType('益智', this)">益智</button>
+                <button class="btn btn-cat" onclick="filterType('多人', this)">多人</button>
+            </div>
+            
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="game-search" placeholder="搜尋遊戲..." onkeyup="searchGames()">
+            </div>
+        </div>
+    </div>
+</header>
 
     <section id="hero-carousel">
         <div class="carousel-container">
@@ -137,3 +153,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
