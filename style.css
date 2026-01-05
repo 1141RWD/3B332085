@@ -61,3 +61,25 @@ body {
 .modal-content input { width: 100%; padding: 10px; background: #000; border: 1px solid var(--neon); color: #fff; }
 
 .nav-container { padding: 10px 5%; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+/* 遊戲卡片飄入動畫 */
+@keyframes floatUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px); /* 從下方 30px 開始 */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 用來觸發動畫的類別 */
+.fade-in-up {
+    animation: floatUp 0.5s ease-out forwards;
+}
+
+/* 讓網格內的卡片稍微有一點間隔感的出現 (選配) */
+.game-grid .card {
+    opacity: 0; /* 初始透明，由動畫帶回 1 */
+}
