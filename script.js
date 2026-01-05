@@ -36,7 +36,8 @@ const app = {
 
     render() {
         const grid = document.getElementById('game-grid');
-        const search = document.getElementById('game-search').value.toLowerCase();
+        const searchInput = document.getElementById('game-search');
+        const search = searchInput ? searchInput.value.toLowerCase() : "";
         const userData = this.user;
 
         const filtered = GAMES.filter(g => {
@@ -46,7 +47,8 @@ const app = {
             return matchSearch && matchCat;
         });
 
-        grid.innerHTML = filtered.map(g => {
+        // 渲染 HTML
+        grid.innerHTML = filtered.map((g, index) => {
             const plays = userData.playCounts[g.id] || 0;
             const isFav = userData.favs.includes(g.id);
 
@@ -56,10 +58,10 @@ const app = {
                 const r = this.allData[name].reviews?.[g.id] || [];
                 allReviews = allReviews.concat(r);
             });
-            allReviews.sort((a, b) => b.time - a.time); // 最新留言在前
+            allReviews.sort((a, b) => b.time - a.time);
 
             return `
-            <div class="card">
+            <div class="card fade-in-up" style="animation-delay: ${index * 0.05}s">
                 <span onclick="app.toggleFav(${g.id})" style="position:absolute; top:10px; right:10px; cursor:pointer; color:${isFav?'var(--pink)':'#444'}; font-size:1.5rem; z-index:10">${isFav?'★':'☆'}</span>
                 <div class="card-img" style="background:linear-gradient(135deg, ${g.col}, #000)" onclick="app.playGame(${g.id}, '${g.url}')">${g.icon}</div>
                 <div class="card-body">
@@ -68,7 +70,7 @@ const app = {
                     
                     <div class="review-area" style="max-height:80px; overflow-y:auto; background:rgba(0,0,0,0.3); padding:5px; border-radius:5px; margin-bottom:5px;">
                         ${allReviews.length > 0 ? allReviews.map(rev => `
-                            <div style="font-size:0.7rem; margin-bottom:3px; border-bottom:1px solid #222;">
+                            <div class="msg" style="font-size:0.7rem; margin-bottom:3px; border-bottom:1px solid rgba(255,255,255,0.05);">
                                 <b style="color:var(--pink)">@${rev.user}</b>: ${rev.text}
                             </div>
                         `).join('') : '<span style="color:#555; font-size:0.7rem;">尚無評論</span>'}
@@ -81,21 +83,10 @@ const app = {
                 </div>
             </div>`;
         }).join('');
-        // --- 關鍵：每次切換標籤時，重置動畫 ---
-    const cards = grid.querySelectorAll('.card');
-    cards.forEach((card, index) => {
-        // 讓卡片一個接一個飄上來 (交錯感)
-        card.style.animationDelay = `${index * 0.05}s`;
-        
-        // 先移除類別再重新加上，確保動畫每次都會跑
-        card.classList.remove('fade-in-up');
-        void card.offsetWidth; // 強制重繪 (Reflow)
-        card.classList.add('fade-in-up');
-    });
     },
 
     save(updatedData) {
-        if (this.currentUser) {
+        if (this.currentUser && this.currentUser !== "訪客") {
             this.allData[this.currentUser] = { ...updatedData, isLoggedIn: true, name: this.currentUser };
             localStorage.setItem('neon_multi_user_save', JSON.stringify(this.allData));
         }
@@ -105,9 +96,11 @@ const app = {
         if (!this.currentUser) return ui.toggleAuthModal(true);
         let d = this.user;
         d.playCounts[id] = (d.playCounts[id] || 0) + 1;
-        d.exp += 50; 
-        if (d.exp >= d.level * 200) d.level++;
-        this.save(d);
+        if (this.currentUser !== "訪客") {
+            d.exp += 50; 
+            if (d.exp >= d.level * 200) d.level++;
+            this.save(d);
+        }
         ui.updateStatus();
         this.render();
         setTimeout(() => window.location.href = url, 300);
@@ -124,7 +117,7 @@ const app = {
     },
 
     addReview(id) {
-        if (!this.currentUser) return ui.toggleAuthModal(true);
+        if (!this.currentUser || this.currentUser === "訪客") return ui.toggleAuthModal(true);
         const input = document.getElementById(`in-${id}`);
         const text = input.value.trim();
         if (!text) return;
@@ -153,11 +146,12 @@ const ui = {
         const isLight = document.body.classList.contains('light-mode');
         const themeBtn = `<button class="btn-cyber" style="margin-right:10px" onclick="ui.toggleTheme()">${isLight?'🌙':'☀️'}</button>`;
         if (app.currentUser) {
-            section.innerHTML = themeBtn + `<span style="margin-right:10px; color:var(--neon)">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
+            const isGuest = app.currentUser === "訪客";
+            section.innerHTML = themeBtn + `<span style="margin-right:10px; color:${isGuest?'#888':'var(--neon)'}">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
             document.getElementById('player-status-bar').style.display = 'flex';
-            document.getElementById('p-level').innerText = app.user.level;
-            document.getElementById('p-score').innerText = "ONLINE";
-            document.getElementById('p-exp-fill').style.width = `${(app.user.exp % (app.user.level * 200)) / (app.user.level * 2)}%`;
+            document.getElementById('p-level').innerText = isGuest ? "--" : app.user.level;
+            document.getElementById('p-score').innerText = isGuest ? "GUEST" : "ONLINE";
+            document.getElementById('p-exp-fill').style.width = isGuest ? "0%" : `${(app.user.exp % (app.user.level * 200)) / (app.user.level * 2)}%`;
         } else {
             section.innerHTML = themeBtn + `<button class="btn-cyber" onclick="ui.toggleAuthModal(true)">LOGIN</button>`;
             document.getElementById('player-status-bar').style.display = 'none';
@@ -174,15 +168,28 @@ const ui = {
 };
 
 const account = {
+    register() {
+        const name = document.getElementById('auth-user').value.trim();
+        if (!name || name === "訪客") return alert("請輸入有效的特工代號");
+        if (app.allData[name]) return alert("此代號已存在");
+        app.allData[name] = { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
+        this.completeAuth(name);
+    },
     login() {
         const name = document.getElementById('auth-user').value.trim();
-        if (!name) return;
+        if (!app.allData[name]) return alert("帳號不存在，請先註冊");
+        this.completeAuth(name);
+    },
+    guestMode() {
+        app.currentUser = "訪客";
+        ui.toggleAuthModal(false);
+        ui.updateStatus();
+        app.render();
+    },
+    completeAuth(name) {
         app.currentUser = name;
         localStorage.setItem('neon_last_user', name);
-        if (!app.allData[name]) {
-            app.allData[name] = { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
-        }
-        app.save(app.allData[name]);
+        app.save(app.user);
         ui.toggleAuthModal(false);
         ui.updateStatus();
         app.render();
@@ -197,6 +204,7 @@ const carousel = {
     idx: 0,
     init() {
         const track = document.getElementById('carousel-track');
+        if(!track) return;
         const items = [GAMES[0], GAMES[1], GAMES[2]];
         track.innerHTML = items.map(g => `
             <div class="carousel-slide" style="background-image: linear-gradient(90deg, rgba(0,0,0,0.8), transparent), url('https://picsum.photos/1200/400?sig=${g.id}')">
@@ -214,4 +222,3 @@ const carousel = {
 };
 
 window.onload = () => app.init();
-
