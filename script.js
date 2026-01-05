@@ -1,5 +1,5 @@
 /**
- * 霓虹遊戲大廳 - 核心邏輯整合版
+ * 霓虹遊戲大廳 - 核心邏輯整合版 (修正平移動畫)
  */
 const GAMES = [
     { id: 1, name: "Horror Farm", cat: "街機", icon: "👨‍🌾", url: "farmer.html", col: "#FF512F" },
@@ -23,7 +23,6 @@ const app = {
     currentUser: localStorage.getItem('neon_last_user') || null,
     allData: JSON.parse(localStorage.getItem('neon_multi_user_save')) || {},
 
-    // 獲取當前使用者的獨立資料 (訪客則回傳暫存檔)
     get user() {
         if (!this.currentUser || !this.allData[this.currentUser]) {
             return { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
@@ -52,11 +51,11 @@ const app = {
             return matchSearch && matchCat;
         });
 
-        grid.innerHTML = filtered.map(g => {
+        // 加上 index 來計算 animation-delay
+        grid.innerHTML = filtered.map((g, index) => {
             const plays = userData.playCounts[g.id] || 0;
             const isFav = userData.favs.includes(g.id);
 
-            // 抓取「所有帳號」對這款遊戲的留言
             let allReviews = [];
             Object.keys(this.allData).forEach(userName => {
                 const userReviews = this.allData[userName].reviews?.[g.id] || [];
@@ -64,8 +63,9 @@ const app = {
             });
             allReviews.sort((a, b) => b.time - a.time);
 
+            // 這裡加入了 fade-in-up 類別與動態延遲，實現慢慢平移出現
             return `
-            <div class="card">
+            <div class="card fade-in-up" style="animation-delay: ${index * 0.04}s">
                 <span onclick="app.toggleFav(${g.id})" style="position:absolute; top:10px; right:10px; cursor:pointer; color:${isFav?'var(--pink)':'#444'}; font-size:1.5rem; z-index:10">${isFav?'★':'☆'}</span>
                 <div class="card-img" style="background:linear-gradient(135deg, ${g.col}, #000)" onclick="app.playGame(${g.id}, '${g.url}')">${g.icon}</div>
                 <div class="card-body">
@@ -90,6 +90,11 @@ const app = {
                 </div>
             </div>`;
         }).join('');
+
+        // 觸發重繪確保動畫每次分類切換都會跑
+        grid.style.display = 'none';
+        grid.offsetHeight; 
+        grid.style.display = 'grid';
     },
 
     save(updatedData) {
@@ -103,14 +108,11 @@ const app = {
         if (!this.currentUser) return ui.toggleAuthModal(true);
         let d = this.user;
         d.playCounts[id] = (d.playCounts[id] || 0) + 1;
-        
-        // 只有非訪客可以獲得經驗
         if (this.currentUser !== "訪客") {
             d.exp += 50; 
             if (d.exp >= d.level * 200) d.level++;
             this.save(d);
         }
-        
         ui.updateStatus();
         this.render();
         setTimeout(() => window.location.href = url, 300);
@@ -122,7 +124,6 @@ const app = {
         if (!d.favs) d.favs = [];
         const idx = d.favs.indexOf(id);
         idx > -1 ? d.favs.splice(idx, 1) : d.favs.push(id);
-        
         this.save(d);
         this.render();
     },
@@ -132,15 +133,9 @@ const app = {
         const input = document.getElementById(`in-${id}`);
         const text = input.value.trim();
         if (!text) return;
-        
         let d = this.user;
         if (!d.reviews[id]) d.reviews[id] = [];
-        d.reviews[id].unshift({
-            user: this.currentUser,
-            text: text,
-            time: Date.now()
-        });
-        
+        d.reviews[id].unshift({ user: this.currentUser, text: text, time: Date.now() });
         input.value = '';
         this.save(d);
         this.render();
@@ -156,33 +151,27 @@ const app = {
 
 const ui = {
     toggleAuthModal(show) { document.getElementById('auth-modal').style.display = show ? 'flex' : 'none'; },
-    
     updateStatus() {
         const section = document.getElementById('user-section');
         const isLight = document.body.classList.contains('light-mode');
         const themeBtn = `<button class="btn-cyber" style="margin-right:10px" onclick="ui.toggleTheme()">${isLight?'🌙':'☀️'}</button>`;
-        
         if (app.currentUser) {
             const isGuest = app.currentUser === "訪客";
             section.innerHTML = themeBtn + `<span style="margin-right:10px; color:${isGuest?'#aaa':'var(--neon)'}">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
-            
             document.getElementById('player-status-bar').style.display = 'flex';
             const d = app.user;
             document.getElementById('p-level').innerText = isGuest ? "--" : d.level;
-            document.getElementById('p-score').innerText = isGuest ? "GUEST" : "ONLINE";
             document.getElementById('p-exp-fill').style.width = isGuest ? "0%" : `${(d.exp % (d.level * 200)) / (d.level * 2)}%`;
         } else {
             section.innerHTML = themeBtn + `<button class="btn-cyber" onclick="ui.toggleAuthModal(true)">LOGIN</button>`;
             document.getElementById('player-status-bar').style.display = 'none';
         }
     },
-
     toggleTheme() {
         const isLight = document.body.classList.toggle('light-mode');
         localStorage.setItem('neon_theme', isLight ? 'light' : 'dark');
         this.updateStatus();
     },
-
     loadTheme() {
         if (localStorage.getItem('neon_theme') === 'light') document.body.classList.add('light-mode');
     }
@@ -191,39 +180,31 @@ const ui = {
 const account = {
     register() {
         const name = document.getElementById('auth-user').value.trim();
-        if (!name) return alert("請輸入代號");
-        if (name === "訪客") return alert("不合法的名稱");
-        if (app.allData[name]) return alert("此帳號已存在，請直接登入");
-
+        if (!name || name === "訪客") return alert("代號無效");
+        if (app.allData[name]) return alert("此帳號已存在");
         app.allData[name] = { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
         app.currentUser = name;
         localStorage.setItem('neon_last_user', name);
         app.save(app.allData[name]);
-        
         ui.toggleAuthModal(false);
         ui.updateStatus();
         app.render();
     },
-
     login() {
         const name = document.getElementById('auth-user').value.trim();
-        if (!name) return alert("請輸入代號");
-        if (!app.allData[name]) return alert("帳號不存在，請先註冊");
-
+        if (!app.allData[name]) return alert("帳號不存在");
         app.currentUser = name;
         localStorage.setItem('neon_last_user', name);
         ui.toggleAuthModal(false);
         ui.updateStatus();
         app.render();
     },
-
     guestMode() {
         app.currentUser = "訪客";
         ui.toggleAuthModal(false);
         ui.updateStatus();
         app.render();
     },
-
     logout() {
         localStorage.removeItem('neon_last_user');
         location.reload();
