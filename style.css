@@ -61,3 +61,29 @@ body {
 .modal-content input { width: 100%; padding: 10px; background: #000; border: 1px solid var(--neon); color: #fff; }
 
 .nav-container { padding: 10px 5%; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; } 
+/* --- 修改動畫定義：移除透明度變化 --- */
+@keyframes slideUp {
+    from { 
+        transform: translateY(50px); /* 從下方 50px 開始 */
+    }
+    to { 
+        transform: translateY(0);    /* 回到原位 */
+    }
+}
+
+/* 遊戲卡片基礎樣式 */
+.card { 
+    background: var(--card); 
+    border: 1px solid var(--border); 
+    border-radius: 10px; 
+    overflow: hidden; 
+    transition: 0.3s; 
+    position: relative;
+    /* 預設就不透明 */
+    opacity: 1; 
+}
+
+/* 觸發平移動畫的類別 */
+.fade-in-up {
+    animation: slideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
