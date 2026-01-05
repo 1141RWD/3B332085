@@ -22,7 +22,7 @@ const app = {
 
     get user() {
         if (!this.currentUser || !this.allData[this.currentUser]) {
-            return { isLoggedIn: false, name: '', level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
+            return { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
         }
         return this.allData[this.currentUser];
     },
@@ -31,7 +31,6 @@ const app = {
         ui.loadTheme();
         ui.updateStatus();
         this.render();
-        carousel.init();
     },
 
     render() {
@@ -39,6 +38,7 @@ const app = {
         const searchInput = document.getElementById('game-search');
         const search = searchInput ? searchInput.value.toLowerCase() : "";
         const userData = this.user;
+        const isGuest = this.currentUser === "訪客";
 
         const filtered = GAMES.filter(g => {
             const matchSearch = g.name.toLowerCase().includes(search);
@@ -47,18 +47,15 @@ const app = {
             return matchSearch && matchCat;
         });
 
-        // 渲染 HTML
         grid.innerHTML = filtered.map((g, index) => {
             const plays = userData.playCounts[g.id] || 0;
             const isFav = userData.favs.includes(g.id);
 
-            // 抓取所有人的留言
-            let allReviews = [];
-            Object.keys(this.allData).forEach(name => {
-                const r = this.allData[name].reviews?.[g.id] || [];
-                allReviews = allReviews.concat(r);
+            let reviews = [];
+            Object.values(this.allData).forEach(u => {
+                if(u.reviews && u.reviews[g.id]) reviews = reviews.concat(u.reviews[g.id]);
             });
-            allReviews.sort((a, b) => b.time - a.time);
+            reviews.sort((a,b) => b.time - a.time);
 
             return `
             <div class="card fade-in-up" style="animation-delay: ${index * 0.05}s">
@@ -66,28 +63,23 @@ const app = {
                 <div class="card-img" style="background:linear-gradient(135deg, ${g.col}, #000)" onclick="app.playGame(${g.id}, '${g.url}')">${g.icon}</div>
                 <div class="card-body">
                     <h3 style="margin:0">${g.name}</h3>
-                    <div style="font-size:0.75rem; color:var(--neon); margin:5px 0">總遊玩次數: ${plays}</div>
-                    
-                    <div class="review-area" style="max-height:80px; overflow-y:auto; background:rgba(0,0,0,0.3); padding:5px; border-radius:5px; margin-bottom:5px;">
-                        ${allReviews.length > 0 ? allReviews.map(rev => `
-                            <div class="msg" style="font-size:0.7rem; margin-bottom:3px; border-bottom:1px solid rgba(255,255,255,0.05);">
-                                <b style="color:var(--pink)">@${rev.user}</b>: ${rev.text}
-                            </div>
-                        `).join('') : '<span style="color:#555; font-size:0.7rem;">尚無評論</span>'}
+                    <p style="font-size:0.7rem; color:var(--neon); margin:5px 0">PLAYED: ${plays}</p>
+                    <div class="review-area">
+                        ${reviews.length > 0 ? reviews.map(r => `<div class="msg"><b style="color:var(--pink)">@${r.user}</b>: ${r.text}</div>`).join('') : '<div style="color:#444">尚無回報</div>'}
                     </div>
-
                     <div style="display:flex; gap:5px">
-                        <input type="text" id="in-${g.id}" placeholder="評論..." style="flex:1; background:#000; border:1px solid #333; color:#fff; font-size:0.7rem; padding:5px;">
-                        <button class="btn-cyber" style="padding:2px 8px" onclick="app.addReview(${g.id})">送出</button>
+                        ${isGuest ? `<small style="color:#666; width:100%; text-align:center">登入後即可留言</small>` : 
+                        `<input type="text" id="in-${g.id}" placeholder="回報內容..." style="flex:1; background:#000; border:1px solid #333; color:#fff; font-size:0.7rem;">
+                         <button class="btn-cyber" style="padding:2px 8px" onclick="app.addReview(${id})">GO</button>`}
                     </div>
                 </div>
             </div>`;
         }).join('');
     },
 
-    save(updatedData) {
+    save(data) {
         if (this.currentUser && this.currentUser !== "訪客") {
-            this.allData[this.currentUser] = { ...updatedData, isLoggedIn: true, name: this.currentUser };
+            this.allData[this.currentUser] = { ...data, name: this.currentUser };
             localStorage.setItem('neon_multi_user_save', JSON.stringify(this.allData));
         }
     },
@@ -97,7 +89,7 @@ const app = {
         let d = this.user;
         d.playCounts[id] = (d.playCounts[id] || 0) + 1;
         if (this.currentUser !== "訪客") {
-            d.exp += 50; 
+            d.exp += 50;
             if (d.exp >= d.level * 200) d.level++;
             this.save(d);
         }
@@ -109,24 +101,19 @@ const app = {
     toggleFav(id) {
         if (!this.currentUser) return ui.toggleAuthModal(true);
         let d = this.user;
-        if(!d.favs) d.favs = [];
-        const idx = d.favs.indexOf(id);
-        idx > -1 ? d.favs.splice(idx, 1) : d.favs.push(id);
+        d.favs = d.favs || [];
+        const i = d.favs.indexOf(id);
+        i > -1 ? d.favs.splice(i, 1) : d.favs.push(id);
         this.save(d);
         this.render();
     },
 
     addReview(id) {
-        if (!this.currentUser || this.currentUser === "訪客") return ui.toggleAuthModal(true);
-        const input = document.getElementById(`in-${id}`);
-        const text = input.value.trim();
-        if (!text) return;
-        
+        const txt = document.getElementById(`in-${id}`).value.trim();
+        if (!txt) return;
         let d = this.user;
-        if (!d.reviews[id]) d.reviews[id] = [];
-        d.reviews[id].unshift({ user: this.currentUser, text: text, time: Date.now() });
-        
-        input.value = '';
+        d.reviews[id] = d.reviews[id] || [];
+        d.reviews[id].unshift({ user: this.currentUser, text: txt, time: Date.now() });
         this.save(d);
         this.render();
     },
@@ -140,26 +127,27 @@ const app = {
 };
 
 const ui = {
-    toggleAuthModal(show) { document.getElementById('auth-modal').style.display = show ? 'flex' : 'none'; },
+    toggleAuthModal(s) { document.getElementById('auth-modal').style.display = s ? 'flex' : 'none'; },
     updateStatus() {
-        const section = document.getElementById('user-section');
-        const isLight = document.body.classList.contains('light-mode');
-        const themeBtn = `<button class="btn-cyber" style="margin-right:10px" onclick="ui.toggleTheme()">${isLight?'🌙':'☀️'}</button>`;
+        const sec = document.getElementById('user-section');
+        const isL = document.body.classList.contains('light-mode');
+        const themeBtn = `<button class="btn-cyber" style="margin-right:10px" onclick="ui.toggleTheme()">${isL?'🌙':'☀️'}</button>`;
+        
         if (app.currentUser) {
-            const isGuest = app.currentUser === "訪客";
-            section.innerHTML = themeBtn + `<span style="margin-right:10px; color:${isGuest?'#888':'var(--neon)'}">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
+            const isG = app.currentUser === "訪客";
+            sec.innerHTML = themeBtn + `<span style="margin-right:10px; color:${isG?'#777':'var(--neon)'}">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
             document.getElementById('player-status-bar').style.display = 'flex';
-            document.getElementById('p-level').innerText = isGuest ? "--" : app.user.level;
-            document.getElementById('p-score').innerText = isGuest ? "GUEST" : "ONLINE";
-            document.getElementById('p-exp-fill').style.width = isGuest ? "0%" : `${(app.user.exp % (app.user.level * 200)) / (app.user.level * 2)}%`;
+            const d = app.user;
+            document.getElementById('p-level').innerText = isG ? "--" : d.level;
+            document.getElementById('p-exp-fill').style.width = isG ? "0%" : `${(d.exp % (d.level * 200)) / (d.level * 2)}%`;
         } else {
-            section.innerHTML = themeBtn + `<button class="btn-cyber" onclick="ui.toggleAuthModal(true)">LOGIN</button>`;
+            sec.innerHTML = themeBtn + `<button class="btn-cyber" onclick="ui.toggleAuthModal(true)">LOGIN</button>`;
             document.getElementById('player-status-bar').style.display = 'none';
         }
     },
     toggleTheme() {
-        const isLight = document.body.classList.toggle('light-mode');
-        localStorage.setItem('neon_theme', isLight ? 'light' : 'dark');
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('neon_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         this.updateStatus();
     },
     loadTheme() {
@@ -169,16 +157,15 @@ const ui = {
 
 const account = {
     register() {
-        const name = document.getElementById('auth-user').value.trim();
-        if (!name || name === "訪客") return alert("請輸入有效的特工代號");
-        if (app.allData[name]) return alert("此代號已存在");
-        app.allData[name] = { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
-        this.completeAuth(name);
+        const n = document.getElementById('auth-user').value.trim();
+        if(!n || n === "訪客" || app.allData[n]) return alert("名稱無效或已存在");
+        app.allData[n] = { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
+        this.success(n);
     },
     login() {
-        const name = document.getElementById('auth-user').value.trim();
-        if (!app.allData[name]) return alert("帳號不存在，請先註冊");
-        this.completeAuth(name);
+        const n = document.getElementById('auth-user').value.trim();
+        if(!app.allData[n]) return alert("帳號不存在");
+        this.success(n);
     },
     guestMode() {
         app.currentUser = "訪客";
@@ -186,9 +173,9 @@ const account = {
         ui.updateStatus();
         app.render();
     },
-    completeAuth(name) {
-        app.currentUser = name;
-        localStorage.setItem('neon_last_user', name);
+    success(n) {
+        app.currentUser = n;
+        localStorage.setItem('neon_last_user', n);
         app.save(app.user);
         ui.toggleAuthModal(false);
         ui.updateStatus();
@@ -197,27 +184,6 @@ const account = {
     logout() {
         localStorage.removeItem('neon_last_user');
         location.reload();
-    }
-};
-
-const carousel = {
-    idx: 0,
-    init() {
-        const track = document.getElementById('carousel-track');
-        if(!track) return;
-        const items = [GAMES[0], GAMES[1], GAMES[2]];
-        track.innerHTML = items.map(g => `
-            <div class="carousel-slide" style="background-image: linear-gradient(90deg, rgba(0,0,0,0.8), transparent), url('https://picsum.photos/1200/400?sig=${g.id}')">
-                <div class="slide-box">
-                    <h2 style="font-family:Orbitron; margin:0">${g.name}</h2>
-                    <button class="btn-cyber" onclick="app.playGame(${g.id}, '${g.url}')">PLAY NOW</button>
-                </div>
-            </div>
-        `).join('');
-        setInterval(() => {
-            this.idx = (this.idx + 1) % 3;
-            track.style.transform = `translateX(-${this.idx * 100}%)`;
-        }, 5000);
     }
 };
 
