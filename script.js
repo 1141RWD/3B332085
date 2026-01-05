@@ -81,6 +81,17 @@ const app = {
                 </div>
             </div>`;
         }).join('');
+        // --- 關鍵：每次切換標籤時，重置動畫 ---
+    const cards = grid.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        // 讓卡片一個接一個飄上來 (交錯感)
+        card.style.animationDelay = `${index * 0.05}s`;
+        
+        // 先移除類別再重新加上，確保動畫每次都會跑
+        card.classList.remove('fade-in-up');
+        void card.offsetWidth; // 強制重繪 (Reflow)
+        card.classList.add('fade-in-up');
+    });
     },
 
     save(updatedData) {
@@ -203,3 +214,4 @@ const carousel = {
 };
 
 window.onload = () => app.init();
+
