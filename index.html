@@ -13,8 +13,7 @@
 
     <header class="main-header">
         <div class="logo">NEON<span>ARCADE</span></div>
-        <div id="user-section">
-            </div>
+        <div id="user-section"></div>
     </header>
 
     <div id="player-status-bar" class="status-bar">
@@ -22,12 +21,11 @@
         <div class="exp-container">
             <div id="p-exp-fill" class="exp-fill"></div>
         </div>
-        <div class="status-item">TOTAL SCORE: <span id="p-score">0</span></div>
+        <div class="status-item">STATUS: <span id="p-score">OFFLINE</span></div>
     </div>
 
     <section class="hero-carousel">
         <div class="carousel-track" id="carousel-track"></div>
-        <div class="carousel-dots" id="carousel-dots"></div>
     </section>
 
     <div class="nav-container">
@@ -36,10 +34,10 @@
             <button class="btn-cyber" onclick="app.setCategory('街機', this)">街機</button>
             <button class="btn-cyber" onclick="app.setCategory('益智', this)">益智</button>
             <button class="btn-cyber" onclick="app.setCategory('多人', this)">多人</button>
-            <button class="btn-cyber" onclick="app.setCategory('fav', this)">★ 收藏</button>
+            <button class="btn-cyber" style="color:var(--pink); border-color:var(--pink)" onclick="app.setCategory('fav', this)">★ 收藏</button>
         </div>
         <div class="search-box">
-            <input type="text" id="game-search" placeholder="搜尋遊戲..." onkeyup="app.render()">
+            <input type="text" id="game-search" placeholder="搜尋任務..." onkeyup="app.render()">
         </div>
     </div>
 
@@ -47,11 +45,17 @@
 
     <div id="auth-modal" class="modal">
         <div class="modal-content">
-            <h2 style="color:var(--neon)">系統登入</h2>
-            <p style="font-size: 0.8rem; opacity: 0.7;">請輸入特工代號以儲存進度</p>
-            <input type="text" id="auth-user" placeholder="輸入名稱...">
-            <button class="btn-cyber" style="width:100%; margin-top:15px;" onclick="account.login()">進入系統</button>
-            <button onclick="ui.toggleAuthModal(false)" style="background:none; border:none; color:#666; margin-top:10px; cursor:pointer;">取消</button>
+            <h2 style="color:var(--neon); font-family:'Orbitron'">系統身份驗證</h2>
+            <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 20px;">請輸入特工代號以讀取存檔</p>
+            <input type="text" id="auth-user" placeholder="輸入代號..." style="width:100%; padding:10px; background:#000; border:1px solid var(--neon); color:#fff; margin-bottom:15px; font-family:'Orbitron'">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="btn-cyber" onclick="account.login()">登入系統</button>
+                <button class="btn-cyber" style="border-color:var(--pink); color:var(--pink)" onclick="account.register()">註冊新號</button>
+            </div>
+            
+            <button class="btn-cyber" style="width:100%; margin-top:10px; border-color:#555; color:#888" onclick="account.guestMode()">以訪客身份進入</button>
+            <button onclick="ui.toggleAuthModal(false)" style="background:none; border:none; color:#666; margin-top:15px; cursor:pointer;">取消</button>
         </div>
     </div>
 
