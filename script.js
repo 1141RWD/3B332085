@@ -1,5 +1,6 @@
 /**
- * 霓虹遊戲大廳 - 核心邏輯整合版 (修正平移動畫)
+ * 霓虹遊戲大廳 - 核心邏輯修正版
+ * 修正：不透明平移出現、帳號註冊/登入整合
  */
 const GAMES = [
     { id: 1, name: "Horror Farm", cat: "街機", icon: "👨‍🌾", url: "farmer.html", col: "#FF512F" },
@@ -51,47 +52,38 @@ const app = {
             return matchSearch && matchCat;
         });
 
-        // 加上 index 來計算 animation-delay
         grid.innerHTML = filtered.map((g, index) => {
             const plays = userData.playCounts[g.id] || 0;
             const isFav = userData.favs.includes(g.id);
 
+            // 抓取所有玩家對該遊戲的評論
             let allReviews = [];
-            Object.keys(this.allData).forEach(userName => {
-                const userReviews = this.allData[userName].reviews?.[g.id] || [];
-                allReviews = allReviews.concat(userReviews);
+            Object.keys(this.allData).forEach(uName => {
+                const uRev = this.allData[uName].reviews?.[g.id] || [];
+                allReviews = allReviews.concat(uRev);
             });
             allReviews.sort((a, b) => b.time - a.time);
 
-            // 這裡加入了 fade-in-up 類別與動態延遲，實現慢慢平移出現
             return `
             <div class="card fade-in-up" style="animation-delay: ${index * 0.04}s">
                 <span onclick="app.toggleFav(${g.id})" style="position:absolute; top:10px; right:10px; cursor:pointer; color:${isFav?'var(--pink)':'#444'}; font-size:1.5rem; z-index:10">${isFav?'★':'☆'}</span>
                 <div class="card-img" style="background:linear-gradient(135deg, ${g.col}, #000)" onclick="app.playGame(${g.id}, '${g.url}')">${g.icon}</div>
                 <div class="card-body">
                     <h3 style="margin:0">${g.name}</h3>
-                    <div style="font-size:0.75rem; color:var(--neon); margin:5px 0">總遊玩次數: ${plays}</div>
-                    
-                    <div class="review-area" style="max-height:80px; overflow-y:auto; background:rgba(0,0,0,0.3); padding:8px; border-radius:5px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05)">
-                        ${allReviews.length > 0 ? allReviews.map(rev => `
-                            <div style="font-size:0.7rem; margin-bottom:5px; border-bottom:1px solid #222; padding-bottom:2px;">
-                                <b style="color:var(--pink)">@${rev.user}</b>: <span style="color:#ccc">${rev.text}</span>
-                            </div>
-                        `).join('') : '<div style="color:#555; font-size:0.7rem;">暫無回報...</div>'}
+                    <div style="font-size:0.75rem; color:var(--neon); margin:5px 0">PLAYED: ${plays}</div>
+                    <div class="review-area" style="max-height:60px; overflow-y:auto; background:rgba(0,0,0,0.3); padding:5px; border-radius:5px; margin-bottom:10px; border:1px solid rgba(255,255,255,0.05)">
+                        ${allReviews.length > 0 ? allReviews.map(r => `<div style="font-size:0.7rem; margin-bottom:2px;"><b style="color:var(--pink)">@${r.user}</b>: ${r.text}</div>`).join('') : '<div style="color:#444; font-size:0.7rem;">無戰況回報</div>'}
                     </div>
-
                     <div style="display:flex; gap:5px">
-                        ${isGuest ? 
-                            `<div style="font-size:0.7rem; color:#666; text-align:center; width:100%">登入後即可參與評論</div>` :
-                            `<input type="text" id="in-${g.id}" placeholder="回報戰況..." style="flex:1; background:#000; border:1px solid #333; color:#fff; font-size:0.7rem; padding:5px;">
-                             <button class="btn-cyber" style="padding:2px 8px" onclick="app.addReview(${g.id})">送出</button>`
-                        }
+                        ${isGuest ? `<div style="font-size:0.7rem; color:#666; width:100%; text-align:center">登入留言</div>` : 
+                        `<input type="text" id="in-${g.id}" placeholder="留言..." style="flex:1; background:#000; border:1px solid #333; color:#fff; font-size:0.7rem;">
+                         <button class="btn-cyber" style="padding:2px 8px" onclick="app.addReview(${g.id})">送出</button>`}
                     </div>
                 </div>
             </div>`;
         }).join('');
 
-        // 觸發重繪確保動畫每次分類切換都會跑
+        // 強制重繪觸發動畫
         grid.style.display = 'none';
         grid.offsetHeight; 
         grid.style.display = 'grid';
@@ -121,7 +113,7 @@ const app = {
     toggleFav(id) {
         if (!this.currentUser) return ui.toggleAuthModal(true);
         let d = this.user;
-        if (!d.favs) d.favs = [];
+        d.favs = d.favs || [];
         const idx = d.favs.indexOf(id);
         idx > -1 ? d.favs.splice(idx, 1) : d.favs.push(id);
         this.save(d);
@@ -129,12 +121,11 @@ const app = {
     },
 
     addReview(id) {
-        if (!this.currentUser || this.currentUser === "訪客") return;
         const input = document.getElementById(`in-${id}`);
         const text = input.value.trim();
         if (!text) return;
         let d = this.user;
-        if (!d.reviews[id]) d.reviews[id] = [];
+        d.reviews[id] = d.reviews[id] || [];
         d.reviews[id].unshift({ user: this.currentUser, text: text, time: Date.now() });
         input.value = '';
         this.save(d);
@@ -150,20 +141,22 @@ const app = {
 };
 
 const ui = {
-    toggleAuthModal(show) { document.getElementById('auth-modal').style.display = show ? 'flex' : 'none'; },
+    toggleAuthModal(s) { document.getElementById('auth-modal').style.display = s ? 'flex' : 'none'; },
     updateStatus() {
-        const section = document.getElementById('user-section');
-        const isLight = document.body.classList.contains('light-mode');
-        const themeBtn = `<button class="btn-cyber" style="margin-right:10px" onclick="ui.toggleTheme()">${isLight?'🌙':'☀️'}</button>`;
+        const sec = document.getElementById('user-section');
+        const isL = document.body.classList.contains('light-mode');
+        const themeBtn = `<button class="btn-cyber" style="margin-right:10px" onclick="ui.toggleTheme()">${isL?'🌙':'☀️'}</button>`;
+        
         if (app.currentUser) {
             const isGuest = app.currentUser === "訪客";
-            section.innerHTML = themeBtn + `<span style="margin-right:10px; color:${isGuest?'#aaa':'var(--neon)'}">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
+            sec.innerHTML = themeBtn + `<span style="margin-right:10px; color:${isGuest?'#aaa':'var(--neon)'}">${app.currentUser}</span><button class="btn-cyber" onclick="account.logout()">EXIT</button>`;
             document.getElementById('player-status-bar').style.display = 'flex';
             const d = app.user;
             document.getElementById('p-level').innerText = isGuest ? "--" : d.level;
+            document.getElementById('p-score').innerText = isGuest ? "GUEST" : "ONLINE";
             document.getElementById('p-exp-fill').style.width = isGuest ? "0%" : `${(d.exp % (d.level * 200)) / (d.level * 2)}%`;
         } else {
-            section.innerHTML = themeBtn + `<button class="btn-cyber" onclick="ui.toggleAuthModal(true)">LOGIN</button>`;
+            sec.innerHTML = themeBtn + `<button class="btn-cyber" onclick="ui.toggleAuthModal(true)">LOGIN</button>`;
             document.getElementById('player-status-bar').style.display = 'none';
         }
     },
@@ -179,22 +172,26 @@ const ui = {
 
 const account = {
     register() {
-        const name = document.getElementById('auth-user').value.trim();
-        if (!name || name === "訪客") return alert("代號無效");
-        if (app.allData[name]) return alert("此帳號已存在");
-        app.allData[name] = { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
-        app.currentUser = name;
-        localStorage.setItem('neon_last_user', name);
-        app.save(app.allData[name]);
+        const n = document.getElementById('auth-user').value.trim();
+        if (!n || n === "訪客") return alert("請輸入代號");
+        app.allData = JSON.parse(localStorage.getItem('neon_multi_user_save')) || {};
+        if (app.allData[n]) return alert("此代號已註冊");
+
+        app.allData[n] = { level: 1, exp: 0, favs: [], playCounts: {}, reviews: {} };
+        app.currentUser = n;
+        localStorage.setItem('neon_last_user', n);
+        localStorage.setItem('neon_multi_user_save', JSON.stringify(app.allData));
         ui.toggleAuthModal(false);
         ui.updateStatus();
         app.render();
     },
     login() {
-        const name = document.getElementById('auth-user').value.trim();
-        if (!app.allData[name]) return alert("帳號不存在");
-        app.currentUser = name;
-        localStorage.setItem('neon_last_user', name);
+        const n = document.getElementById('auth-user').value.trim();
+        app.allData = JSON.parse(localStorage.getItem('neon_multi_user_save')) || {};
+        if (!app.allData[n]) return alert("找不到此帳號，請點註冊");
+
+        app.currentUser = n;
+        localStorage.setItem('neon_last_user', n);
         ui.toggleAuthModal(false);
         ui.updateStatus();
         app.render();
